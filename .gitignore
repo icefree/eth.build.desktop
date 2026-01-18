@@ -1,36 +1,20 @@
-geth/geth.log
-geth/go-ethereum
-socket/coinmarketcap.key
-**/ganache*
-**/gamesaves
-**proxy/rpc*
-**/faucetPrivateKey*
-**/ganache.log
-**/mnemonic*
-**/server.key
-*/node_modules
-aws.json
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Rust
+src-tauri/target
+src-tauri/Cargo.lock
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Tauri generated files
+src-tauri/gen
 
-# testing
-/coverage
+# Node
+node_modules/
 
-# production
-/build
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# misc
+# OS
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.prettierignore
+Thumbs.db
