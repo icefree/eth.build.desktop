@@ -239,6 +239,7 @@ const ControlPanel = ({ open, onClose }) => {
           </div>
         )}
       </div>
+      </div>
     </div>
   );
 };
