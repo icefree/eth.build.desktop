@@ -3,3 +3,4 @@ pub mod accounts;
 pub mod mining;
 pub mod transactions;
 pub mod services;
+pub mod config;
