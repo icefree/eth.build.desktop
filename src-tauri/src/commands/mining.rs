@@ -3,12 +3,12 @@ use crate::AppState;
 use tauri::State;
 
 #[tauri::command]
-pub async fn mine_block(state: State<'_, AppState>) -> Result<BlockInfo, String> {
-    let mut local_network = state.local_network.lock().unwrap();
+pub async fn mine_block(state: tauri::State<'_, AppState>) -> Result<BlockInfo, String> {
+    let mut local_network = state.local_network.lock().await;
 
     match local_network.as_mut() {
         Some(network) => {
-            let block = network.mine_block()
+            let block = network.mine_block().await
                 .map_err(|e| format!("Failed to mine block: {}", e))?;
             Ok(block)
         }
@@ -20,13 +20,13 @@ pub async fn mine_block(state: State<'_, AppState>) -> Result<BlockInfo, String>
 pub async fn set_auto_mine(
     enabled: bool,
     interval_ms: Option<u64>,
-    state: State<'_, AppState>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
-    let mut local_network = state.local_network.lock().unwrap();
+    let mut local_network = state.local_network.lock().await;
 
     match local_network.as_mut() {
         Some(network) => {
-            network.set_auto_mine(enabled, interval_ms)
+            network.set_auto_mine(enabled, interval_ms).await
                 .map_err(|e| format!("Failed to set auto mine: {}", e))?;
             Ok(())
         }

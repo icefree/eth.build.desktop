@@ -7,18 +7,16 @@ mod services;
 
 use commands::{network, accounts, mining, transactions};
 use ethereum::local_network::LocalNetwork;
-use std::sync::Mutex;
-use tauri::State;
 
 struct AppState {
-    local_network: Mutex<Option<LocalNetwork>>,
+    local_network: tokio::sync::Mutex<Option<LocalNetwork>>,
 }
 
 #[tokio::main]
 async fn main() {
     tauri::Builder::default()
         .manage(AppState {
-            local_network: Mutex::new(None),
+            local_network: tokio::sync::Mutex::new(None),
         })
         .invoke_handler(tauri::generate_handler![
             network::start_local_network,

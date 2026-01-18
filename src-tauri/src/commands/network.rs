@@ -6,10 +6,10 @@ use tauri::State;
 #[tauri::command]
 pub async fn start_local_network(
     config: Option<NetworkConfig>,
-    state: State<'_, AppState>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<NetworkInfo, String> {
     let config = config.unwrap_or_default();
-    let mut local_network = state.local_network.lock().unwrap();
+    let mut local_network = state.local_network.lock().await;
 
     if local_network.is_some() {
         return Err("Network is already running".to_string());
@@ -28,8 +28,8 @@ pub async fn start_local_network(
 }
 
 #[tauri::command]
-pub async fn stop_local_network(state: State<'_, AppState>) -> Result<(), String> {
-    let mut local_network = state.local_network.lock().unwrap();
+pub async fn stop_local_network(state: tauri::State<'_, AppState>) -> Result<(), String> {
+    let mut local_network = state.local_network.lock().await;
 
     match local_network.as_mut() {
         Some(network) => {
@@ -43,8 +43,8 @@ pub async fn stop_local_network(state: State<'_, AppState>) -> Result<(), String
 }
 
 #[tauri::command]
-pub async fn get_network_status(state: State<'_, AppState>) -> Result<NetworkInfo, String> {
-    let local_network = state.local_network.lock().unwrap();
+pub async fn get_network_status(state: tauri::State<'_, AppState>) -> Result<NetworkInfo, String> {
+    let local_network = state.local_network.lock().await;
 
     match local_network.as_ref() {
         Some(network) => Ok(network.get_info()),
