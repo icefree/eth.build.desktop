@@ -1,0 +1,118 @@
+.faucet-container {
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin: 10px;
+}
+
+.faucet-container h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.faucet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.form-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #627eea;
+}
+
+.amount-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.amount-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.amount-btn:hover {
+  border-color: #627eea;
+  background: #f0f4ff;
+}
+
+.amount-btn.active {
+  background: #627eea;
+  color: white;
+  border-color: #627eea;
+}
+
+.faucet-btn {
+  padding: 10px 20px;
+  background: #627eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.faucet-btn:hover:not(:disabled) {
+  background: #5068c9;
+}
+
+.faucet-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  padding: 10px;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  color: #c33;
+  font-size: 14px;
+}
+
+.success-message {
+  padding: 10px;
+  background: #efe;
+  border: 1px solid #cfc;
+  border-radius: 4px;
+  color: #3c3;
+  font-size: 14px;
+}
+
+.tx-hash {
+  margin-top: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  word-break: break-all;
+}

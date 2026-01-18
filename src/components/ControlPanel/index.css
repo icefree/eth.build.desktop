@@ -1,0 +1,94 @@
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+}
+
+.control-panel-header {
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.control-panel-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.network-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.start-btn,
+.stop-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.start-btn {
+  background: #627eea;
+  color: white;
+}
+
+.start-btn:hover:not(:disabled) {
+  background: #5068c9;
+}
+
+.stop-btn {
+  background: #f66;
+  color: white;
+}
+
+.stop-btn:hover:not(:disabled) {
+  background: #d55;
+}
+
+.start-btn:disabled,
+.stop-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.control-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.network-offline {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+}
+
+.network-offline p {
+  margin: 10px 0;
+}
+
+.network-offline .hint {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.error-message {
+  padding: 12px 20px;
+  background: #fee;
+  border-bottom: 1px solid #fcc;
+  color: #c33;
+  font-size: 14px;
+}
