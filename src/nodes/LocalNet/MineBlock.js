@@ -36,6 +36,6 @@ MineBlock.prototype.onExecute = async function() {
 
 MineBlock.title = 'Mine Block';
 MineBlock.desc = 'Manually mine a new block';
-MineBreak.category = 'LocalNet';
+MineBlock.category = 'LocalNet';
 
 export default MineBlock;

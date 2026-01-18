@@ -1,0 +1,46 @@
+{
+  "network": {
+    "chain_id": 31337,
+    "accounts": 10,
+    "balance": "10000",
+    "block_time": null,
+    "gas_price": null,
+    "fork_url": null
+  },
+  "services": {
+    "proxy": {
+      "enabled": true,
+      "auto_start": false,
+      "port": 48451,
+      "command": "node",
+      "args": [
+        "proxy/local.js"
+      ]
+    },
+    "geth": {
+      "enabled": true,
+      "auto_start": true,
+      "port": 8545,
+      "command": "./geth/self.sh",
+      "args": []
+    },
+    "socket": {
+      "enabled": true,
+      "auto_start": true,
+      "port": 44387,
+      "command": "node",
+      "args": [
+        "socket/index.js"
+      ]
+    },
+    "solc": {
+      "enabled": true,
+      "auto_start": false,
+      "port": 48452,
+      "command": "node",
+      "args": [
+        "solc/index.js"
+      ]
+    }
+  }
+}

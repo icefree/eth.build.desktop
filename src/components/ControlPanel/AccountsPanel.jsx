@@ -29,7 +29,7 @@ const AccountsPanel = () => {
 
   const formatBalance = (balanceWei) => {
     try {
-      const wei = BigInt(balanceWei);
+      const wei = window.BigInt(balanceWei);
       const eth = Number(wei) / 1e18;
       return `${eth.toFixed(2)} ETH`;
     } catch {

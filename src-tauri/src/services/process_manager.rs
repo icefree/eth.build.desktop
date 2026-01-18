@@ -78,7 +78,7 @@ impl ProcessManager {
         self.processes.get(name).map(|p| ProcessInfo {
             name: p.name.clone(),
             running: true,
-            pid: p.child.id(),
+            pid: Some(p.child.id()),
             port: p.port,
         })
     }
@@ -88,7 +88,7 @@ impl ProcessManager {
             .map(|p| ProcessInfo {
                 name: p.name.clone(),
                 running: true,
-                pid: p.child.id(),
+                pid: Some(p.child.id()),
                 port: p.port,
             })
             .collect()

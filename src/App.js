@@ -1133,16 +1133,6 @@ return (
             </Tooltip>
           </span>
 
-          <span style={{margin:5,borderLeft:"1px solid #cccccc",height:barHeight}} onClick={()=>{
-              setOpenControlPanel(!openControlPanel)
-            }}>
-            <Tooltip title="Control Panel" style={{marginLeft:10,cursor:"pointer"}}>
-              <Icon>
-                settings
-              </Icon>
-            </Tooltip>
-          </span>
-
         </div>
       </div>
     </div>
@@ -1276,17 +1266,121 @@ return (
       </div>
     </Drawer>
 
-    {/* Control Panel Drawer */}
-    <Drawer
-      anchor="right"
-      open={openControlPanel}
-      onClose={() => setOpenControlPanel(false)}
-      PaperProps={{
-        style: { width: '400px', maxWidth: '90vw' }
-      }}
-    >
-      <ControlPanel />
-    </Drawer>
+    {/* Control Panel - Fixed in bottom right corner */}
+    {openControlPanel && (
+      <Card
+        style={{
+          position: 'fixed',
+          right: 20,
+          bottom: 20,
+          width: 350,
+          maxHeight: 'calc(100vh - 100px)',
+          overflowY: 'auto',
+          zIndex: 2000,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          borderRadius: 12,
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '12px 16px',
+          borderBottom: '1px solid #e0e0e0',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: '12px 12px 0 0',
+        }}>
+          <Typography variant="h6" style={{ margin: 0, fontSize: 18, fontWeight: 'bold' }}>
+            ⚙️ 控制面板
+          </Typography>
+          <Button
+            onClick={() => setOpenControlPanel(false)}
+            style={{
+              color: 'white',
+              minWidth: 32,
+              padding: '4px 8px',
+            }}
+          >
+            ✕
+          </Button>
+        </div>
+        <CardContent style={{ padding: '16px' }}>
+          <Typography variant="body2" style={{ marginBottom: 16 }}>
+            控制面板功能正在开发中...
+          </Typography>
+
+          <Divider style={{ margin: '16px 0' }} />
+
+          <Typography variant="subtitle2" style={{ fontWeight: 'bold', marginBottom: 8 }}>
+            快速操作
+          </Typography>
+
+          <Button
+            variant="contained"
+            fullWidth
+            style={{ marginBottom: 8, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+            onClick={() => {
+              console.log('启动本地网络');
+            }}
+          >
+            🚀 启动本地网络
+          </Button>
+
+          <Button
+            variant="outlined"
+            fullWidth
+            style={{ marginBottom: 8 }}
+            onClick={() => {
+              console.log('启动所有服务');
+            }}
+          >
+            ⚡ 启动所有服务
+          </Button>
+
+          <Divider style={{ margin: '16px 0' }} />
+
+          <Typography variant="caption" style={{ color: '#666' }}>
+            更多功能即将推出...
+          </Typography>
+        </CardContent>
+      </Card>
+    )}
+
+    {/* Floating Action Button to open Control Panel */}
+    {!openControlPanel && (
+      <div
+        onClick={() => setOpenControlPanel(true)}
+        style={{
+          position: 'fixed',
+          right: 20,
+          bottom: 20,
+          width: 60,
+          height: 60,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          boxShadow: '0 4px 20px rgba(102, 126, 234, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 2000,
+          transition: 'all 0.3s ease',
+          fontSize: 28,
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 25px rgba(102, 126, 234, 0.7)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.5)';
+        }}
+        title="打开控制面板"
+      >
+        ⚙️
+      </div>
+    )}
 
 
     <Snackbar

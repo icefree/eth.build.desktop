@@ -1,41 +1,51 @@
-use crate::services::ServiceManager;
-use std::sync::Mutex;
 use tauri::State;
 
-pub struct ServiceState {
-    pub service_manager: Mutex<ServiceManager>,
-}
-
 #[tauri::command]
-pub async fn start_service(state: State<'_, ServiceState>, service: String) -> Result<String, String> {
+pub async fn start_service(state: State<'_, crate::AppState>, service: String) -> Result<String, String> {
     let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
     match service.as_str() {
-        "geth" => manager.start_geth(),
-        "socket" => manager.start_socket_server(),
-        "solc" => manager.start_solc(),
-        "proxy" => manager.start_proxy(),
+        "geth" => {
+            manager.start_geth().map(|_| "Geth started successfully".to_string())
+        },
+        "socket" => {
+            manager.start_socket_server().map(|_| "Socket server started successfully".to_string())
+        },
+        "solc" => {
+            manager.start_solc().map(|_| "Solc started successfully".to_string())
+        },
+        "proxy" => {
+            manager.start_proxy().map(|_| "Proxy started successfully".to_string())
+        },
         _ => Err(format!("Unknown service: {}", service)),
     }
 }
 
 #[tauri::command]
-pub async fn stop_service(state: State<'_, ServiceState>, service: String) -> Result<String, String> {
+pub async fn stop_service(state: State<'_, crate::AppState>, service: String) -> Result<String, String> {
     let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
     match service.as_str() {
-        "geth" => manager.stop_geth(),
-        "socket" => manager.stop_socket_server(),
-        "solc" => manager.stop_solc(),
-        "proxy" => manager.stop_proxy(),
+        "geth" => {
+            manager.stop_geth().map(|_| "Geth stopped successfully".to_string())
+        },
+        "socket" => {
+            manager.stop_socket_server().map(|_| "Socket server stopped successfully".to_string())
+        },
+        "solc" => {
+            manager.stop_solc().map(|_| "Solc stopped successfully".to_string())
+        },
+        "proxy" => {
+            manager.stop_proxy().map(|_| "Proxy stopped successfully".to_string())
+        },
         _ => Err(format!("Unknown service: {}", service)),
     }
 }
 
 #[tauri::command]
-pub async fn start_all_services(state: State<'_, ServiceState>) -> Result<Vec<String>, String> {
+pub async fn start_all_services(state: State<'_, crate::AppState>) -> Result<Vec<String>, String> {
     let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
@@ -43,15 +53,15 @@ pub async fn start_all_services(state: State<'_, ServiceState>) -> Result<Vec<St
 }
 
 #[tauri::command]
-pub async fn stop_all_services(state: State<'_, ServiceState>) -> Result<String, String> {
+pub async fn stop_all_services(state: State<'_, crate::AppState>) -> Result<String, String> {
     let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
-    manager.stop_all()
+    manager.stop_all().map(|_| "All services stopped successfully".to_string())
 }
 
 #[tauri::command]
-pub async fn get_services_status(state: State<'_, ServiceState>) -> Result<Vec<serde_json::Value>, String> {
+pub async fn get_services_status(state: State<'_, crate::AppState>) -> Result<Vec<serde_json::Value>, String> {
     let manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
@@ -71,7 +81,7 @@ pub async fn get_services_status(state: State<'_, ServiceState>) -> Result<Vec<s
 }
 
 #[tauri::command]
-pub async fn get_service_status(state: State<'_, ServiceState>, service: String) -> Result<Option<serde_json::Value>, String> {
+pub async fn get_service_status(state: State<'_, crate::AppState>, service: String) -> Result<Option<serde_json::Value>, String> {
     let manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 

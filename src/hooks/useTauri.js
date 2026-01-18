@@ -98,6 +98,11 @@ export const reloadConfig = async () => {
   return invoke('reload_config');
 };
 
+// 更新服务端口
+export const updateServicePort = async (service, port) => {
+  return invoke('update_service_port', { service, port });
+};
+
 // 获取自动启动服务列表
 export const getAutoStartServices = async () => {
   return invoke('get_auto_start_services');
