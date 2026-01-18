@@ -29,6 +29,7 @@ impl ServiceManager {
             services: vec![
                 "geth".to_string(),
                 "socket".to_string(),
+                "solc".to_string(),
                 "proxy".to_string(),
             ],
         }
@@ -79,6 +80,20 @@ impl ServiceManager {
         )
     }
 
+    pub fn start_solc(&mut self) -> Result<(), String> {
+        let solc_dir = std::path::PathBuf::from("solc");
+        if !solc_dir.exists() {
+            return Err("Solc directory not found".to_string());
+        }
+
+        self.process_manager.start_process(
+            "solc".to_string(),
+            "node",
+            &["solc/index.js"],
+            Some(48452),
+        )
+    }
+
     pub fn stop_geth(&mut self) -> Result<(), String> {
         self.process_manager.stop_process("geth")
     }
@@ -89,6 +104,10 @@ impl ServiceManager {
 
     pub fn stop_proxy(&mut self) -> Result<(), String> {
         self.process_manager.stop_process("proxy")
+    }
+
+    pub fn stop_solc(&mut self) -> Result<(), String> {
+        self.process_manager.stop_process("solc")
     }
 
     pub fn start_all(&mut self) -> Result<Vec<String>, String> {
@@ -109,6 +128,12 @@ impl ServiceManager {
             started.push("socket".to_string());
         }
 
+        if let Err(e) = self.start_solc() {
+            errors.push(format!("Failed to start solc: {}", e));
+        } else {
+            started.push("solc".to_string());
+        }
+
         if let Err(e) = self.start_proxy() {
             errors.push(format!("Failed to start proxy: {}", e));
         } else {
@@ -125,6 +150,7 @@ impl ServiceManager {
     pub fn stop_all(&mut self) -> Result<(), String> {
         // 按相反顺序停止服务
         let _ = self.stop_proxy();
+        let _ = self.stop_solc();
         let _ = self.stop_socket_server();
         let _ = self.stop_geth();
         Ok(())

@@ -14,6 +14,7 @@ pub async fn start_service(state: State<'_, ServiceState>, service: String) -> R
     match service.as_str() {
         "geth" => manager.start_geth(),
         "socket" => manager.start_socket_server(),
+        "solc" => manager.start_solc(),
         "proxy" => manager.start_proxy(),
         _ => Err(format!("Unknown service: {}", service)),
     }
@@ -27,6 +28,7 @@ pub async fn stop_service(state: State<'_, ServiceState>, service: String) -> Re
     match service.as_str() {
         "geth" => manager.stop_geth(),
         "socket" => manager.stop_socket_server(),
+        "solc" => manager.stop_solc(),
         "proxy" => manager.stop_proxy(),
         _ => Err(format!("Unknown service: {}", service)),
     }

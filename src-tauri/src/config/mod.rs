@@ -47,6 +47,14 @@ impl Default for AppConfig {
             args: vec!["socket/index.js".to_string()],
         });
 
+        services.insert("solc".to_string(), ServiceConfig {
+            enabled: true,
+            auto_start: false,
+            port: 48452,
+            command: "node".to_string(),
+            args: vec!["solc/index.js".to_string()],
+        });
+
         services.insert("proxy".to_string(), ServiceConfig {
             enabled: true,
             auto_start: false, // 依赖 geth,手动启动

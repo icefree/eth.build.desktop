@@ -8,6 +8,8 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
         return '🔗';
       case 'socket':
         return '🔌';
+      case 'solc':
+        return '📜';
       case 'proxy':
         return '🔄';
       default:
@@ -21,6 +23,8 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
         return 'Geth 节点';
       case 'socket':
         return 'Socket 服务器';
+      case 'solc':
+        return 'Solidity 编译器';
       case 'proxy':
         return '代理服务器';
       default:
@@ -34,6 +38,8 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
         return '8545';
       case 'socket':
         return '44387';
+      case 'solc':
+        return '48452';
       case 'proxy':
         return '48451';
       default:

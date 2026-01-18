@@ -80,6 +80,11 @@ pub async fn auto_start_services(
                         started.push(name.clone());
                     }
                 }
+                "solc" => {
+                    if let Ok(()) = service_manager.start_solc() {
+                        started.push(name.clone());
+                    }
+                }
                 "proxy" => {
                     if let Ok(()) = service_manager.start_proxy() {
                         started.push(name.clone());
