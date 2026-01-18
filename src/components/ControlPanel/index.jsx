@@ -206,15 +206,14 @@ const ControlPanel = ({ open, onClose }) => {
             </button>
           )}
         </div>
-      </div>
 
-      {error && (
-        <div className="error-message">
-          ❌ {error}
-        </div>
-      )}
+        {error && (
+          <div className="error-message">
+            ❌ {error}
+          </div>
+        )}
 
-      <div className="control-panel-content">
+        <div className="control-panel-content">
         <NetworkStatus status={networkStatus} />
 
         {/* 服务管理面板 */}
