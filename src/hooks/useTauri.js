@@ -48,3 +48,35 @@ export const getTransactions = async (limit = 100) => {
 export const getTransactionByHash = async (hash) => {
   return invoke('get_transaction_by_hash', { hash });
 };
+
+// ===== 新增: 服务管理命令 =====
+
+// 启动单个服务
+export const startService = async (service) => {
+  return invoke('start_service', { service });
+};
+
+// 停止单个服务
+export const stopService = async (service) => {
+  return invoke('stop_service', { service });
+};
+
+// 启动所有服务
+export const startAllServices = async () => {
+  return invoke('start_all_services');
+};
+
+// 停止所有服务
+export const stopAllServices = async () => {
+  return invoke('stop_all_services');
+};
+
+// 获取所有服务状态
+export const getServicesStatus = async () => {
+  return invoke('get_services_status');
+};
+
+// 获取单个服务状态
+export const getServiceStatus = async (service) => {
+  return invoke('get_service_status', { service });
+};

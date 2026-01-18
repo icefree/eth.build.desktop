@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
+import { getServicesStatus, startService, stopService, startAllServices, stopAllServices } from '../../hooks/useTauri';
 import NetworkStatus from './NetworkStatus';
 import AccountsPanel from './AccountsPanel';
 import MiningControl from './MiningControl';
+import ServicesPanel from './ServicesPanel';
 import './index.css';
 
 const ControlPanel = () => {
   const [networkStatus, setNetworkStatus] = useState(null);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const loadStatus = async () => {
     try {
-      const status = await getNetworkStatus();
-      setNetworkStatus(status);
+      const [netStatus, svcStatus] = await Promise.all([
+        getNetworkStatus(),
+        getServicesStatus()
+      ]);
+      setNetworkStatus(netStatus);
+      setServices(svcStatus || []);
     } catch (err) {
-      console.error('Failed to get network status:', err);
+      console.error('Failed to get status:', err);
     }
   };
 
@@ -65,6 +72,52 @@ const ControlPanel = () => {
     }
   };
 
+  const handleStartAllServices = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await startAllServices();
+      await loadStatus();
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStopAllServices = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await stopAllServices();
+      await loadStatus();
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleService = async (serviceName) => {
+    const service = services.find(s => s.name === serviceName);
+    if (!service) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      if (service.running) {
+        await stopService(serviceName);
+      } else {
+        await startService(serviceName);
+      }
+      await loadStatus();
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="control-panel">
       <div className="control-panel-header">
@@ -99,6 +152,15 @@ const ControlPanel = () => {
       <div className="control-panel-content">
         <NetworkStatus status={networkStatus} />
 
+        {/* 服务管理面板 */}
+        <ServicesPanel
+          services={services}
+          onToggleService={handleToggleService}
+          onStartAll={handleStartAllServices}
+          onStopAll={handleStopAllServices}
+          loading={loading}
+        />
+
         {networkStatus?.is_running && (
           <>
             <AccountsPanel />
@@ -109,7 +171,7 @@ const ControlPanel = () => {
         {!networkStatus?.is_running && (
           <div className="network-offline">
             <p>🔌 网络未启动</p>
-            <p className="hint">点击"启动网络"按钮开始使用本地以太坊测试网络</p>
+            <p className="hint">点击"启动网络"���钮开始使用本地以太坊测试网络</p>
           </div>
         )}
       </div>
