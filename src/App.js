@@ -22,6 +22,7 @@ import lessons from './data/lessons';
 
 import SaveDialog from "./dialogs/SaveDialog";
 import LoadDialog from "./dialogs/LoadDialog";
+import ControlPanel from "./components/ControlPanel";
 import html2canvas from 'html2canvas';
 
 var codec = require('json-url')('lzw');
@@ -176,6 +177,7 @@ function App() {
 
 
   const [openAboutDialog, setOpenAboutDialog] = React.useState(false);
+  const [openControlPanel, setOpenControlPanel] = React.useState(false);
 
   function AboutDialog(props) {
     const { open, liteGraph } = props;
@@ -1131,6 +1133,16 @@ return (
             </Tooltip>
           </span>
 
+          <span style={{margin:5,borderLeft:"1px solid #cccccc",height:barHeight}} onClick={()=>{
+              setOpenControlPanel(!openControlPanel)
+            }}>
+            <Tooltip title="Control Panel" style={{marginLeft:10,cursor:"pointer"}}>
+              <Icon>
+                settings
+              </Icon>
+            </Tooltip>
+          </span>
+
         </div>
       </div>
     </div>
@@ -1262,6 +1274,18 @@ return (
           </div>
         </div>
       </div>
+    </Drawer>
+
+    {/* Control Panel Drawer */}
+    <Drawer
+      anchor="right"
+      open={openControlPanel}
+      onClose={() => setOpenControlPanel(false)}
+      PaperProps={{
+        style: { width: '400px', maxWidth: '90vw' }
+      }}
+    >
+      <ControlPanel />
     </Drawer>
 
 
