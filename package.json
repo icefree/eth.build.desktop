@@ -74,7 +74,11 @@
     "start": "react-scripts --max_old_space_size=8192 start",
     "build": "react-scripts --max-old-space-size=8192 build ",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build-debug": "tauri build --debug"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -90,5 +94,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@tauri-apps/api": "^2.0.0"
   }
 }

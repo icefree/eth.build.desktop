@@ -1,0 +1,9 @@
+/Users/rex/workspace/playground/web3_sprint/eth.build/src-tauri/target/debug/deps/objc2_javascript_core-e2445f488d7f7722.d: /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/lib.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/mod.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSBase.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSContext.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSValue.rs
+
+/Users/rex/workspace/playground/web3_sprint/eth.build/src-tauri/target/debug/deps/libobjc2_javascript_core-e2445f488d7f7722.rmeta: /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/lib.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/mod.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSBase.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSContext.rs /Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSValue.rs
+
+/Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/lib.rs:
+/Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/mod.rs:
+/Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSBase.rs:
+/Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSContext.rs:
+/Users/rex/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-javascript-core-0.3.2/src/generated/JSValue.rs:
