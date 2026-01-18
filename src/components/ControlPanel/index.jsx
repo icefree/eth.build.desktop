@@ -8,7 +8,7 @@ import ServicesPanel from './ServicesPanel';
 import ConfigPanel from './ConfigPanel';
 import './index.css';
 
-const ControlPanel = () => {
+const ControlPanel = ({ open, onClose }) => {
   const [networkStatus, setNetworkStatus] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,19 +49,23 @@ const ControlPanel = () => {
   };
 
   useEffect(() => {
-    loadStatus();
+    if (open) {
+      loadStatus();
+    }
     const interval = setInterval(loadStatus, 5000);
 
     // 延迟检查自动启动,避免启动时立即弹出
     const timer = setTimeout(() => {
-      checkAutoStart();
+      if (open) {
+        checkAutoStart();
+      }
     }, 3000);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timer);
     };
-  }, [services]);
+  }, [open, services]);
 
   const handleStartNetwork = async () => {
     setLoading(true);
@@ -174,10 +178,15 @@ const ControlPanel = () => {
     setAutoStartPrompt(null);
   };
 
+  if (!open) return null;
+
   return (
-    <div className="control-panel">
-      <div className="control-panel-header">
-        <h2>⚙️ 控制面板</h2>
+    <div className="control-panel-overlay" onClick={onClose}>
+      <div className="control-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="control-panel-header">
+          <h2>⚙️ 控制面板</h2>
+          <button className="close-btn" onClick={onClose}>✕</button>
+        </div>
         <div className="network-controls">
           {!networkStatus?.is_running ? (
             <button
