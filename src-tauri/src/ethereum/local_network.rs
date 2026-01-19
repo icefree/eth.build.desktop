@@ -183,7 +183,8 @@ impl LocalNetwork {
             .ok_or("Provider not initialized")?;
 
         // 使用 Anvil 的 evm_mine RPC 方法
-        let _: () = provider.request("evm_mine", ())
+        // Anvil returns a hex string like "0x0"; accept any JSON value to avoid deserialization errors.
+        let _: serde_json::Value = provider.request("evm_mine", ())
             .await
             .map_err(|e| format!("Failed to mine block: {}", e))?;
 

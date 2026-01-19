@@ -19,7 +19,8 @@ const BlockExplorer = () => {
       setError(null);
       try {
         const result = await getBlocks(currentPage, pageSize);
-        setBlocks(result);
+        const blockList = Array.isArray(result) ? result : (result?.blocks || []);
+        setBlocks(blockList);
       } catch (err) {
         setError(err.toString());
         console.error('Failed to load blocks:', err);
@@ -44,10 +45,12 @@ const BlockExplorer = () => {
     setError(null);
     try {
       const result = await searchBlockchain(searchQuery.trim());
-      if (result.block) {
-        setSelectedBlock(result.block);
-      } else if (result.transaction) {
-        setSelectedTx(result.transaction);
+      if (result?.type === 'block' && result.data) {
+        setSelectedTx(null);
+        setSelectedBlock(result.data);
+      } else if (result?.type === 'transaction' && result.data) {
+        setSelectedBlock(null);
+        setSelectedTx(result.data);
       } else {
         setError('未找到匹配的区块或交易');
       }

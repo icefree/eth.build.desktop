@@ -1,9 +1,10 @@
 .block-explorer {
   margin-top: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #fff;
   border-radius: 8px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .block-explorer-header {
@@ -17,7 +18,7 @@
 
 .block-explorer-header h3 {
   margin: 0;
-  color: #fff;
+  color: #333;
   font-size: 18px;
 }
 
@@ -31,15 +32,21 @@
 .search-box input {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
-  color: #fff;
+  background: #f9f9f9;
+  color: #333;
   font-size: 14px;
 }
 
 .search-box input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: #999;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  background: #fff;
 }
 
 .search-box button {
@@ -63,9 +70,9 @@
 }
 
 .explorer-error {
-  background: rgba(244, 67, 54, 0.1);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-  color: #f44336;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #c62828;
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 15px;
@@ -83,23 +90,23 @@
 }
 
 .blocks-table thead {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f5f5f5;
 }
 
 .blocks-table th {
   padding: 12px;
   text-align: left;
-  color: #fff;
+  color: #333;
   font-weight: 600;
   font-size: 14px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid #ddd;
 }
 
 .blocks-table td {
   padding: 12px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #444;
   font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #eee;
 }
 
 .blocks-table tbody tr {
@@ -107,7 +114,7 @@
 }
 
 .blocks-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8f9fa;
 }
 
 .view-btn {
@@ -128,7 +135,7 @@
 .no-blocks {
   text-align: center;
   padding: 40px;
-  color: rgba(255, 255, 255, 0.5);
+  color: #999;
 }
 
 /* 分页 */
@@ -142,25 +149,27 @@
 
 .pagination button {
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .pagination button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f5f5f5;
+  border-color: #2196F3;
+  color: #2196F3;
 }
 
 .pagination button:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .pagination span {
-  color: #fff;
+  color: #333;
   font-size: 14px;
 }
 
@@ -171,10 +180,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #1a1a2e;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #fff;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   max-width: 600px;
   width: 90%;
@@ -187,19 +196,19 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #eee;
 }
 
 .modal-header h4 {
   margin: 0;
-  color: #fff;
+  color: #333;
   font-size: 18px;
 }
 
 .modal-header button {
   background: none;
   border: none;
-  color: #fff;
+  color: #666;
   font-size: 24px;
   cursor: pointer;
   padding: 0;
@@ -213,7 +222,8 @@
 }
 
 .modal-header button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f5f5f5;
+  color: #333;
 }
 
 .modal-content {
@@ -228,13 +238,13 @@
 
 .detail-row .label {
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   min-width: 100px;
   font-size: 14px;
 }
 
 .detail-row .value {
-  color: #fff;
+  color: #333;
   flex: 1;
   word-break: break-all;
   font-size: 14px;
@@ -243,20 +253,21 @@
 .detail-row .value.hash {
   font-family: 'Courier New', monospace;
   font-size: 12px;
-  background: rgba(0, 0, 0, 0.3);
+  background: #f5f5f5;
   padding: 4px 8px;
   border-radius: 4px;
+  color: #1976d2;
 }
 
 .tx-list {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #eee;
 }
 
 .tx-list h5 {
   margin: 0 0 15px 0;
-  color: #fff;
+  color: #333;
   font-size: 16px;
 }
 
@@ -271,15 +282,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f9f9f9;
   border-radius: 4px;
   margin-bottom: 8px;
+  border: 1px solid #eee;
 }
 
 .tx-list .tx-hash {
   font-family: 'Courier New', monospace;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
   flex: 1;
 }
 
@@ -300,23 +312,23 @@
 
 .modal-footer {
   padding: 15px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #eee;
   display: flex;
   justify-content: flex-end;
 }
 
 .modal-footer button {
   padding: 8px 20px;
-  background: #666;
-  color: white;
-  border: none;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
 }
 
 .modal-footer button:hover {
-  background: #555;
+  background: #e0e0e0;
 }
 
 /* 加载遮罩 */
