@@ -17,7 +17,12 @@ const ControlPanel = ({ open, onClose }) => {
   const [error, setError] = useState(null);
   const [showConfig, setShowConfig] = useState(false);
   const [autoStartPrompt, setAutoStartPrompt] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const servicesRef = useRef([]);
+
+  const handleGlobalRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const loadStatus = async () => {
     try {
@@ -29,6 +34,8 @@ const ControlPanel = ({ open, onClose }) => {
       const nextServices = Array.isArray(svcStatus) ? svcStatus : [];
       servicesRef.current = nextServices;
       setServices(nextServices);
+      // 同时触发各个面板的刷新
+      handleGlobalRefresh();
     } catch (err) {
       console.error('Failed to get status:', err);
     }
@@ -279,10 +286,10 @@ const ControlPanel = ({ open, onClose }) => {
 
           {networkStatus?.is_running && (
             <>
-              <AccountsPanel />
-              <FaucetPanel />
-              <MiningControl onQuickMine={handleQuickMine} />
-              <BlockExplorer />
+              <AccountsPanel refreshTrigger={refreshTrigger} onRefresh={handleGlobalRefresh} />
+              <FaucetPanel onRefresh={handleGlobalRefresh} />
+              <MiningControl onQuickMine={handleQuickMine} onRefresh={handleGlobalRefresh} />
+              <BlockExplorer refreshTrigger={refreshTrigger} />
             </>
           )}
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAccounts } from '../../hooks/useTauri';
 import './AccountsPanel.css';
 
-const AccountsPanel = () => {
+const AccountsPanel = ({ refreshTrigger, onRefresh }) => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPrivateKeys, setShowPrivateKeys] = useState(false);
@@ -22,7 +22,7 @@ const AccountsPanel = () => {
 
   useEffect(() => {
     loadAccounts();
-  }, []);
+  }, [refreshTrigger]);
 
   const copyToClipboard = async (text, label) => {
     try {
@@ -50,8 +50,9 @@ const AccountsPanel = () => {
         <h4>👤 账户列表</h4>
         <button
           className="refresh-btn"
-          onClick={loadAccounts}
+          onClick={onRefresh}
           disabled={loading}
+          title="刷新账户和区块"
         >
           🔄
         </button>

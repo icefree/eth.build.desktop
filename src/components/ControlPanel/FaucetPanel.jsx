@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { faucet } from '../../hooks/useTauri';
 import './FaucetPanel.css';
 
-const FaucetPanel = () => {
+const FaucetPanel = ({ onRefresh }) => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('10');
   const [loading, setLoading] = useState(false);
@@ -32,6 +32,8 @@ const FaucetPanel = () => {
       setResult(faucetResult);
       // 清空地址输入框，保留金额
       setAddress('');
+      // 触发全局刷新以更新余额和区块列表
+      if (onRefresh) onRefresh();
     } catch (err) {
       setError(err.toString());
     } finally {

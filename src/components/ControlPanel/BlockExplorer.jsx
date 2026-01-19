@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getBlocks, getBlockByNumber, searchBlockchain } from '../../hooks/useTauri';
 import './BlockExplorer.css';
 
-const BlockExplorer = () => {
+const BlockExplorer = ({ refreshTrigger }) => {
   const [blocks, setBlocks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
@@ -30,7 +30,7 @@ const BlockExplorer = () => {
     };
 
     loadBlocks();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, refreshTrigger]);
 
   // 搜索功能
   const handleSearch = async () => {

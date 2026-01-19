@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { setAutoMine } from '../../hooks/useTauri';
+import { setAutoMine as setAutoMineRemote } from '../../hooks/useTauri';
 import './MiningControl.css';
 
-const MiningControl = ({ onQuickMine }) => {
+const MiningControl = ({ onQuickMine, onRefresh }) => {
   const [autoMine, setAutoMine] = useState(false);
   const [interval, setInterval] = useState(5000);
   const [loading, setLoading] = useState(false);
@@ -10,8 +10,9 @@ const MiningControl = ({ onQuickMine }) => {
   const handleToggleAutoMine = async () => {
     setLoading(true);
     try {
-      await setAutoMine(!autoMine, interval);
+      await setAutoMineRemote(!autoMine, interval);
       setAutoMine(!autoMine);
+      if (onRefresh) onRefresh();
     } catch (err) {
       console.error('Failed to toggle auto mine:', err);
     } finally {
