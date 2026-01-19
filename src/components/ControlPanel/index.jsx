@@ -17,12 +17,8 @@ const ControlPanel = ({ open, onClose }) => {
   const [error, setError] = useState(null);
   const [showConfig, setShowConfig] = useState(false);
   const [autoStartPrompt, setAutoStartPrompt] = useState(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [blockRefreshKey, setBlockRefreshKey] = useState(0);
   const servicesRef = useRef([]);
-
-  const handleGlobalRefresh = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
 
   const loadStatus = async () => {
     try {
@@ -34,8 +30,6 @@ const ControlPanel = ({ open, onClose }) => {
       const nextServices = Array.isArray(svcStatus) ? svcStatus : [];
       servicesRef.current = nextServices;
       setServices(nextServices);
-      // 同时触发各个面板的刷新
-      handleGlobalRefresh();
     } catch (err) {
       console.error('Failed to get status:', err);
     }
@@ -144,6 +138,7 @@ const ControlPanel = ({ open, onClose }) => {
     try {
       await mineBlock();
       await loadStatus();
+      setBlockRefreshKey((prev) => prev + 1);
     } catch (err) {
       setError(err.toString());
     }
@@ -220,10 +215,26 @@ const ControlPanel = ({ open, onClose }) => {
     setAutoStartPrompt(null);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && open) {
+        onClose();
+      }
+    };
+
+    if (open) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
-    <div className="control-panel-overlay" onClick={onClose}>
+    <div className="control-panel-overlay">
       <div className="control-panel" onClick={(e) => e.stopPropagation()}>
         <div className="control-panel-header">
           <h2>⚙️ 控制面板</h2>
@@ -286,10 +297,10 @@ const ControlPanel = ({ open, onClose }) => {
 
           {networkStatus?.is_running && (
             <>
-              <AccountsPanel refreshTrigger={refreshTrigger} onRefresh={handleGlobalRefresh} />
-              <FaucetPanel onRefresh={handleGlobalRefresh} />
-              <MiningControl onQuickMine={handleQuickMine} onRefresh={handleGlobalRefresh} />
-              <BlockExplorer refreshTrigger={refreshTrigger} />
+              <AccountsPanel />
+              <FaucetPanel onSuccess={() => setBlockRefreshKey((prev) => prev + 1)} />
+              <MiningControl onQuickMine={handleQuickMine} />
+              <BlockExplorer refreshToken={blockRefreshKey} />
             </>
           )}
 
