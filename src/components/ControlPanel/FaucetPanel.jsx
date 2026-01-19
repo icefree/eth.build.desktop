@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { faucet } from '../../hooks/useTauri';
 import './FaucetPanel.css';
 
-const FaucetPanel = ({ onRefresh }) => {
+const FaucetPanel = ({ onSuccess }) => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('10');
   const [loading, setLoading] = useState(false);
@@ -30,10 +30,11 @@ const FaucetPanel = ({ onRefresh }) => {
     try {
       const faucetResult = await faucet(address, amount);
       setResult(faucetResult);
+      if (onSuccess) {
+        onSuccess(faucetResult);
+      }
       // 清空地址输入框，保留金额
       setAddress('');
-      // 触发全局刷新以更新余额和区块列表
-      if (onRefresh) onRefresh();
     } catch (err) {
       setError(err.toString());
     } finally {
@@ -99,24 +100,45 @@ const FaucetPanel = ({ onRefresh }) => {
       {result && (
         <div className="faucet-success">
           <div className="success-header">
-            ✅ 发送成功！
+            <span role="img" aria-label="success">✅</span> 发送成功！
           </div>
           <div className="success-details">
             <div className="detail-item">
               <span className="detail-label">交易哈希:</span>
-              <span className="detail-value hash" title={result.tx_hash}>
-                {formatHash(result.tx_hash)}
-              </span>
+              <div className="copyable-value">
+                <span className="detail-value hash" title={result.tx_hash}>
+                  {formatHash(result.tx_hash)}
+                </span>
+                <button 
+                  className="copy-button" 
+                  onClick={() => {
+                    navigator.clipboard.writeText(result.tx_hash);
+                    // 可以加个简单的反馈
+                  }}
+                  title="复制完整哈希"
+                >
+                  📋
+                </button>
+              </div>
             </div>
             <div className="detail-item">
               <span className="detail-label">接收地址:</span>
-              <span className="detail-value hash" title={result.to}>
-                {formatHash(result.to)}
-              </span>
+              <div className="copyable-value">
+                <span className="detail-value hash" title={result.to}>
+                  {formatHash(result.to)}
+                </span>
+                <button 
+                  className="copy-button" 
+                  onClick={() => navigator.clipboard.writeText(result.to)}
+                  title="复制完整地址"
+                >
+                  📋
+                </button>
+              </div>
             </div>
             <div className="detail-item">
               <span className="detail-label">金额:</span>
-              <span className="detail-value">{result.amount} ETH</span>
+              <span className="detail-value">{result.amount}</span>
             </div>
             {result.block_number !== undefined && (
               <div className="detail-item">

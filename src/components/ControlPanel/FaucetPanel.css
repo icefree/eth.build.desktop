@@ -159,6 +159,7 @@
   padding: 4px 8px;
   border-radius: 4px;
   color: #1976d2;
+  flex: 1;
 }
 
 .success-footer {

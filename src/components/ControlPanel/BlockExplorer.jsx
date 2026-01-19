@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getBlocks, getBlockByNumber, searchBlockchain } from '../../hooks/useTauri';
 import './BlockExplorer.css';
 
-const BlockExplorer = ({ refreshTrigger }) => {
+const BlockExplorer = ({ refreshToken }) => {
   const [blocks, setBlocks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
@@ -30,7 +30,7 @@ const BlockExplorer = ({ refreshTrigger }) => {
     };
 
     loadBlocks();
-  }, [currentPage, pageSize, refreshTrigger]);
+  }, [currentPage, pageSize, refreshToken]);
 
   // 搜索功能
   const handleSearch = async () => {
@@ -184,7 +184,16 @@ const BlockExplorer = ({ refreshTrigger }) => {
             </div>
             <div className="detail-row">
               <span className="label">区块哈希:</span>
-              <span className="value hash">{selectedBlock.hash}</span>
+              <div className="copyable-value">
+                <span className="value hash">{selectedBlock.hash}</span>
+                <button 
+                  className="copy-button"
+                  onClick={() => navigator.clipboard.writeText(selectedBlock.hash)}
+                  title="复制区块哈希"
+                >
+                  📋
+                </button>
+              </div>
             </div>
             <div className="detail-row">
               <span className="label">时间戳:</span>
@@ -235,18 +244,45 @@ const BlockExplorer = ({ refreshTrigger }) => {
           <div className="modal-content">
             <div className="detail-row">
               <span className="label">交易哈希:</span>
-              <span className="value hash">{selectedTx.hash}</span>
+              <div className="copyable-value">
+                <span className="value hash">{selectedTx.hash}</span>
+                <button 
+                  className="copy-button"
+                  onClick={() => navigator.clipboard.writeText(selectedTx.hash)}
+                  title="复制哈希"
+                >
+                  📋
+                </button>
+              </div>
             </div>
             {selectedTx.from && (
               <div className="detail-row">
                 <span className="label">发送方:</span>
-                <span className="value hash">{selectedTx.from}</span>
+                <div className="copyable-value">
+                  <span className="value hash">{selectedTx.from}</span>
+                  <button 
+                    className="copy-button"
+                    onClick={() => navigator.clipboard.writeText(selectedTx.from)}
+                    title="复制地址"
+                  >
+                    📋
+                  </button>
+                </div>
               </div>
             )}
             {selectedTx.to && (
               <div className="detail-row">
                 <span className="label">接收方:</span>
-                <span className="value hash">{selectedTx.to}</span>
+                <div className="copyable-value">
+                  <span className="value hash">{selectedTx.to}</span>
+                  <button 
+                    className="copy-button"
+                    onClick={() => navigator.clipboard.writeText(selectedTx.to)}
+                    title="复制地址"
+                  >
+                    📋
+                  </button>
+                </div>
               </div>
             )}
             {selectedTx.value && (
