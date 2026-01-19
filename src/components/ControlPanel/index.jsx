@@ -110,6 +110,29 @@ const ControlPanel = ({ open, onClose }) => {
     }
   };
 
+  const handleResetNetwork = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // 先停止网络
+      await stopLocalNetwork();
+      // 等待一小段时间确保网络完全停止
+      await new Promise(resolve => setTimeout(resolve, 500));
+      // 使用相同配置重新启动网络
+      await startLocalNetwork({
+        chain_id: 31337,
+        accounts: 10,
+        balance: '10000',
+        block_time: null
+      });
+      await loadStatus();
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleQuickMine = async () => {
     try {
       await mineBlock();
@@ -224,13 +247,22 @@ const ControlPanel = ({ open, onClose }) => {
                 {loading ? '启动中...' : '▶️ 启动网络'}
               </button>
             ) : (
-              <button
-                className="stop-btn"
-                onClick={handleStopNetwork}
-                disabled={loading}
-              >
-                {loading ? '停止中...' : '⏹️ 停止网络'}
-              </button>
+              <div className="network-action-buttons">
+                <button
+                  className="stop-btn"
+                  onClick={handleStopNetwork}
+                  disabled={loading}
+                >
+                  {loading ? '停止中...' : '⏹️ 停止网络'}
+                </button>
+                <button
+                  className="reset-btn"
+                  onClick={handleResetNetwork}
+                  disabled={loading}
+                >
+                  {loading ? '重置中...' : '🔄 重置网络'}
+                </button>
+              </div>
             )}
           </div>
 

@@ -81,8 +81,15 @@
   gap: 10px;
 }
 
+.network-action-buttons {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
 .start-btn,
-.stop-btn {
+.stop-btn,
+.reset-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -110,8 +117,18 @@
   background: #d55;
 }
 
+.reset-btn {
+  background: #ff9800;
+  color: white;
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: #f57c00;
+}
+
 .start-btn:disabled,
-.stop-btn:disabled {
+.stop-btn:disabled,
+.reset-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
