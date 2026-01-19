@@ -15,10 +15,10 @@ const NetworkStatus = ({ status }) => {
     <div className="network-status">
       <h4>网络状态</h4>
       <div className="status-content">
-        <div className="status-indicator">
+        <div className="network-status-indicator">
           <span className={`status-dot ${status.is_running ? 'online' : 'offline'}`}></span>
           <span className="status-text">
-            {status.is_running ? '● 在线' : '○ 离线'}
+            {status.is_running ? '在线' : '离线'}
           </span>
         </div>
 

@@ -1,8 +1,17 @@
 // 临时的 Tauri API polyfill
 // 在生产环境中应该使用 @tauri-apps/api
+const getTauriInvoke = () => {
+  if (typeof window === 'undefined') return null;
+  if (window.__TAURI__?.core?.invoke) return window.__TAURI__.core.invoke;
+  if (window.__TAURI__?.invoke) return window.__TAURI__.invoke;
+  if (window.__TAURI_INTERNALS__?.invoke) return window.__TAURI_INTERNALS__.invoke;
+  return null;
+};
+
 const invoke = async (cmd, args = {}) => {
-  if (window.__TAURI__) {
-    return window.__TAURI__.core.invoke(cmd, args);
+  const tauriInvoke = getTauriInvoke();
+  if (tauriInvoke) {
+    return tauriInvoke(cmd, args);
   }
   // 开发环境下的 mock 返回
   console.log(`[Tauri Mock] invoke: ${cmd}`, args);

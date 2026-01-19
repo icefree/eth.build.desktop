@@ -60,7 +60,7 @@ const MiningControl = ({ onQuickMine }) => {
 
       {autoMine && (
         <div className="mining-status">
-          <span className="status-indicator"></span>
+          <span className="mining-status-indicator"></span>
           <span>自动挖矿运行中 (间隔: {interval / 1000}秒)</span>
         </div>
       )}

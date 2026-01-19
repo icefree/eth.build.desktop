@@ -9,8 +9,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
 
   const getServiceIcon = (serviceName) => {
     switch (serviceName) {
-      case 'geth':
-        return '🔗';
       case 'socket':
         return '🔌';
       case 'solc':
@@ -24,8 +22,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
 
   const getServiceDisplayName = (serviceName) => {
     switch (serviceName) {
-      case 'geth':
-        return 'Geth 节点';
       case 'socket':
         return 'Socket 服务器';
       case 'solc':
@@ -78,8 +74,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
 
   const getServiceDefaultPort = (serviceName) => {
     switch (serviceName) {
-      case 'geth':
-        return 8545;
       case 'socket':
         return 44387;
       case 'solc':
@@ -187,15 +181,12 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
                       </button>
                     </span>
                   )}
-                  {service.pid && (
-                    <span className="service-pid">PID: {service.pid}</span>
-                  )}
                 </div>
               </div>
             </div>
 
             <div className="service-status">
-              <span className={`status-indicator ${service.running ? 'online' : 'offline'}`}>
+              <span className={`service-status-indicator ${service.running ? 'online' : 'offline'}`}>
                 {service.running ? '● 运行中' : '○ 已停止'}
               </span>
 
@@ -219,7 +210,7 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
 
       <div className="services-footer">
         <p className="footer-hint">
-          💡 提示: Geth 节点需要先启动,然后才能启动代理服务器。服务运行时无法修改端口。
+          💡 提示: 服务运行时无法修改端口。
         </p>
       </div>
     </div>

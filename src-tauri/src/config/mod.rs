@@ -31,17 +31,9 @@ impl Default for AppConfig {
     fn default() -> Self {
         let mut services = std::collections::HashMap::new();
 
-        services.insert("geth".to_string(), ServiceConfig {
-            enabled: true,
-            auto_start: true,
-            port: 8545,
-            command: "./geth/self.sh".to_string(),
-            args: vec![],
-        });
-
         services.insert("socket".to_string(), ServiceConfig {
             enabled: true,
-            auto_start: true,
+            auto_start: false,
             port: 44387,
             command: "node".to_string(),
             args: vec!["socket/index.js".to_string()],
@@ -85,8 +77,11 @@ impl AppConfig {
             let content = fs::read_to_string(&config_path)
                 .map_err(|e| format!("Failed to read config file: {}", e))?;
 
-            let config: AppConfig = serde_json::from_str(&content)
+            let mut config: AppConfig = serde_json::from_str(&content)
                 .map_err(|e| format!("Failed to parse config file: {}", e))?;
+
+            // 移除已禁用的 geth 服务配置
+            config.services.remove("geth");
 
             Ok(config)
         } else {

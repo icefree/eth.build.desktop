@@ -17,16 +17,9 @@
         "proxy/local.js"
       ]
     },
-    "geth": {
-      "enabled": true,
-      "auto_start": true,
-      "port": 8545,
-      "command": "./geth/self.sh",
-      "args": []
-    },
     "socket": {
       "enabled": true,
-      "auto_start": true,
+      "auto_start": false,
       "port": 44387,
       "command": "node",
       "args": [

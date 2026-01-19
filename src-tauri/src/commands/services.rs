@@ -7,7 +7,7 @@ pub async fn start_service(state: State<'_, crate::AppState>, service: String) -
 
     match service.as_str() {
         "geth" => {
-            manager.start_geth().map(|_| "Geth started successfully".to_string())
+            Err("Geth is disabled. Use Anvil for the local network.".to_string())
         },
         "socket" => {
             manager.start_socket_server().map(|_| "Socket server started successfully".to_string())
@@ -29,7 +29,7 @@ pub async fn stop_service(state: State<'_, crate::AppState>, service: String) ->
 
     match service.as_str() {
         "geth" => {
-            manager.stop_geth().map(|_| "Geth stopped successfully".to_string())
+            Err("Geth is disabled. Use Anvil for the local network.".to_string())
         },
         "socket" => {
             manager.stop_socket_server().map(|_| "Socket server stopped successfully".to_string())

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
 import { getServicesStatus, startService, stopService, startAllServices, stopAllServices, getAutoStartServices, autoStartServices } from '../../hooks/useTauri';
 import NetworkStatus from './NetworkStatus';
@@ -15,6 +15,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [error, setError] = useState(null);
   const [showConfig, setShowConfig] = useState(false);
   const [autoStartPrompt, setAutoStartPrompt] = useState(null);
+  const servicesRef = useRef([]);
 
   const loadStatus = async () => {
     try {
@@ -23,16 +24,18 @@ const ControlPanel = ({ open, onClose }) => {
         getServicesStatus()
       ]);
       setNetworkStatus(netStatus);
-      setServices(svcStatus || []);
+      const nextServices = Array.isArray(svcStatus) ? svcStatus : [];
+      servicesRef.current = nextServices;
+      setServices(nextServices);
     } catch (err) {
       console.error('Failed to get status:', err);
     }
   };
 
-  const checkAutoStart = async () => {
+  const checkAutoStart = async (currentServices = servicesRef.current) => {
     try {
       const autoServices = await getAutoStartServices();
-      const runningServices = services.filter(s => s.running).map(s => s.name);
+      const runningServices = currentServices.filter(s => s.running).map(s => s.name);
 
       // 找出需要自动启动但还没运行的服务
       const needStart = autoServices.filter(name => !runningServices.includes(name));
@@ -49,23 +52,30 @@ const ControlPanel = ({ open, onClose }) => {
   };
 
   useEffect(() => {
-    if (open) {
-      loadStatus();
-    }
-    const interval = setInterval(loadStatus, 5000);
+    if (!open) return undefined;
+    let active = true;
+
+    const refresh = async () => {
+      if (!active) return;
+      await loadStatus();
+    };
+
+    refresh();
+    const interval = setInterval(refresh, 5000);
 
     // 延迟检查自动启动,避免启动时立即弹出
     const timer = setTimeout(() => {
-      if (open) {
+      if (active) {
         checkAutoStart();
       }
     }, 3000);
 
     return () => {
+      active = false;
       clearInterval(interval);
       clearTimeout(timer);
     };
-  }, [open, services]);
+  }, [open]);
 
   const handleStartNetwork = async () => {
     setLoading(true);
@@ -196,7 +206,7 @@ const ControlPanel = ({ open, onClose }) => {
 
         <div className="control-panel-content">
           {/* 调试信息 */}
-          <div style={{background: '#ffeb3b', padding: '10px', marginBottom: '10px', borderRadius: '4px'}}>
+          <div className="control-panel-debug">
             <small>调试: networkStatus = {networkStatus ? '已加载' : '未加载'}</small><br/>
             <small>调试: services.length = {services.length}</small><br/>
             <small>调试: open = {open.toString()}</small>

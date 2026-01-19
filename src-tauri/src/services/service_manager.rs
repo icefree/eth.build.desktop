@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use crate::services::process_manager::{ProcessManager, ProcessInfo};
 use crate::config::AppConfig;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -30,13 +31,29 @@ impl ServiceManager {
         Self {
             process_manager: ProcessManager::new(),
             services: vec![
-                "geth".to_string(),
                 "socket".to_string(),
                 "solc".to_string(),
                 "proxy".to_string(),
             ],
             config,
         }
+    }
+
+    fn resolve_base_dir(&self) -> PathBuf {
+        let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        for _ in 0..4 {
+            if dir.join("package.json").exists() && dir.join("geth").exists() {
+                return dir;
+            }
+            if !dir.pop() {
+                break;
+            }
+        }
+        std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+    }
+
+    fn service_dir_exists(&self, base_dir: &PathBuf, service_name: &str) -> bool {
+        base_dir.join(service_name).exists()
     }
 
     fn get_service_port(&self, service_name: &str) -> u16 {
@@ -72,9 +89,8 @@ impl ServiceManager {
     }
 
     pub fn start_geth(&mut self) -> Result<(), String> {
-        // 检查 geth 目录
-        let geth_dir = std::path::PathBuf::from("geth");
-        if !geth_dir.exists() {
+        let base_dir = self.resolve_base_dir();
+        if !self.service_dir_exists(&base_dir, "geth") {
             return Err("Geth directory not found".to_string());
         }
 
@@ -87,12 +103,13 @@ impl ServiceManager {
             &command,
             &args.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
             Some(port),
+            Some(&base_dir),
         )
     }
 
     pub fn start_socket_server(&mut self) -> Result<(), String> {
-        let socket_dir = std::path::PathBuf::from("socket");
-        if !socket_dir.exists() {
+        let base_dir = self.resolve_base_dir();
+        if !self.service_dir_exists(&base_dir, "socket") {
             return Err("Socket directory not found".to_string());
         }
 
@@ -104,12 +121,13 @@ impl ServiceManager {
             &command,
             &args.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
             Some(port),
+            Some(&base_dir),
         )
     }
 
     pub fn start_proxy(&mut self) -> Result<(), String> {
-        let proxy_dir = std::path::PathBuf::from("proxy");
-        if !proxy_dir.exists() {
+        let base_dir = self.resolve_base_dir();
+        if !self.service_dir_exists(&base_dir, "proxy") {
             return Err("Proxy directory not found".to_string());
         }
 
@@ -122,12 +140,13 @@ impl ServiceManager {
             &command,
             &args.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
             Some(port),
+            Some(&base_dir),
         )
     }
 
     pub fn start_solc(&mut self) -> Result<(), String> {
-        let solc_dir = std::path::PathBuf::from("solc");
-        if !solc_dir.exists() {
+        let base_dir = self.resolve_base_dir();
+        if !self.service_dir_exists(&base_dir, "solc") {
             return Err("Solc directory not found".to_string());
         }
 
@@ -139,6 +158,7 @@ impl ServiceManager {
             &command,
             &args.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
             Some(port),
+            Some(&base_dir),
         )
     }
 
@@ -163,13 +183,6 @@ impl ServiceManager {
         let mut errors = Vec::new();
 
         // 按顺序启动服务
-        if let Err(e) = self.start_geth() {
-            errors.push(format!("Failed to start geth: {}", e));
-        } else {
-            started.push("geth".to_string());
-            std::thread::sleep(std::time::Duration::from_secs(2)); // 等待 geth 启动
-        }
-
         if let Err(e) = self.start_socket_server() {
             errors.push(format!("Failed to start socket: {}", e));
         } else {
@@ -200,7 +213,6 @@ impl ServiceManager {
         let _ = self.stop_proxy();
         let _ = self.stop_solc();
         let _ = self.stop_socket_server();
-        let _ = self.stop_geth();
         Ok(())
     }
 

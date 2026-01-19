@@ -1,3 +1,4 @@
+use std::path::Path;
 use std::process::{Child, Command, Stdio};
 use std::collections::HashMap;
 use std::io::Read;
@@ -29,14 +30,26 @@ impl ProcessManager {
         }
     }
 
-    pub fn start_process(&mut self, name: String, command: &str, args: &[&str], port: Option<u16>) -> Result<(), String> {
+    pub fn start_process(
+        &mut self,
+        name: String,
+        command: &str,
+        args: &[&str],
+        port: Option<u16>,
+        working_dir: Option<&Path>,
+    ) -> Result<(), String> {
         if self.processes.contains_key(&name) {
             return Err(format!("Process {} already running", name));
         }
 
         println!("Starting process '{}' with command: {} {:?}", name, command, args);
 
-        let child = Command::new(command)
+        let mut cmd = Command::new(command);
+        if let Some(dir) = working_dir {
+            cmd.current_dir(dir);
+        }
+
+        let child = cmd
             .args(args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())

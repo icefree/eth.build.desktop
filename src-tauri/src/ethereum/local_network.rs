@@ -1,6 +1,7 @@
 use crate::ethereum::types::{NetworkConfig, NetworkInfo, AccountInfo, BlockInfo, TransactionInfo};
 use std::process::{Command, Child, Stdio};
 use std::path::PathBuf;
+use std::env;
 use std::time::Duration;
 use ethers::providers::{Http, Provider, Middleware};
 use ethers::core::types::TxHash;
@@ -25,9 +26,8 @@ impl LocalNetwork {
     }
 
     pub fn start(&mut self) -> Result<(), String> {
-        // 检查是否已安装 anvil
-        let anvil_path = Self::find_anvil()
-            .ok_or("Anvil not found. Please install Foundry: https://getfoundry.sh/")?;
+        // 使用项目内置的 Anvil
+        let anvil_path = Self::bundled_anvil_path()?;
 
         println!("Starting Anvil at: {}", anvil_path.display());
 
@@ -268,32 +268,40 @@ impl LocalNetwork {
         }
     }
 
-    fn find_anvil() -> Option<PathBuf> {
-        // 尝试查找 anvil 的常见路径
-        let common_paths = vec![
-            "/usr/local/bin/anvil",
-            "/opt/homebrew/bin/anvil",
-            "~/.foundry/bin/anvil",
-        ];
+    fn bundled_anvil_path() -> Result<PathBuf, String> {
+        let mut candidates: Vec<PathBuf> = Vec::new();
 
-        for path in common_paths {
-            let path_buf = PathBuf::from(path);
-            if path_buf.exists() {
-                return Some(path_buf);
+        if let Ok(cwd) = env::current_dir() {
+            candidates.push(cwd.join("src-tauri/bin/anvil"));
+            candidates.push(cwd.join("bin/anvil"));
+        }
+
+        if let Ok(exe) = env::current_exe() {
+            if let Some(dir) = exe.parent() {
+                candidates.push(dir.join("anvil"));
+                candidates.push(dir.join("../Resources/anvil"));
             }
         }
 
-        // 尝试通过 which 命令查找
-        if let Ok(output) = Command::new("which").arg("anvil").output() {
-            if output.status.success() {
-                let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                if !path.is_empty() {
-                    return Some(PathBuf::from(path));
+        for path in candidates {
+            if path.exists() {
+                #[cfg(unix)]
+                {
+                    use std::os::unix::fs::PermissionsExt;
+                    if let Ok(meta) = std::fs::metadata(&path) {
+                        if meta.permissions().mode() & 0o111 == 0 {
+                            return Err(format!(
+                                "Bundled Anvil is not executable: {}",
+                                path.display()
+                            ));
+                        }
+                    }
                 }
+                return Ok(path);
             }
         }
 
-        None
+        Err("Bundled Anvil not found. Place it at src-tauri/bin/anvil before running.".to_string())
     }
 }
 
