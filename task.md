@@ -49,11 +49,11 @@
 
 ## Phase 3 (Control Panel Integration)
 
-- [ ] Add "Reset Network" button:
-  - [ ] Implementation: stopLocalNetwork() then startLocalNetwork() with existing config
-  - [ ] Disable while busy; surface errors
-- [ ] Add Block Explorer entry inside Control Panel (only when network is running)
-- [ ] Increase Control Panel width to better fit tables (responsive constraints preserved)
+- [x] Add "Reset Network" button:
+  - [x] Implementation: stopLocalNetwork() then startLocalNetwork() with existing config
+  - [x] Disable while busy; surface errors
+- [x] Add Block Explorer entry inside Control Panel (only when network is running)
+- [x] Increase Control Panel width to better fit tables (responsive constraints preserved)
 
 ## Phase 4 (Quality)
 
