@@ -195,6 +195,13 @@ const ControlPanel = ({ open, onClose }) => {
         )}
 
         <div className="control-panel-content">
+          {/* 调试信息 */}
+          <div style={{background: '#ffeb3b', padding: '10px', marginBottom: '10px', borderRadius: '4px'}}>
+            <small>调试: networkStatus = {networkStatus ? '已加载' : '未加载'}</small><br/>
+            <small>调试: services.length = {services.length}</small><br/>
+            <small>调试: open = {open.toString()}</small>
+          </div>
+
           <div className="network-controls">
             {!networkStatus?.is_running ? (
               <button
