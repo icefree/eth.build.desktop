@@ -20,20 +20,20 @@
 
 ## Phase 1 (Backend / Tauri)
 
-- [ ] Add Tauri commands for block browsing:
-  - [ ] `get_blocks(page: Option<u64>, page_size: Option<u64>) -> Vec<BlockSummary>`
-  - [ ] `get_block_by_number(number: u64) -> Option<BlockDetail>`
-- [ ] Extend Rust types:
-  - [ ] `BlockSummary` (number, hash, timestamp, transaction_count)
-  - [ ] `BlockDetail` (BlockSummary + tx_hashes: Vec<String>)
-- [ ] Implement block queries in `src-tauri/src/ethereum/local_network.rs` using ethers Provider:
-  - [ ] Determine latest block
-  - [ ] Compute range for pagination (newest-first)
-  - [ ] Fetch block headers and tx hash lists (for details)
-- [ ] Implement Faucet for local Anvil:
-  - [ ] Send an actual value-transfer tx from a funded default Anvil account to target address
-  - [ ] Return real tx hash
-  - [ ] Validate address + amount input
+- [x] Add Tauri commands for block browsing:
+  - [x] `get_blocks(page: Option<u64>, page_size: Option<u64>) -> Vec<BlockSummary>`
+  - [x] `get_block_by_number(number: u64) -> Option<BlockDetail>`
+- [x] Extend Rust types:
+  - [x] `BlockSummary` (number, hash, timestamp, transaction_count)
+  - [x] `BlockDetail` (BlockSummary + tx_hashes: Vec<String>)
+- [x] Implement block queries in `src-tauri/src/ethereum/local_network.rs` using ethers Provider:
+  - [x] Determine latest block
+  - [x] Compute range for pagination (newest-first)
+  - [x] Fetch block headers and tx hash lists (for details)
+- [x] Implement Faucet for local Anvil:
+  - [x] Send an actual value-transfer tx from a funded default Anvil account to target address
+  - [x] Return real tx hash
+  - [x] Validate address + amount input
 
 ## Phase 2 (Frontend: Components)
 
