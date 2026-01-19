@@ -1,0 +1,186 @@
+.faucet-panel {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.faucet-header {
+  margin-bottom: 20px;
+}
+
+.faucet-header h3 {
+  margin: 0 0 8px 0;
+  color: #fff;
+  font-size: 18px;
+}
+
+.faucet-description {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.faucet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.form-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form-group input[type="number"] {
+  font-family: 'Courier New', monospace;
+}
+
+.faucet-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.faucet-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.faucet-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.faucet-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.faucet-error {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 4px;
+  color: #f44336;
+  font-size: 14px;
+}
+
+.faucet-success {
+  margin-top: 20px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.success-header {
+  padding: 12px 15px;
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.success-details {
+  padding: 15px;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 90px;
+  font-size: 13px;
+}
+
+.detail-value {
+  color: #fff;
+  flex: 1;
+  word-break: break-all;
+  font-size: 13px;
+}
+
+.detail-value.hash {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.success-footer {
+  padding: 12px 15px;
+  background: rgba(76, 175, 80, 0.05);
+  border-top: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.success-footer small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .faucet-panel {
+    padding: 15px;
+  }
+
+  .detail-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-label {
+    min-width: auto;
+  }
+}

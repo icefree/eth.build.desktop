@@ -24,7 +24,7 @@
 .control-panel {
   display: flex;
   flex-direction: column;
-  width: 460px;
+  width: 800px;
   max-width: 90vw;
   height: 100vh;
   background: #f5f5f5;

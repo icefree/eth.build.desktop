@@ -121,3 +121,25 @@ export const getAutoStartServices = async () => {
 export const autoStartServices = async () => {
   return invoke('auto_start_services');
 };
+
+// ===== 区块浏览器命令 =====
+
+// 获取区块列表（分页）
+export const getBlocks = async (page = 1, pageSize = 20) => {
+  return invoke('get_blocks', { page, page_size: pageSize });
+};
+
+// 根据区块号获取区块详情
+export const getBlockByNumber = async (blockNumber) => {
+  return invoke('get_block_by_number', { number: blockNumber });
+};
+
+// 获取最新区块号
+export const getLatestBlockNumber = async () => {
+  return invoke('get_latest_block_number');
+};
+
+// 搜索区块链（支持区块号和交易哈希）
+export const searchBlockchain = async (query) => {
+  return invoke('search_blockchain', { query });
+};

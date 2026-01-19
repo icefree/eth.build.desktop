@@ -6,6 +6,8 @@ import AccountsPanel from './AccountsPanel';
 import MiningControl from './MiningControl';
 import ServicesPanel from './ServicesPanel';
 import ConfigPanel from './ConfigPanel';
+import BlockExplorer from './BlockExplorer';
+import FaucetPanel from './FaucetPanel';
 import './index.css';
 
 const ControlPanel = ({ open, onClose }) => {
@@ -246,7 +248,9 @@ const ControlPanel = ({ open, onClose }) => {
           {networkStatus?.is_running && (
             <>
               <AccountsPanel />
+              <FaucetPanel />
               <MiningControl onQuickMine={handleQuickMine} />
+              <BlockExplorer />
             </>
           )}
 
