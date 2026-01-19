@@ -6,6 +6,17 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
   const [editingPort, setEditingPort] = useState(null);
   const [portValue, setPortValue] = useState('');
   const [saveStatus, setSaveStatus] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(null);
+
+  const copyToClipboard = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+  };
 
   const getServiceIcon = (serviceName) => {
     switch (serviceName) {
@@ -83,6 +94,11 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
       default:
         return 0;
     }
+  };
+
+  const getServiceUrl = (service) => {
+    const port = service.port || getServiceDefaultPort(service.name);
+    return `http://localhost:${port}`;
   };
 
   const runningCount = services.filter(s => s.running).length;
@@ -169,17 +185,29 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
                       </button>
                     </div>
                   ) : (
-                    <span className="service-port">
-                      端口: {service.port || getServiceDefaultPort(service.name)}
-                      <button
-                        className="port-edit-btn"
-                        onClick={() => handleEditPort(service)}
-                        disabled={loading || service.running}
-                        title="修改端口（服务停止后才能修改）"
-                      >
-                        ✏️
-                      </button>
-                    </span>
+                    <>
+                      <span className="service-port">
+                        端口: {service.port || getServiceDefaultPort(service.name)}
+                        <button
+                          className="port-edit-btn"
+                          onClick={() => handleEditPort(service)}
+                          disabled={loading || service.running}
+                          title="修改端口（服务停止后才能修改）"
+                        >
+                          ✏️
+                        </button>
+                      </span>
+                      {service.running && (
+                        <span 
+                          className="service-url copyable"
+                          onClick={() => copyToClipboard(getServiceUrl(service), '访问地址')}
+                          title="点击复制访问地址"
+                        >
+                          {getServiceUrl(service)}
+                          <span className="copy-icon">📋</span>
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -213,6 +241,12 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
           💡 提示: 服务运行时无法修改端口。
         </p>
       </div>
+
+      {copySuccess && (
+        <div className="copy-toast">
+          ✅ {copySuccess} 已复制
+        </div>
+      )}
     </div>
   );
 };
