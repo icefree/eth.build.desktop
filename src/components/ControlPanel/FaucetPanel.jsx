@@ -9,6 +9,18 @@ const FaucetPanel = ({ onSuccess }) => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
+  const [copySuccess, setCopySuccess] = useState(null);
+
+  const copyToClipboard = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+  };
+
   const handleFaucet = async () => {
     // 验证地址
     if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
@@ -111,10 +123,7 @@ const FaucetPanel = ({ onSuccess }) => {
                 </span>
                 <button 
                   className="copy-button" 
-                  onClick={() => {
-                    navigator.clipboard.writeText(result.tx_hash);
-                    // 可以加个简单的反馈
-                  }}
+                  onClick={() => copyToClipboard(result.tx_hash, '交易哈希')}
                   title="复制完整哈希"
                 >
                   📋
@@ -129,7 +138,7 @@ const FaucetPanel = ({ onSuccess }) => {
                 </span>
                 <button 
                   className="copy-button" 
-                  onClick={() => navigator.clipboard.writeText(result.to)}
+                  onClick={() => copyToClipboard(result.to, '接收地址')}
                   title="复制完整地址"
                 >
                   📋
@@ -138,7 +147,7 @@ const FaucetPanel = ({ onSuccess }) => {
             </div>
             <div className="detail-item">
               <span className="detail-label">金额:</span>
-              <span className="detail-value">{result.amount}</span>
+              <span className="detail-value">{result.amount} ETH</span>
             </div>
             {result.block_number !== undefined && (
               <div className="detail-item">
@@ -150,6 +159,12 @@ const FaucetPanel = ({ onSuccess }) => {
           <div className="success-footer">
             <small>💡 提示: 可以在区块浏览器中查看此交易</small>
           </div>
+        </div>
+      )}
+
+      {copySuccess && (
+        <div className="copy-toast">
+          ✅ {copySuccess} 已复制
         </div>
       )}
     </div>
