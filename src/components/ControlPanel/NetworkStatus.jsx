@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './NetworkStatus.css';
 
 const NetworkStatus = ({ status }) => {
+  const [copySuccess, setCopySuccess] = useState(null);
+
+  const copyToClipboard = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+  };
+
   if (!status) {
     return (
       <div className="network-status">
@@ -26,16 +38,31 @@ const NetworkStatus = ({ status }) => {
           <div className="status-details">
             <div className="status-row">
               <span className="label">RPC URL:</span>
-              <span className="value">{status.rpc_url}</span>
+              <span className="value copyable" onClick={() => copyToClipboard(status.rpc_url, 'RPC URL')}>
+                {status.rpc_url}
+                <span className="copy-icon">📋</span>
+              </span>
             </div>
             <div className="status-row">
               <span className="label">Chain ID:</span>
-              <span className="value">{status.chain_id}</span>
+              <span className="value copyable" onClick={() => copyToClipboard(String(status.chain_id), 'Chain ID')}>
+                {status.chain_id}
+                <span className="copy-icon">📋</span>
+              </span>
             </div>
             <div className="status-row">
               <span className="label">WS URL:</span>
-              <span className="value">{status.ws_url}</span>
+              <span className="value copyable" onClick={() => copyToClipboard(status.ws_url, 'WS URL')}>
+                {status.ws_url}
+                <span className="copy-icon">📋</span>
+              </span>
             </div>
+          </div>
+        )}
+
+        {copySuccess && (
+          <div className="copy-toast">
+            ✅ {copySuccess} 已复制
           </div>
         )}
       </div>

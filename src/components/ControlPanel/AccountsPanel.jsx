@@ -6,6 +6,7 @@ const AccountsPanel = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPrivateKeys, setShowPrivateKeys] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(null);
 
   const loadAccounts = async () => {
     setLoading(true);
@@ -23,8 +24,14 @@ const AccountsPanel = () => {
     loadAccounts();
   }, []);
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
   };
 
   const formatBalance = (balanceWei) => {
@@ -35,10 +42,6 @@ const AccountsPanel = () => {
     } catch {
       return balanceWei;
     }
-  };
-
-  const formatAddress = (address) => {
-    return `${address.slice(0, 8)}...${address.slice(-6)}`;
   };
 
   return (
@@ -71,7 +74,7 @@ const AccountsPanel = () => {
                 <code className="address-value">{account.address}</code>
                 <button
                   className="copy-btn"
-                  onClick={() => copyToClipboard(account.address)}
+                  onClick={() => copyToClipboard(account.address, '地址')}
                   title="复制地址"
                 >
                   📋
@@ -83,7 +86,7 @@ const AccountsPanel = () => {
                   <code className="key-value">{account.private_key}</code>
                   <button
                     className="copy-btn"
-                    onClick={() => copyToClipboard(account.private_key)}
+                    onClick={() => copyToClipboard(account.private_key, '私钥')}
                     title="复制私钥"
                   >
                     📋
@@ -103,6 +106,12 @@ const AccountsPanel = () => {
           {showPrivateKeys ? '🙈 隐藏私钥' : '👁️ 显示私钥'}
         </button>
       </div>
+
+      {copySuccess && (
+        <div className="copy-toast">
+          ✅ {copySuccess} 已复制
+        </div>
+      )}
     </div>
   );
 };
