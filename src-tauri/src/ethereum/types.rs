@@ -58,3 +58,47 @@ pub struct TransactionInfo {
     pub status: String,
     pub timestamp: u64,
 }
+
+/// Block summary for block list display
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BlockSummary {
+    pub number: u64,
+    pub hash: String,
+    pub timestamp: u64,
+    pub transaction_count: u64,
+    /// First transaction hash for quick preview (if any)
+    pub first_tx_hash: Option<String>,
+}
+
+/// Block detail including full transaction hash list
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BlockDetail {
+    pub number: u64,
+    pub hash: String,
+    pub timestamp: u64,
+    pub transaction_count: u64,
+    pub parent_hash: String,
+    pub gas_used: String,
+    pub gas_limit: String,
+    pub miner: String,
+    pub tx_hashes: Vec<String>,
+}
+
+/// Paginated block list response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PaginatedBlocks {
+    pub blocks: Vec<BlockSummary>,
+    pub total: u64,
+    pub page: u64,
+    pub page_size: u64,
+    pub total_pages: u64,
+}
+
+/// Faucet transaction result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FaucetResult {
+    pub tx_hash: String,
+    pub from: String,
+    pub to: String,
+    pub amount: String,
+}

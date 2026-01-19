@@ -11,3 +11,4 @@ cargo:PERMISSION_FILES_PATH=/Users/rex/workspace/playground/web3_sprint/eth.buil
 cargo:rerun-if-changed=capabilities
 cargo:rerun-if-env-changed=REMOVE_UNUSED_COMMANDS
 cargo:rustc-env=TAURI_ENV_TARGET_TRIPLE=aarch64-apple-darwin
+cargo:rerun-if-changed=bin/anvil

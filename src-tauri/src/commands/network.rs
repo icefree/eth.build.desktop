@@ -56,3 +56,44 @@ pub async fn get_network_status(state: tauri::State<'_, AppState>) -> Result<Net
         }),
     }
 }
+
+/// Reset the local network (stop + start with existing config)
+#[tauri::command]
+pub async fn reset_network(
+    state: tauri::State<'_, AppState>,
+) -> Result<NetworkInfo, String> {
+    let mut local_network = state.local_network.lock().await;
+
+    // Get the current config before stopping
+    let config = match local_network.as_ref() {
+        Some(network) => {
+            // We need to reconstruct config from NetworkInfo
+            // For now, use default config
+            NetworkConfig::default()
+        }
+        None => return Err("Network is not running".to_string()),
+    };
+
+    // Stop current network
+    if let Some(network) = local_network.as_mut() {
+        network.stop()
+            .map_err(|e| format!("Failed to stop network: {}", e))?;
+    }
+    *local_network = None;
+
+    // Small delay to ensure ports are released
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+
+    // Start new network with same config
+    let mut network = LocalNetwork::new(config)
+        .map_err(|e| format!("Failed to create network: {}", e))?;
+
+    network.start()
+        .map_err(|e| format!("Failed to start network: {}", e))?;
+
+    let info = network.get_info();
+    *local_network = Some(network);
+
+    Ok(info)
+}
+

@@ -6,7 +6,7 @@ mod config;
 mod ethereum;
 mod services;
 
-use commands::{network, accounts, mining, transactions};
+use commands::{network, accounts, mining, transactions, blocks};
 use commands::services as service_commands;
 use commands::config as config_commands;
 use config::AppConfig;
@@ -55,6 +55,7 @@ async fn main() {
             network::start_local_network,
             network::stop_local_network,
             network::get_network_status,
+            network::reset_network,
             // Account commands
             accounts::get_accounts,
             accounts::faucet,
@@ -64,6 +65,11 @@ async fn main() {
             // Transaction commands
             transactions::get_transactions,
             transactions::get_transaction_by_hash,
+            // Block explorer commands
+            blocks::get_blocks,
+            blocks::get_block_by_number,
+            blocks::get_latest_block_number,
+            blocks::search_blockchain,
             // Service commands
             service_commands::start_service,
             service_commands::stop_service,
@@ -82,3 +88,4 @@ async fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+

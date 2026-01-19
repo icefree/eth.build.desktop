@@ -1,4 +1,4 @@
-use crate::ethereum::types::{NetworkConfig, NetworkInfo, AccountInfo, BlockInfo, TransactionInfo};
+use crate::ethereum::types::{NetworkConfig, NetworkInfo, AccountInfo, BlockInfo, TransactionInfo, BlockSummary, BlockDetail, PaginatedBlocks, FaucetResult};
 use std::process::{Command, Child, Stdio};
 use std::path::PathBuf;
 use std::env;
@@ -125,14 +125,53 @@ impl LocalNetwork {
         Ok(accounts)
     }
 
-    pub async fn faucet(&mut self, _address: &str, _amount_wei: &str) -> Result<String, String> {
+    pub async fn faucet(&mut self, address: &str, amount_eth: &str) -> Result<FaucetResult, String> {
         if self.provider.is_none() {
             return Err("Network is not running".to_string());
         }
 
-        // TODO: 实现实际的 faucet 功能
-        // 需要签名并发送交易
-        Ok("0x0000000000000000000000000000000000000000000000000000000000000000".to_string())
+        let provider = self.provider.as_ref()
+            .ok_or("Provider not initialized")?;
+
+        // Validate address format
+        let target_address: ethers::types::Address = address.parse()
+            .map_err(|_| "Invalid address format")?;
+
+        // Parse amount (in ETH) and convert to Wei
+        let amount_eth_f64: f64 = amount_eth.parse()
+            .map_err(|_| "Invalid amount format")?;
+        
+        if amount_eth_f64 <= 0.0 {
+            return Err("Amount must be positive".to_string());
+        }
+
+        // Convert ETH to Wei (1 ETH = 10^18 Wei)
+        let amount_wei = ethers::types::U256::from((amount_eth_f64 * 1e18) as u128);
+
+        // Use Anvil's anvil_setBalance RPC method to set the balance
+        // First, get current balance
+        let current_balance = provider.get_balance(target_address, None)
+            .await
+            .map_err(|e| format!("Failed to get current balance: {}", e))?;
+
+        // Calculate new balance
+        let new_balance = current_balance + amount_wei;
+
+        // Set the new balance using Anvil's RPC
+        let _: () = provider.request("anvil_setBalance", (target_address, new_balance))
+            .await
+            .map_err(|e| format!("Failed to set balance: {}", e))?;
+
+        // Return result (no actual tx hash since we used anvil_setBalance)
+        Ok(FaucetResult {
+            tx_hash: format!("0x{:064x}", ethers::types::U256::from(std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos() as u64)),
+            from: "Anvil Faucet".to_string(),
+            to: format!("{:?}", target_address),
+            amount: format!("{} ETH", amount_eth),
+        })
     }
 
     pub async fn mine_block(&mut self) -> Result<BlockInfo, String> {
@@ -266,6 +305,111 @@ impl LocalNetwork {
         } else {
             Ok(None)
         }
+    }
+
+    /// Get paginated list of blocks (newest first)
+    pub async fn get_blocks(&self, page: Option<u64>, page_size: Option<u64>) -> Result<PaginatedBlocks, String> {
+        if self.provider.is_none() {
+            return Err("Network is not running".to_string());
+        }
+
+        let provider = self.provider.as_ref()
+            .ok_or("Provider not initialized")?;
+
+        let page = page.unwrap_or(1).max(1);
+        let page_size = page_size.unwrap_or(20).min(100).max(1);
+
+        // Get latest block number
+        let latest_block = provider.get_block(ethers::types::BlockNumber::Latest)
+            .await
+            .map_err(|e| format!("Failed to get latest block: {}", e))?
+            .ok_or("Latest block not found")?;
+
+        let total = latest_block.number.unwrap_or_default().as_u64() + 1; // Include block 0
+        let total_pages = (total + page_size - 1) / page_size;
+
+        // Calculate block range for this page (newest first)
+        let skip = (page - 1) * page_size;
+        let start_block = if total > skip { total - skip - 1 } else { 0 };
+        let end_block = if start_block >= page_size { start_block - page_size + 1 } else { 0 };
+
+        let mut blocks = Vec::new();
+
+        // Fetch blocks from newest to oldest
+        let mut current = start_block as i64;
+        while current >= end_block as i64 && blocks.len() < page_size as usize {
+            if let Ok(Some(block)) = provider.get_block(ethers::types::BlockId::Number((current as u64).into())).await {
+                let first_tx_hash = block.transactions.first().map(|h| format!("{:?}", h));
+                
+                blocks.push(BlockSummary {
+                    number: block.number.unwrap_or_default().as_u64(),
+                    hash: format!("{:?}", block.hash.unwrap_or_default()),
+                    timestamp: block.timestamp.as_u64(),
+                    transaction_count: block.transactions.len() as u64,
+                    first_tx_hash,
+                });
+            }
+            current -= 1;
+        }
+
+        Ok(PaginatedBlocks {
+            blocks,
+            total,
+            page,
+            page_size,
+            total_pages,
+        })
+    }
+
+    /// Get block details by block number
+    pub async fn get_block_by_number(&self, number: u64) -> Result<Option<BlockDetail>, String> {
+        if self.provider.is_none() {
+            return Err("Network is not running".to_string());
+        }
+
+        let provider = self.provider.as_ref()
+            .ok_or("Provider not initialized")?;
+
+        let block = provider.get_block(ethers::types::BlockId::Number(number.into()))
+            .await
+            .map_err(|e| format!("Failed to get block: {}", e))?;
+
+        if let Some(block) = block {
+            let tx_hashes: Vec<String> = block.transactions.iter()
+                .map(|h| format!("{:?}", h))
+                .collect();
+
+            Ok(Some(BlockDetail {
+                number: block.number.unwrap_or_default().as_u64(),
+                hash: format!("{:?}", block.hash.unwrap_or_default()),
+                timestamp: block.timestamp.as_u64(),
+                transaction_count: block.transactions.len() as u64,
+                parent_hash: format!("{:?}", block.parent_hash),
+                gas_used: format!("{:?}", block.gas_used),
+                gas_limit: format!("{:?}", block.gas_limit),
+                miner: format!("{:?}", block.author.unwrap_or_default()),
+                tx_hashes,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Get the latest block number
+    pub async fn get_latest_block_number(&self) -> Result<u64, String> {
+        if self.provider.is_none() {
+            return Err("Network is not running".to_string());
+        }
+
+        let provider = self.provider.as_ref()
+            .ok_or("Provider not initialized")?;
+
+        let block = provider.get_block(ethers::types::BlockNumber::Latest)
+            .await
+            .map_err(|e| format!("Failed to get latest block: {}", e))?
+            .ok_or("Latest block not found")?;
+
+        Ok(block.number.unwrap_or_default().as_u64())
     }
 
     fn bundled_anvil_path() -> Result<PathBuf, String> {

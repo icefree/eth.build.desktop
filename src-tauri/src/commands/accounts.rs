@@ -1,4 +1,4 @@
-use crate::ethereum::types::AccountInfo;
+use crate::ethereum::types::{AccountInfo, FaucetResult};
 use crate::AppState;
 use tauri::State;
 
@@ -21,15 +21,16 @@ pub async fn faucet(
     address: String,
     amount: String,
     state: tauri::State<'_, AppState>,
-) -> Result<String, String> {
+) -> Result<FaucetResult, String> {
     let mut local_network = state.local_network.lock().await;
 
     match local_network.as_mut() {
         Some(network) => {
-            let tx_hash = network.faucet(&address, &amount).await
+            let result = network.faucet(&address, &amount).await
                 .map_err(|e| format!("Faucet failed: {}", e))?;
-            Ok(tx_hash)
+            Ok(result)
         }
         None => Err("Network is not running".to_string()),
     }
 }
+
