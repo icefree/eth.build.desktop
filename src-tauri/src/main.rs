@@ -30,6 +30,10 @@ async fn main() {
             if let Err(err) = manager.start_socket_server() {
                 eprintln!("Failed to auto-start socket: {}", err);
             }
+            #[cfg(debug_assertions)]
+            if let Some(window) = app.get_webview_window("main") {
+                window.open_devtools();
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

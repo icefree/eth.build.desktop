@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.ethbuild.desktop",
   "build": {
-    "beforeDevCommand": "yarn start",
-    "beforeBuildCommand": "yarn build",
+    "beforeDevCommand": "pnpm start",
+    "beforeBuildCommand": "pnpm build",
     "frontendDist": "../build",
     "devUrl": "http://localhost:3000"
   },
