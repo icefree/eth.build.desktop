@@ -19,8 +19,8 @@
     },
     "socket": {
       "enabled": true,
-      "auto_start": false,
-      "port": 44387,
+      "auto_start": true,
+      "port": 44386,
       "command": "node",
       "args": [
         "socket/index.js"
@@ -35,5 +35,8 @@
         "solc/index.js"
       ]
     }
+  },
+  "api_keys": {
+    "coinmarketcap": "bfc9484cf48a44d1ba11d44c5402b1e1"
   }
 }
