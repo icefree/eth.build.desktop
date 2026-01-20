@@ -122,6 +122,11 @@ export const autoStartServices = async () => {
   return invoke('auto_start_services');
 };
 
+// ===== 价格测试命令 =====
+export const testCoinMarketCap = async (apiKey) => {
+  return invoke('test_coinmarketcap', { apiKey });
+};
+
 // ===== 区块浏览器命令 =====
 
 // 获取区块列表（分页）

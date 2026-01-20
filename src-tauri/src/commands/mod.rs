@@ -5,4 +5,5 @@ pub mod transactions;
 pub mod services;
 pub mod config;
 pub mod blocks;
-
+pub mod solc;
+pub mod price;

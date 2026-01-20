@@ -6,7 +6,7 @@ mod config;
 mod ethereum;
 mod services;
 
-use commands::{network, accounts, mining, transactions, blocks};
+use commands::{network, accounts, mining, transactions, blocks, solc, price};
 use commands::services as service_commands;
 use commands::config as config_commands;
 use config::AppConfig;
@@ -70,6 +70,8 @@ async fn main() {
             blocks::get_block_by_number,
             blocks::get_latest_block_number,
             blocks::search_blockchain,
+            // Solidity compiler command
+            solc::compile_solidity,
             // Service commands
             service_commands::start_service,
             service_commands::stop_service,
@@ -84,8 +86,9 @@ async fn main() {
             config_commands::update_service_port,
             config_commands::get_auto_start_services,
             config_commands::auto_start_services,
+            // Price test command
+            price::test_coinmarketcap,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
