@@ -1,3 +1,29 @@
+## 📋 Fork Modifications
+
+| Module                     | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| 🏗️ **Tauri Desktop App**   | Infrastructure, local Ethereum network management        |
+| 🎛️ **Control Panel**       | Local service management, port configuration, dark theme |
+| 🔍 **Local Anvil Testnet** | RPC, Block Explorer, Faucet                              |
+| 📦 **IPFS**                | Local standalone node, auto-start, Pub-Sub               |
+| 🌐 **Network Pub-Sub**     | Using local Socket                                       |
+| ⚙️ **Solidity**            | Updated to 0.8.33, local compilation                     |
+| 📝 **Updates**             | Gas API, outdated testnets (Ropsten→Sepolia, etc.)       |
+
+## 📋 Fork 修改总结
+
+| 模块                     | 内容                                       |
+| ------------------------ | ------------------------------------------ |
+| 🏗️ **Tauri 桌面应用**    | 基础架构、本地以太坊网络管理               |
+| 🎛️ **Control Panel**     | 本地服务管理、端口配置、暗色主题           |
+| 🔍 **本地 Anvil 测试网** | RPC、区块浏览器、Faucet                    |
+| 📦 **IPFS**              | 本地 IPFS 单机节点、自动启动、Pub-Sub      |
+| 🌐 **Network Pub-Sub**   | 使用本地 Socket                            |
+| ⚙️ **Solidity**          | 更新到 0.8.33，使用本地编译                |
+| 📝 **更新**              | Gas API、过时测试网络 (Ropsten→Sepolia 等) |
+
+---
+
 🛠 [ETH.Build](https://eth.build)
 
 Enviornment Information:
@@ -8,7 +34,7 @@ yarn: 1.22.5
 ---
 
 ```
-  yarn install --frozen-lockfile --ignore-engines 
+  yarn install --frozen-lockfile --ignore-engines
   yarn start
 ```
 
