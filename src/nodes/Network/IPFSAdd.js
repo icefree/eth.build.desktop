@@ -1,4 +1,4 @@
-const IPFS = require('ipfs-core')
+const { createIpfsClient } = require('./ipfsClient')
 
 function IPFSAdd() {
   this.addInput("data","string");
@@ -13,22 +13,15 @@ IPFSAdd.title = "IPFSUpload";
 
 IPFSAdd.prototype.onAdded = async function() {
   this.title_color = "#dddddd";
-  this.ipfs = await IPFS.create({
-    EXPERIMENTAL: {
-     pubsub: true,
-   },
-   repo: 'ipfs-' + Math.random(),
-   config: {
-     Addresses: {
-       Swarm: ['/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-       '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star']
-     },
-     Bootstrap: []
-   }
-  })
-  const { id, agentVersion, protocolVersion } = await this.ipfs.id()
-  console.log("IPFS FOR ADD!",id, agentVersion, protocolVersion)
-  this.title_color = "#eeee44";
+  try {
+    this.ipfs = createIpfsClient()
+    const { id, agentVersion, protocolVersion } = await this.ipfs.id()
+    console.log("IPFS FOR ADD!", id, agentVersion, protocolVersion)
+    this.title_color = "#eeee44";
+  } catch (e) {
+    console.log(e)
+    this.title_color = "#ff6666";
+  }
 };
 
 IPFSAdd.prototype.onExecute = async function() {
