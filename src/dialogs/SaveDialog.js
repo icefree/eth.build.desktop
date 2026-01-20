@@ -42,6 +42,7 @@ const STORAGE_3BOX_DOCUMENT = "eth.build.documentTitle3Box";
 var codec = require("json-url")("lzw");
 var QRCode = require("qrcode.react");
 const axios = require("axios");
+const { getSocketBaseUrl, buildSocketUrl } = require("../utils/socketConfig");
 
 const useStyles = makeStyles({
   button: {
@@ -208,7 +209,8 @@ function SaveDialog(props) {
   const share = async () => {
     console.log("share", compressed);
     setSaveType("SHARE");
-    let result = await axios.post("https://network.eth.build:44386/build", {
+    const baseUrl = await getSocketBaseUrl();
+    let result = await axios.post(buildSocketUrl("build", baseUrl), {
       compressed
     });
 

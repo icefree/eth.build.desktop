@@ -66,8 +66,10 @@ pub async fn search_blockchain(
 
     match local_network.as_ref() {
         Some(network) => {
+            let trimmed = query.trim();
+
             // Check if query is a block number (decimal integer)
-            if let Ok(block_number) = query.parse::<u64>() {
+            if let Ok(block_number) = trimmed.parse::<u64>() {
                 let block = network.get_block_by_number(block_number).await
                     .map_err(|e| format!("Failed to search: {}", e))?;
                 
@@ -79,12 +81,38 @@ pub async fn search_blockchain(
                 }
             }
             
+            let normalized = if trimmed.starts_with("0x") {
+                trimmed.to_string()
+            } else {
+                format!("0x{}", trimmed)
+            };
+
+            let is_hex = normalized.len() >= 3
+                && normalized.starts_with("0x")
+                && normalized[2..].chars().all(|c| c.is_ascii_hexdigit());
+
             // Check if query is a transaction hash (0x + 64 hex chars)
-            if query.starts_with("0x") && query.len() == 66 {
-                let tx = network.get_transaction_by_hash(&query).await
+            if is_hex && normalized.len() == 66 {
+                let tx = network.get_transaction_by_hash(&normalized).await
                     .map_err(|e| format!("Failed to search: {}", e))?;
                 
                 if let Some(tx) = tx {
+                    return Ok(serde_json::json!({
+                        "type": "transaction",
+                        "data": tx
+                    }));
+                }
+            }
+
+            // Partial hash search (e.g., suffix shown in UI)
+            if is_hex {
+                let needle = normalized.to_lowercase();
+                let txs = network.get_transactions(200).await
+                    .map_err(|e| format!("Failed to search: {}", e))?;
+                if let Some(tx) = txs.into_iter().find(|tx| {
+                    let hash = tx.hash.to_lowercase();
+                    hash.starts_with(&needle) || hash.ends_with(&needle) || hash.contains(&needle)
+                }) {
                     return Ok(serde_json::json!({
                         "type": "transaction",
                         "data": tx

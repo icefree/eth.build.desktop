@@ -15,7 +15,7 @@ app.post('/', (req, res) => {
   console.log("hit!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/'
+      target: 'http://localhost:44386/'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")
@@ -25,7 +25,7 @@ app.post('/build', (req, res) => {
   console.log("build set hit!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/'
+      target: 'http://localhost:44386/'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")
@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
   console.log("hit!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/'
+      target: 'http://localhost:44386/'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")
@@ -46,7 +46,7 @@ app.get('/price', (req, res) => {
   console.log("hit price!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/'
+      target: 'http://localhost:44386/'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")
@@ -56,7 +56,7 @@ app.get('/build', (req, res) => {
   console.log("build get hit!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/'
+      target: 'http://localhost:44386/'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")
@@ -66,7 +66,7 @@ app.post('/socket.io', (req, res) => {
   console.log("hit!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/socket.io'
+      target: 'http://localhost:44386/socket.io'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")
@@ -76,7 +76,7 @@ app.get('/socket.io', (req, res) => {
   console.log("hit!")
   proxy.web(req, res, {
       //target: 'http://10.0.0.237:8545'
-      target: 'http://localhost:44387/socket.io'
+      target: 'http://localhost:44386/socket.io'
       //target: 'http://10.0.0.188:8545'
     });
     console.log("served!")

@@ -1,10 +1,20 @@
 const axiosParent = require('axios').default;
 const https = require('https')
+const { invoke } = require('../../lib/tauri-api')
 const axios = axiosParent.create({
   httpsAgent: new https.Agent({
     rejectUnauthorized: false
   })
 });
+
+const hasTauriInvoke = () => {
+  if (typeof window === 'undefined') return false
+  return Boolean(
+    window.__TAURI__?.core?.invoke ||
+    window.__TAURI__?.invoke ||
+    window.__TAURI_INTERNALS__?.invoke
+  )
+}
 
 function Compile() {
   this.addInput("name","string")
@@ -12,7 +22,7 @@ function Compile() {
   this.addInput("compile",-1)
   this.addOutput("bytecode","string")
   this.addOutput("abi","object")
-//  this.properties = { host: "https://solc.eth.build", port:"48451" };
+//  this.properties = { host: "http://localhost", port:"48452" };
   this.size[0] = 210
 }
 
@@ -62,10 +72,13 @@ Compile.prototype.compile = function(name) {
 
   console.log(" 🛠️  Compiling...",solcObject.sources)
 
-  axios.post('https://solc.eth.build:48451/',solcObject)
-  .then((response) => {
+  const compileRequest = hasTauriInvoke()
+    ? invoke('compile_solidity', { input: solcObject })
+    : axios.post('http://localhost:48452/',solcObject).then((response) => response.data)
+
+  compileRequest.then((compiled) => {
     //console.log("response.data",response.data)
-    this.properties.compiled = response.data
+    this.properties.compiled = compiled
 
     //console.log("COMPILED:",this.properties.compiled)
     if(this.properties.compiled.errors && this.properties.compiled.errors[0] && this.properties.compiled.errors[0].message){

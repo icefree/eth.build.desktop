@@ -8,7 +8,7 @@ pub async fn get_accounts(state: tauri::State<'_, AppState>) -> Result<Vec<Accou
 
     match local_network.as_ref() {
         Some(network) => {
-            let accounts = network.get_accounts()
+            let accounts = network.get_accounts().await
                 .map_err(|e| format!("Failed to get accounts: {}", e))?;
             Ok(accounts)
         }
@@ -33,4 +33,3 @@ pub async fn faucet(
         None => Err("Network is not running".to_string()),
     }
 }
-

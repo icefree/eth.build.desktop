@@ -2,15 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom'
 
 import socketIOClient from "socket.io-client";
+const { getSocketBaseUrl, getSocketBaseUrlSync, onSocketConfigChange } = require('../../utils/socketConfig')
 
 function Publish() {
   this.addInput("[channel]","string")
   this.addInput("message", "string");
   this.addInput("publish", -1);
-  this.properties = { channel: "network.eth.build", network: "https://network.eth.build:44386/"};
+  this.properties = { channel: "network.eth.build", network: getSocketBaseUrlSync() };
   this.size[0] = 240
   this.socket = socketIOClient(this.properties.network);
   this.loadedNetwork = this.properties.network
+  this.syncNetworkFromConfig()
+  onSocketConfigChange(({ baseUrl }) => {
+    this.updateNetwork(baseUrl)
+  })
 }
 
 Publish.title = "Publish";
@@ -23,6 +28,19 @@ Publish.prototype.onExecute = async function() {
   if(this.properties.network!=this.loadedNetwork){
     this.loadedNetwork = this.properties.network
     this.socket = socketIOClient(this.properties.network);
+  }
+}
+
+Publish.prototype.syncNetworkFromConfig = async function() {
+  const network = await getSocketBaseUrl()
+  this.updateNetwork(network)
+}
+
+Publish.prototype.updateNetwork = function(network) {
+  if(network && network !== this.properties.network){
+    this.properties.network = network
+    this.loadedNetwork = network
+    this.socket = socketIOClient(network)
   }
 }
 

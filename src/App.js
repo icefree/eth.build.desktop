@@ -28,6 +28,7 @@ import html2canvas from 'html2canvas';
 var codec = require('json-url')('lzw');
 var QRCode = require('qrcode.react')
 const axios = require('axios');
+const { getSocketBaseUrl, buildSocketUrl } = require('./utils/socketConfig')
 
 
 const useStyles = makeStyles({
@@ -297,27 +298,31 @@ React.useEffect(()=>{
       console.log("THIS IS A BUILD")
       let key = window.location.hash.replace("#","")
 
-      //let result = await axios.get("https://network.eth.build:44386/build",{})
-      axios.get('https://network.eth.build:44386/build', {
-        params: {
-          key
-        }
-      }).then((result)=>{
-        console.log("GET BUILD RESULT",result)
-        let compressed = result.data.compressed
-        codec.decompress(compressed).then(json => {
-          console.log("configure graph with:",json)
-          graph.configure( json );
-          //graph.start()
-          graph.canvas = canvas
+      //let result = await axios.get("http://localhost:44386/build",{})
+      getSocketBaseUrl().then((baseUrl) => {
+        axios.get(buildSocketUrl('build', baseUrl), {
+          params: {
+            key
+          }
+        }).then((result)=>{
+          console.log("GET BUILD RESULT",result)
+          let compressed = result.data.compressed
+          codec.decompress(compressed).then(json => {
+            console.log("configure graph with:",json)
+            graph.configure( json );
+            //graph.start()
+            graph.canvas = canvas
 
-          setLiteGraph(graph)
-          setLiteGraphCanvas(canvas)
+            setLiteGraph(graph)
+            setLiteGraphCanvas(canvas)
 
-          window.history.pushState("", "", '/');
+            window.history.pushState("", "", '/');
 
-          setShowVideoLibrary(false);global.showLibrary=false;
+            setShowVideoLibrary(false);global.showLibrary=false;
+          })
         })
+      }).catch((error) => {
+        console.log("Failed to load build", error)
       })
 
     }

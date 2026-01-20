@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom'
 
 import axios from "axios";
+const { getSocketBaseUrl } = require('../../utils/socketConfig')
 
 function Upload() {
   this.addInput("data", "string");
@@ -24,7 +25,8 @@ Upload.prototype.onAction = async function() {
     if(typeof payload == "string"){
       payload = {"string":input}
     }
-    axios.post('https://network.eth.build:44386/',payload).then((response) => {
+    const baseUrl = await getSocketBaseUrl()
+    axios.post(baseUrl, payload).then((response) => {
       console.log("RESPONSE FROM POST:",response);
       if(response && response.data && response.data.response){
         this.key = response.data.response

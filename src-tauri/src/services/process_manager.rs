@@ -38,8 +38,12 @@ impl ProcessManager {
         port: Option<u16>,
         working_dir: Option<&Path>,
     ) -> Result<(), String> {
-        if self.processes.contains_key(&name) {
-            return Err(format!("Process {} already running", name));
+        if let Some(existing) = self.processes.get_mut(&name) {
+            if let Ok(Some(_)) = existing.child.try_wait() {
+                self.processes.remove(&name);
+            } else {
+                return Err(format!("Process {} already running", name));
+            }
         }
 
         println!("Starting process '{}' with command: {} {:?}", name, command, args);
@@ -49,12 +53,34 @@ impl ProcessManager {
             cmd.current_dir(dir);
         }
 
-        let child = cmd
+        let mut child = cmd
             .args(args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
             .map_err(|e| format!("Failed to spawn {}: {}", name, e))?;
+
+        thread::sleep(Duration::from_millis(200));
+        if let Ok(Some(status)) = child.try_wait() {
+            let mut stderr = String::new();
+            if let Some(mut stderr_pipe) = child.stderr.take() {
+                let _ = stderr_pipe.read_to_string(&mut stderr);
+            }
+            let mut stdout = String::new();
+            if let Some(mut stdout_pipe) = child.stdout.take() {
+                let _ = stdout_pipe.read_to_string(&mut stdout);
+            }
+            let stderr = stderr.trim();
+            let stdout = stdout.trim();
+            let mut details = String::new();
+            if !stderr.is_empty() {
+                details.push_str(stderr);
+            } else if !stdout.is_empty() {
+                details.push_str(stdout);
+            }
+            let suffix = if details.is_empty() { "".to_string() } else { format!(": {}", details) };
+            return Err(format!("Process {} exited early ({}){}", name, status, suffix));
+        }
 
         self.processes.insert(name.clone(), ManagedProcess {
             child,
@@ -105,6 +131,18 @@ impl ProcessManager {
                 port: p.port,
             })
             .collect()
+    }
+
+    pub fn reap_exited(&mut self) {
+        let names: Vec<String> = self.processes.keys().cloned().collect();
+        for name in names {
+            let remove = self.processes.get_mut(&name)
+                .and_then(|proc| proc.child.try_wait().ok().flatten())
+                .is_some();
+            if remove {
+                self.processes.remove(&name);
+            }
+        }
     }
 
     pub fn stop_all(&mut self) {

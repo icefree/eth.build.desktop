@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { getBlocks, getBlockByNumber, searchBlockchain } from '../../hooks/useTauri';
+/* global BigInt */
+import React, { useState, useEffect, useCallback } from 'react';
+import { getBlocks, getBlockByNumber, getTransactionByHash, searchBlockchain } from '../../hooks/useTauri';
 import './BlockExplorer.css';
 
-const BlockExplorer = ({ refreshToken }) => {
+const BlockExplorer = ({ refreshToken, resetToken }) => {
   const [blocks, setBlocks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
@@ -12,25 +13,36 @@ const BlockExplorer = ({ refreshToken }) => {
   const [selectedBlock, setSelectedBlock] = useState(null);
   const [selectedTx, setSelectedTx] = useState(null);
 
+  const loadBlocks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getBlocks(currentPage, pageSize);
+      const blockList = Array.isArray(result) ? result : (result?.blocks || []);
+      setBlocks(blockList);
+    } catch (err) {
+      setError(err.toString());
+      console.error('Failed to load blocks:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, pageSize]);
+
   useEffect(() => {
     // 加载区块列表
-    const loadBlocks = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await getBlocks(currentPage, pageSize);
-        const blockList = Array.isArray(result) ? result : (result?.blocks || []);
-        setBlocks(blockList);
-      } catch (err) {
-        setError(err.toString());
-        console.error('Failed to load blocks:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadBlocks();
-  }, [currentPage, pageSize, refreshToken]);
+  }, [loadBlocks, refreshToken]);
+
+  useEffect(() => {
+    if (resetToken === undefined) return;
+    setSelectedBlock(null);
+    setSelectedTx(null);
+    setBlocks([]);
+    setSearchQuery('');
+    setError(null);
+    setCurrentPage(1);
+  }, [resetToken]);
+
 
   // 搜索功能
   const handleSearch = async () => {
@@ -38,6 +50,9 @@ const BlockExplorer = ({ refreshToken }) => {
       // 清空搜索时重置到第一页
       setCurrentPage(1);
       setSearchQuery('');
+      setSelectedBlock(null);
+      setSelectedTx(null);
+      loadBlocks();
       return;
     }
 
@@ -75,11 +90,46 @@ const BlockExplorer = ({ refreshToken }) => {
     }
   };
 
+  const handleViewTransaction = async (txHash) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const txDetail = await getTransactionByHash(txHash);
+      setSelectedTx(txDetail);
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 格式化时间戳
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp * 1000);
     return date.toLocaleString('zh-CN');
+  };
+
+  const formatValue = (value) => {
+    try {
+      const wei = BigInt(value);
+      const eth = Number(wei) / 1e18;
+      return `${eth.toFixed(6)} ETH`;
+    } catch {
+      return value || 'N/A';
+    }
+  };
+
+  const formatGasFee = (gasUsed, gasPrice) => {
+    try {
+      const used = BigInt(gasUsed);
+      const price = BigInt(gasPrice);
+      const fee = used * price;
+      const eth = Number(fee) / 1e18;
+      return `${eth.toFixed(6)} ETH`;
+    } catch {
+      return 'N/A';
+    }
   };
 
   // 格式化哈希（缩短显示）
@@ -216,8 +266,8 @@ const BlockExplorer = ({ refreshToken }) => {
                       <button
                         className="view-tx-btn"
                         onClick={() => {
-                          setSelectedTx({ hash: txHash });
                           setSelectedBlock(null);
+                          handleViewTransaction(txHash);
                         }}
                       >
                         查看交易
@@ -288,13 +338,43 @@ const BlockExplorer = ({ refreshToken }) => {
             {selectedTx.value && (
               <div className="detail-row">
                 <span className="label">金额:</span>
-                <span className="value">{selectedTx.value} ETH</span>
+                <span className="value">{formatValue(selectedTx.value)}</span>
+              </div>
+            )}
+            {selectedTx.gas_price && (
+              <div className="detail-row">
+                <span className="label">Gas Price:</span>
+                <span className="value">{selectedTx.gas_price}</span>
+              </div>
+            )}
+            {selectedTx.gas_used && (
+              <div className="detail-row">
+                <span className="label">Gas Used:</span>
+                <span className="value">{selectedTx.gas_used}</span>
+              </div>
+            )}
+            {(selectedTx.gas_used && selectedTx.gas_price) && (
+              <div className="detail-row">
+                <span className="label">Gas Fee:</span>
+                <span className="value">{formatGasFee(selectedTx.gas_used, selectedTx.gas_price)}</span>
               </div>
             )}
             {selectedTx.block_number !== undefined && (
               <div className="detail-row">
                 <span className="label">区块号:</span>
                 <span className="value">#{selectedTx.block_number}</span>
+              </div>
+            )}
+            {selectedTx.status && (
+              <div className="detail-row">
+                <span className="label">状态:</span>
+                <span className={`value tx-status-${selectedTx.status}`}>{selectedTx.status}</span>
+              </div>
+            )}
+            {selectedTx.timestamp && (
+              <div className="detail-row">
+                <span className="label">时间戳:</span>
+                <span className="value">{formatTimestamp(selectedTx.timestamp)}</span>
               </div>
             )}
           </div>

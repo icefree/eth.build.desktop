@@ -23,9 +23,6 @@ const TxExplorer = () => {
 
   useEffect(() => {
     loadTransactions();
-    // 每10秒刷新一次
-    const interval = setInterval(loadTransactions, 10000);
-    return () => clearInterval(interval);
   }, []);
 
   const handleTxClick = async (hash) => {
@@ -46,9 +43,21 @@ const TxExplorer = () => {
     try {
       const wei = BigInt(value);
       const eth = Number(wei) / 1e18;
-      return `${eth.toFixed(4)} ETH`;
+      return `${eth.toFixed(6)} ETH`;
     } catch {
       return value;
+    }
+  };
+
+  const formatGasFee = (gasUsed, gasPrice) => {
+    try {
+      const used = BigInt(gasUsed);
+      const price = BigInt(gasPrice);
+      const fee = used * price;
+      const eth = Number(fee) / 1e18;
+      return `${eth.toFixed(6)} ETH`;
+    } catch {
+      return 'N/A';
     }
   };
 
@@ -127,10 +136,12 @@ const TxExplorer = () => {
                 <span className="detail-label">交易哈希:</span>
                 <span className="detail-value">{selectedTx.hash}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">区块:</span>
-                <span className="detail-value">#{selectedTx.block_number}</span>
-              </div>
+              {selectedTx.block_number !== undefined && (
+                <div className="detail-row">
+                  <span className="detail-label">区块号:</span>
+                  <span className="detail-value">#{selectedTx.block_number}</span>
+                </div>
+              )}
               <div className="detail-row">
                 <span className="detail-label">从:</span>
                 <span className="detail-value">{selectedTx.from}</span>
@@ -143,14 +154,24 @@ const TxExplorer = () => {
                 <span className="detail-label">价值:</span>
                 <span className="detail-value">{formatValue(selectedTx.value)}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Gas Price:</span>
-                <span className="detail-value">{selectedTx.gas_price}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Gas Used:</span>
-                <span className="detail-value">{selectedTx.gas_used}</span>
-              </div>
+              {selectedTx.gas_price && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Price:</span>
+                  <span className="detail-value">{selectedTx.gas_price}</span>
+                </div>
+              )}
+              {selectedTx.gas_used && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Used:</span>
+                  <span className="detail-value">{selectedTx.gas_used}</span>
+                </div>
+              )}
+              {(selectedTx.gas_used && selectedTx.gas_price) && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Fee:</span>
+                  <span className="detail-value">{formatGasFee(selectedTx.gas_used, selectedTx.gas_price)}</span>
+                </div>
+              )}
               <div className="detail-row">
                 <span className="detail-label">状态:</span>
                 <span className={`detail-value tx-status-${selectedTx.status}`}>

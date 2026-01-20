@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom'
 
 import axios from "axios";
+const { getSocketBaseUrl, buildSocketUrl } = require('../../utils/socketConfig')
 
 function Download() {
   this.addInput("key","string");
@@ -24,7 +25,9 @@ Download.prototype.onAction = async function() {
   if(key){
     try{
       console.log("GETtting...")
-      axios.get('https://network.eth.build:44386/?key='+key).then((response) => {
+      const baseUrl = await getSocketBaseUrl()
+      const url = `${buildSocketUrl('', baseUrl)}?key=${key}`
+      axios.get(url).then((response) => {
         console.log("RESPONSE FROM GET:",response);
         if(response && response.data){
           this.data = response.data.response

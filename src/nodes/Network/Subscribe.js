@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom'
 
 import socketIOClient from "socket.io-client";
+const { getSocketBaseUrl, getSocketBaseUrlSync, onSocketConfigChange } = require('../../utils/socketConfig')
 
 const defaultChannel = "network.eth.build"
 
@@ -10,11 +11,15 @@ function Subscribe() {
   this.addOutput("message", "string");
   this.addOutput("received", -1)
 
-  this.properties = { channel: defaultChannel, network: "https://network.eth.build:44386/"};
+  this.properties = { channel: defaultChannel, network: getSocketBaseUrlSync() };
   this.size[0] = 240
   this.socket = socketIOClient(this.properties.network);
   this.subscribed = false
   this.loadedNetwork = this.properties.network
+  this.syncNetworkFromConfig()
+  onSocketConfigChange(({ baseUrl }) => {
+    this.updateNetwork(baseUrl)
+  })
 }
 
 Subscribe.title = "Subscribe";
@@ -41,6 +46,20 @@ Subscribe.prototype.onExecute = async function() {
     this.loadedNetwork = this.properties.network
     this.socket = socketIOClient(this.properties.network);
       this.subscribed = false
+  }
+}
+
+Subscribe.prototype.syncNetworkFromConfig = async function() {
+  const network = await getSocketBaseUrl()
+  this.updateNetwork(network)
+}
+
+Subscribe.prototype.updateNetwork = function(network) {
+  if(network && network !== this.properties.network){
+    this.properties.network = network
+    this.loadedNetwork = network
+    this.socket = socketIOClient(network)
+    this.subscribed = false
   }
 }
 
