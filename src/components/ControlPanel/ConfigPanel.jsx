@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getConfig, updateConfig, autoStartServices } from '../../hooks/useTauri';
 import './ConfigPanel.css';
-const { emitSocketConfigChange, getSocketBaseUrl } = require('../../utils/socketConfig')
+const { emitSocketConfigChange } = require('../../utils/socketConfig')
 
 const ConfigPanel = ({ onConfigUpdate }) => {
   const [config, setConfig] = useState(null);
@@ -86,9 +86,21 @@ const ConfigPanel = ({ onConfigUpdate }) => {
     setPriceTestStatus(null);
 
     try {
+      const apiKey = config.api_keys?.coinmarketcap?.trim();
+      if (!apiKey) {
+        setPriceTestStatus({ type: 'error', text: '请先填写 CoinMarketCap Key' });
+        return;
+      }
+
       await updateConfig(config);
-      const baseUrl = await getSocketBaseUrl();
-      const response = await fetch(`${baseUrl}price?symbol=ETH`);
+      const response = await fetch(
+        'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH',
+        {
+          headers: {
+            'X-CMC_PRO_API_KEY': apiKey
+          }
+        }
+      );
       const raw = await response.text();
       let data = null;
       try {
