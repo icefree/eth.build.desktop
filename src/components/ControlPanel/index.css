@@ -261,6 +261,10 @@
   gap: 10px;
 }
 
+.action-buttons.action-spaced {
+  margin-top: 12px;
+}
+
 .action-btn {
   display: flex;
   align-items: center;

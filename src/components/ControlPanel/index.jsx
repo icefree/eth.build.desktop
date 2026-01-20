@@ -269,7 +269,7 @@ const ControlPanel = ({ open, onClose }) => {
                     </div>
                   </div>
 
-                  <div className="action-buttons">
+                  <div className="action-buttons action-spaced">
                     {!socketService.running ? (
                       <button
                         className="action-btn primary full-width"
@@ -324,7 +324,7 @@ const ControlPanel = ({ open, onClose }) => {
                   </div>
                 </div>
 
-                <div className="action-buttons">
+                <div className="action-buttons action-spaced">
                   {!isIpfsRunning ? (
                     <button
                       className="action-btn primary full-width"
@@ -351,7 +351,7 @@ const ControlPanel = ({ open, onClose }) => {
                   <div className="status-indicator">
                     <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
                     <span className="status-label">
-                      {isOnline ? 'Anvil 本地网络' : '网络未启动'}
+                      {isOnline ? 'Anvil 本地网络' : '测试网未启动'}
                     </span>
                   </div>
                   <span className={`status-badge ${isOnline ? '' : 'offline'}`}>
@@ -393,43 +393,42 @@ const ControlPanel = ({ open, onClose }) => {
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* 操作按钮 */}
-              <div className="action-buttons">
-                {!isOnline ? (
-                  <button
-                    className="action-btn primary full-width"
-                    onClick={handleStartNetwork}
-                    disabled={loading}
-                  >
-                    {loading ? <span className="loading-spinner"></span> : '▶️'} 启动测试网
-                  </button>
-                ) : (
-                  <>
+                <div className="action-buttons action-spaced">
+                  {!isOnline ? (
                     <button
-                      className="action-btn secondary"
-                      onClick={handleQuickMine}
+                      className="action-btn primary full-width"
+                      onClick={handleStartNetwork}
                       disabled={loading}
                     >
-                      ⛏️ 挖矿
+                      {loading ? <span className="loading-spinner"></span> : '▶️'} 启动测试网
                     </button>
-                    <button
-                      className="action-btn warning"
-                      onClick={handleResetNetwork}
-                      disabled={loading}
-                    >
-                      🔄 重置
-                    </button>
-                    <button
-                      className="action-btn danger full-width"
-                      onClick={handleStopNetwork}
-                      disabled={loading}
-                    >
-                      {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止网络
-                    </button>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <button
+                        className="action-btn secondary"
+                        onClick={handleQuickMine}
+                        disabled={loading}
+                      >
+                        ⛏️ 挖矿
+                      </button>
+                      <button
+                        className="action-btn warning"
+                        onClick={handleResetNetwork}
+                        disabled={loading}
+                      >
+                        🔄 重置
+                      </button>
+                      <button
+                        className="action-btn danger full-width"
+                        onClick={handleStopNetwork}
+                        disabled={loading}
+                      >
+                        {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止网络
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
               {isOnline && (
