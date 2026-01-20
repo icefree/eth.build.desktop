@@ -1,6 +1,5 @@
 const axios = require('axios');
-
-const url = "https://network.eth.build:44386/price?symbol="
+const { getSocketBaseUrl } = require('../../utils/socketConfig')
 
 function Price() {
   this.addInput("[symbol]","string")
@@ -22,19 +21,15 @@ Price.prototype.onAdded = async function() {
 Price.prototype.loadPrice = async function() {
   try{
     //get price
-    let result = await axios.get(url+this.symbol)
-    //console.log("result",result)
-    if(result && result.data){
-      for(let i in result.data){
-        console.log("PRICE DATA",result.data[i])
-        /*if(result.data[i].symbol.toLowerCase()==this.symbol.toLowerCase()){
-          this.value = result.data[i].price_usd
-        }*/
-        try{
-          this.value = result.data[i].quote.USD.price
-        }catch(e){console.log(e)}
+    const baseUrl = await getSocketBaseUrl()
+    let result = await axios.get(`${baseUrl}price?symbol=${this.symbol}`)
+    const payload = result?.data?.data || result?.data
+    if (payload) {
+      const symbolKey = (this.symbol || "").toUpperCase()
+      const price = payload?.[symbolKey]?.quote?.USD?.price
+      if (typeof price !== "undefined") {
+        this.value = price
       }
-
     }
   }catch(e){
     console.log(e)
