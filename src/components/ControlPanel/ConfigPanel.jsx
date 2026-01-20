@@ -105,11 +105,7 @@ const ConfigPanel = ({ onConfigUpdate }) => {
         return;
       }
 
-      const price =
-        data?.data?.ETH?.quote?.USD?.price ??
-        data?.ETH?.quote?.USD?.price ??
-        data?.quote?.USD?.price ??
-        null;
+      const price = data?.data?.ETH?.quote?.USD?.price ?? null;
 
       if (price == null) {
         setPriceTestStatus({
@@ -121,7 +117,7 @@ const ConfigPanel = ({ onConfigUpdate }) => {
 
       setPriceTestStatus({
         type: 'success',
-        text: `当前 ETH 价格: ${Number(price).toFixed(2)} USD`
+        text: `当前 ETH 价格: ${price} USD`
       });
     } catch (err) {
       setPriceTestStatus({ type: 'error', text: `请求失败: ${err.toString()}` });
