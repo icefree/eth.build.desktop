@@ -1,4 +1,4 @@
-const IPFS = require('ipfs-core')
+import { getLocalIpfs, getLocalIpfsStatus } from '../../lib/ipfs/localNode';
 
 function IPFSAdd() {
   this.addInput("data","string");
@@ -13,25 +13,28 @@ IPFSAdd.title = "IPFSUpload";
 
 IPFSAdd.prototype.onAdded = async function() {
   this.title_color = "#dddddd";
-  this.ipfs = await IPFS.create({
-    EXPERIMENTAL: {
-     pubsub: true,
-   },
-   repo: 'ipfs-' + Math.random(),
-   config: {
-     Addresses: {
-       Swarm: ['/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-       '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star']
-     },
-     Bootstrap: []
-   }
-  })
-  const { id, agentVersion, protocolVersion } = await this.ipfs.id()
-  console.log("IPFS FOR ADD!",id, agentVersion, protocolVersion)
+  this.status = "waiting for local ipfs";
+  this.refreshIpfs();
+};
+
+IPFSAdd.prototype.refreshIpfs = function() {
+  const localIpfs = getLocalIpfs();
+  if (!localIpfs) {
+    const info = getLocalIpfsStatus();
+    this.status = info.starting ? "local ipfs starting" : "local ipfs offline";
+    this.ipfs = null;
+    return false;
+  }
+  this.ipfs = localIpfs;
   this.title_color = "#eeee44";
+  this.status = "local ipfs ready";
+  return true;
 };
 
 IPFSAdd.prototype.onExecute = async function() {
+  if (!this.ipfs) {
+    this.refreshIpfs();
+  }
   this.setOutputData(0,this.path)
 }
 
@@ -39,6 +42,9 @@ IPFSAdd.prototype.onAction = async function() {
   let data = this.getInputData(0)
   if(typeof data !== "undefined" && data != null){
     try{
+      if (!this.ipfs && !this.refreshIpfs()) {
+        return;
+      }
       let result = await this.ipfs.add(data)
       this.path = result.cid.toString()
       this.dataSize = result.size

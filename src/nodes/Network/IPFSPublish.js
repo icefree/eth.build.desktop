@@ -1,6 +1,5 @@
 import React from 'react';
-
-const IPFS = require('ipfs-core')
+import { getLocalIpfs, getLocalIpfsStatus } from '../../lib/ipfs/localNode';
 
 function IPFSPub() {
   this.addInput("[channel]","string")
@@ -8,29 +7,28 @@ function IPFSPub() {
   this.addInput("publish", -1);
   this.properties = { channel: "ipfs.eth.build"};
   this.size[0] = 240
+  this.status = "waiting for local ipfs"
 }
 
 IPFSPub.title = "IPFSPublish";
 
 IPFSPub.prototype.onAdded = async function() {
   this.title_color = "#dddddd";
-  this.ipfs = await IPFS.create({
-    EXPERIMENTAL: {
-     pubsub: true,
-   },
-   repo: 'ipfs-' + Math.random(),
-   config: {
-     Addresses: {
-       Swarm: ['/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-       '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star']
-     },
-     Bootstrap: []
-   }
-  })
-  console.log('IPFS (publish) node is ready')
-  const { id, agentVersion, protocolVersion } = await this.ipfs.id()
-  console.log("IPFS FOR PUBLISH!",id, agentVersion, protocolVersion)
+  this.refreshIpfs();
+};
+
+IPFSPub.prototype.refreshIpfs = function() {
+  const localIpfs = getLocalIpfs();
+  if (!localIpfs) {
+    const info = getLocalIpfsStatus();
+    this.status = info.starting ? "local ipfs starting" : "local ipfs offline";
+    this.ipfs = null;
+    return false;
+  }
+  this.ipfs = localIpfs;
   this.title_color = "#eeee44";
+  this.status = "local ipfs ready";
+  return true;
 };
 
 IPFSPub.prototype.onExecute = async function() {
@@ -39,12 +37,18 @@ IPFSPub.prototype.onExecute = async function() {
       this.properties.channel = channel
 
   }
+  if (!this.ipfs) {
+    this.refreshIpfs();
+  }
 }
 
 IPFSPub.prototype.onAction = async function() {
   let data = this.getInputData(1)
   if(typeof data !== "undefined" && data != null){
     try{
+      if (!this.ipfs && !this.refreshIpfs()) {
+        return;
+      }
       console.log("publishing",data,"to",this.properties.channel)
       this.ipfs.pubsub.publish(this.properties.channel, data)
     }catch(e){
@@ -62,6 +66,9 @@ IPFSPub.prototype.onDrawBackground = function(ctx) {
       <div>
         <div style={{opacity:0.5}}>
           {this.properties.channel}
+        </div>
+        <div style={{paddingTop:6, fontSize:12, opacity:0.8}}>
+          {this.status}
         </div>
       </div>
     )
