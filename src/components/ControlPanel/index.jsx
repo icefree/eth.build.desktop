@@ -20,6 +20,11 @@ const ControlPanel = ({ open, onClose }) => {
   const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
   const [ipfsLoading, setIpfsLoading] = useState(false);
   const autoStartSocketRef = useRef(false);
+  const [socketPort, setSocketPort] = useState('44386');
+  const [rpcPort, setRpcPort] = useState('8545');
+  const [wsPort, setWsPort] = useState('8546');
+  const socketPortDirty = useRef(false);
+  const testnetPortsDirty = useRef(false);
 
   const loadStatus = async () => {
     try {
@@ -41,6 +46,23 @@ const ControlPanel = ({ open, onClose }) => {
   }, [open]);
 
   useEffect(() => {
+    if (!socketService?.port || socketPortDirty.current) return;
+    setSocketPort(String(socketService.port));
+  }, [socketService?.port]);
+
+  useEffect(() => {
+    if (!networkStatus || testnetPortsDirty.current) return;
+    try {
+      const rpc = new URL(networkStatus.rpc_url).port;
+      const ws = new URL(networkStatus.ws_url).port;
+      if (rpc) setRpcPort(rpc);
+      if (ws) setWsPort(ws);
+    } catch (err) {
+      // ignore malformed urls
+    }
+  }, [networkStatus]);
+
+  useEffect(() => {
     if (!open) {
       autoStartSocketRef.current = false;
       return;
@@ -50,21 +72,25 @@ const ControlPanel = ({ open, onClose }) => {
     autoStartSocketRef.current = true;
     setLoading(true);
     setError(null);
-    startService('socket')
+    startService('socket', { port: Number(socketPort) || 44386 })
       .then(loadStatus)
       .catch((err) => setError(err.toString()))
       .finally(() => setLoading(false));
-  }, [open, services]);
+  }, [open, services, socketPort]);
 
   const handleStartNetwork = async () => {
     setLoading(true);
     setError(null);
     try {
+      const rpcPortValue = Number(rpcPort) || 8545;
+      const wsPortValue = Number(wsPort) || (rpcPortValue + 1);
       await startLocalNetwork({
         chain_id: 31337,
         accounts: 10,
         balance: '10000',
-        block_time: null
+        block_time: null,
+        rpc_port: rpcPortValue,
+        ws_port: wsPortValue
       });
       await loadStatus();
     } catch (err) {
@@ -93,11 +119,15 @@ const ControlPanel = ({ open, onClose }) => {
     try {
       await stopLocalNetwork();
       await new Promise(resolve => setTimeout(resolve, 500));
+      const rpcPortValue = Number(rpcPort) || 8545;
+      const wsPortValue = Number(wsPort) || (rpcPortValue + 1);
       await startLocalNetwork({
         chain_id: 31337,
         accounts: 10,
         balance: '10000',
-        block_time: null
+        block_time: null,
+        rpc_port: rpcPortValue,
+        ws_port: wsPortValue
       });
       await loadStatus();
       setBlockResetKey((prev) => prev + 1);
@@ -121,7 +151,7 @@ const ControlPanel = ({ open, onClose }) => {
     }
   }, []);
 
-  const handleToggleService = async (serviceName) => {
+  const handleToggleService = async (serviceName, options = {}) => {
     const service = services.find(s => s.name === serviceName);
     if (!service) return;
 
@@ -131,7 +161,7 @@ const ControlPanel = ({ open, onClose }) => {
       if (service.running) {
         await stopService(serviceName);
       } else {
-        await startService(serviceName);
+        await startService(serviceName, options);
       }
       await loadStatus();
     } catch (err) {
@@ -199,6 +229,7 @@ const ControlPanel = ({ open, onClose }) => {
   const isIpfsRunning = ipfsStatus?.running;
   const isIpfsStarting = ipfsStatus?.starting;
   const socketService = services.find(s => s.name === 'socket');
+  const socketPortValue = Number(socketPort) || socketService?.port || 44386;
 
   return (
     <div className="control-panel-overlay" onClick={onClose}>
@@ -259,13 +290,27 @@ const ControlPanel = ({ open, onClose }) => {
                       <span className="info-label">URL</span>
                       <span
                         className="info-value"
-                        onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
+                        onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketPortValue}`, 'Socket URL')}
                       >
                         {socketService.running 
-                          ? `localhost:${socketService.port || 44386}` 
+                          ? `localhost:${socketPortValue}` 
                           : '未运行'}
                         <span className="copy-icon">📋</span>
                       </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Port</span>
+                      <input
+                        className="control-input"
+                        type="number"
+                        min="1"
+                        max="65535"
+                        value={socketPort}
+                        onChange={(event) => {
+                          socketPortDirty.current = true;
+                          setSocketPort(event.target.value);
+                        }}
+                      />
                     </div>
                   </div>
 
@@ -273,7 +318,7 @@ const ControlPanel = ({ open, onClose }) => {
                     {!socketService.running ? (
                       <button
                         className="action-btn primary full-width"
-                        onClick={() => handleToggleService('socket')}
+                        onClick={() => handleToggleService('socket', { port: Number(socketPort) || 44386 })}
                         disabled={loading}
                       >
                         {loading ? <span className="loading-spinner"></span> : '▶️'} 启动 Socket
@@ -393,6 +438,36 @@ const ControlPanel = ({ open, onClose }) => {
                     </div>
                   </div>
                 )}
+                <div className="network-info">
+                  <div className="info-row">
+                    <span className="info-label">RPC Port</span>
+                    <input
+                      className="control-input"
+                      type="number"
+                      min="1"
+                      max="65535"
+                      value={rpcPort}
+                      onChange={(event) => {
+                        testnetPortsDirty.current = true;
+                        setRpcPort(event.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="info-row">
+                    <span className="info-label">WS Port</span>
+                    <input
+                      className="control-input"
+                      type="number"
+                      min="1"
+                      max="65535"
+                      value={wsPort}
+                      onChange={(event) => {
+                        testnetPortsDirty.current = true;
+                        setWsPort(event.target.value);
+                      }}
+                    />
+                  </div>
+                </div>
 
                 <div className="action-buttons action-spaced">
                   {!isOnline ? (
@@ -440,16 +515,6 @@ const ControlPanel = ({ open, onClose }) => {
                 />
               )}
 
-              {/* 离线提示 */}
-              {!isOnline && (
-                <div className="offline-hint">
-                  <span className="hint-icon">🔌</span>
-                  <span className="hint-text">
-                    点击「启动测试网」开始使用<br />
-                    本地以太坊测试环境
-                  </span>
-                </div>
-              )}
               </>
             )}
 

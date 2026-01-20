@@ -37,6 +37,7 @@ impl ProcessManager {
         args: &[&str],
         port: Option<u16>,
         working_dir: Option<&Path>,
+        envs: Option<Vec<(String, String)>>,
     ) -> Result<(), String> {
         if let Some(existing) = self.processes.get_mut(&name) {
             if let Ok(Some(_)) = existing.child.try_wait() {
@@ -51,6 +52,11 @@ impl ProcessManager {
         let mut cmd = Command::new(command);
         if let Some(dir) = working_dir {
             cmd.current_dir(dir);
+        }
+        if let Some(envs) = envs {
+            for (key, value) in envs {
+                cmd.env(key, value);
+            }
         }
 
         let mut child = cmd

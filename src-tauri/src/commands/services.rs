@@ -1,7 +1,7 @@
 use tauri::State;
 
 #[tauri::command]
-pub async fn start_service(state: State<'_, crate::AppState>, service: String) -> Result<String, String> {
+pub async fn start_service(state: State<'_, crate::AppState>, service: String, port: Option<u16>) -> Result<String, String> {
     let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
@@ -10,7 +10,7 @@ pub async fn start_service(state: State<'_, crate::AppState>, service: String) -
             Err("Geth is disabled. Use Anvil for the local network.".to_string())
         },
         "socket" => {
-            manager.start_socket_server().map(|_| "Socket server started successfully".to_string())
+            manager.start_socket_server_with_port(port).map(|_| "Socket server started successfully".to_string())
         },
         _ => Err(format!("Unknown service: {}", service)),
     }

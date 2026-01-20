@@ -8,6 +8,8 @@ pub struct NetworkConfig {
     pub block_time: Option<u64>,
     pub gas_price: Option<u64>,
     pub fork_url: Option<String>,
+    pub rpc_port: Option<u16>,
+    pub ws_port: Option<u16>,
 }
 
 impl Default for NetworkConfig {
@@ -19,6 +21,8 @@ impl Default for NetworkConfig {
             block_time: None,
             gas_price: None,
             fork_url: None,
+            rpc_port: Some(8545),
+            ws_port: Some(8546),
         }
     }
 }

@@ -61,8 +61,8 @@ export const getTransactionByHash = async (hash) => {
 // ===== 新增: 服务管理命令 =====
 
 // 启动单个服务
-export const startService = async (service) => {
-  return invoke('start_service', { service });
+export const startService = async (service, options = {}) => {
+  return invoke('start_service', { service, ...options });
 };
 
 // 停止单个服务

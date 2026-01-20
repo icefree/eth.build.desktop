@@ -19,11 +19,13 @@ pub struct LocalNetwork {
 
 impl LocalNetwork {
     pub fn new(config: NetworkConfig) -> Result<Self, String> {
+        let rpc_port = config.rpc_port.unwrap_or(8545);
+        let ws_port = config.ws_port.unwrap_or(8546);
         Ok(Self {
             process: None,
             config,
-            rpc_url: "http://localhost:8545".to_string(),
-            ws_url: "ws://localhost:8546".to_string(),
+            rpc_url: format!("http://localhost:{}", rpc_port),
+            ws_url: format!("ws://localhost:{}", ws_port),
             provider: None,
         })
     }
@@ -36,9 +38,10 @@ impl LocalNetwork {
 
         // 启动 anvil 进程
         let mut cmd = Command::new(&anvil_path);
+        let rpc_port = self.config.rpc_port.unwrap_or(8545);
         cmd.args([
             "--host", "0.0.0.0",
-            "--port", "8545",
+            "--port", &rpc_port.to_string(),
             "--chain-id", &self.config.chain_id.to_string(),
             "--accounts", &self.config.accounts.to_string(),
             "--balance", &self.config.balance,

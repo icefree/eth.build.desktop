@@ -15,6 +15,7 @@ pub struct ServiceStatus {
 pub struct ServiceManager {
     process_manager: ProcessManager,
     services: Vec<String>,
+    socket_port: u16,
 }
 
 impl ServiceManager {
@@ -24,6 +25,7 @@ impl ServiceManager {
             services: vec![
                 "socket".to_string(),
             ],
+            socket_port: 44386,
         }
     }
 
@@ -46,20 +48,26 @@ impl ServiceManager {
 
     fn get_service_port(&self, service_name: &str) -> u16 {
         match service_name {
-            "socket" => 44386,
+            "socket" => self.socket_port,
             _ => 0,
         }
     }
 
     pub fn start_socket_server(&mut self) -> Result<(), String> {
+        self.start_socket_server_with_port(None)
+    }
+
+    pub fn start_socket_server_with_port(&mut self, port: Option<u16>) -> Result<(), String> {
         let base_dir = self.resolve_base_dir();
         if !self.service_dir_exists(&base_dir, "socket") {
             return Err("Socket directory not found".to_string());
         }
 
-        let port = self.get_service_port("socket");
+        let port = port.unwrap_or(self.socket_port);
+        self.socket_port = port;
         let command = "node";
         let args = vec!["socket/index.js"];
+        let envs = Some(vec![("SOCKET_PORT".to_string(), port.to_string())]);
 
         self.process_manager.start_process(
             "socket".to_string(),
@@ -67,6 +75,7 @@ impl ServiceManager {
             args.as_slice(),
             Some(port),
             Some(&base_dir),
+            envs,
         )
     }
 
