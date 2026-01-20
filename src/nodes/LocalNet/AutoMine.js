@@ -1,6 +1,6 @@
 import { setAutoMine } from '../../hooks/useTauri';
 
-// Auto Mine 节点 - 控制自动挖矿
+// Auto Mine node - controls automatic mining
 export function AutoMine() {
   this.color = '#627eea';
   this.size = [140, 80];

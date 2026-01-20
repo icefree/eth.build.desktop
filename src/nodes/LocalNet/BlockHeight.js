@@ -1,6 +1,6 @@
 import { getNetworkStatus } from '../../hooks/useTauri';
 
-// Block Height 节点 - 显示当前区块高度
+// Block Height node - displaying current block height
 export function BlockHeight() {
   this.color = '#627eea';
   this.size = [140, 60];

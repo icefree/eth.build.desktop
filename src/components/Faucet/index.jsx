@@ -9,14 +9,14 @@ const Faucet = () => {
   const [txHash, setTxHash] = useState(null);
   const [error, setError] = useState(null);
 
-  // ETH 转换为 Wei
+  // Convert ETH to Wei
   const ethToWei = (eth) => {
     return (parseFloat(eth) * 1e18).toString();
   };
 
   const handleFaucet = async () => {
     if (!address) {
-      setError('请输入地址');
+      setError('Please enter address');
       return;
     }
 
@@ -37,11 +37,11 @@ const Faucet = () => {
 
   return (
     <div className="faucet-container">
-      <h3>💰 水龙头 (Faucet)</h3>
+      <h3>💰 Faucet</h3>
 
       <div className="faucet-form">
         <div className="form-group">
-          <label>接收地址:</label>
+          <label>Receiver Address:</label>
           <input
             type="text"
             value={address}
@@ -52,7 +52,7 @@ const Faucet = () => {
         </div>
 
         <div className="form-group">
-          <label>金额 (ETH):</label>
+          <label>Amount (ETH):</label>
           <div className="amount-buttons">
             {['1', '5', '10', '100'].map((val) => (
               <button
@@ -71,7 +71,7 @@ const Faucet = () => {
           onClick={handleFaucet}
           disabled={loading || !address}
         >
-          {loading ? '领取中...' : '领取 ETH'}
+          {loading ? 'Getting...' : 'Get ETH'}
         </button>
 
         {error && (
@@ -82,7 +82,7 @@ const Faucet = () => {
 
         {txHash && (
           <div className="success-message">
-            ✅ 交易已发送!
+            ✅ Transaction sent!
             <div className="tx-hash">
               Hash: {txHash}
             </div>

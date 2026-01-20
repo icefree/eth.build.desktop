@@ -1,6 +1,6 @@
 import { mineBlock } from '../../hooks/useTauri';
 
-// Mine Block 节点 - 触发手动挖矿
+// Mine Block node - triggers manual mining
 export function MineBlock() {
   this.color = '#627eea';
   this.size = [120, 60];

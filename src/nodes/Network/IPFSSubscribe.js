@@ -37,7 +37,7 @@ IPFSSub.prototype.refreshIpfs = function() {
   const localIpfs = getLocalIpfs();
   if (!localIpfs) {
     const info = getLocalIpfsStatus();
-    this.status = info.starting ? "local ipfs starting" : "请先启动 IPFS 节点";
+    this.status = info.starting ? "local ipfs starting" : "Please start local IPFS first";
     this.ipfs = null;
     this.subscribedChannel = null;
     return false;

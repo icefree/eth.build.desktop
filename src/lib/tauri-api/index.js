@@ -1,5 +1,5 @@
-// 临时的 Tauri API polyfill
-// 正式版本应该从 npm 安装 @tauri-apps/api
+// Temporary Tauri API polyfill
+// Production version should be installed from npm as @tauri-apps/api
 
 const getTauriInvoke = () => {
   if (typeof window === 'undefined') return null;

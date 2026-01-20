@@ -1,6 +1,6 @@
 import { getAccounts } from '../../hooks/useTauri';
 
-// Accounts 节点 - 获取账户列表
+// Accounts node - retrieves list of accounts
 export function LocalAccounts() {
   this.color = '#627eea';
   this.size = [180, 100];
