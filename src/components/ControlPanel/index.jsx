@@ -239,6 +239,45 @@ const ControlPanel = ({ open, onClose }) => {
           <div className="tab-body">
             {activeTab === 'control' && (
               <>
+              {/* Socket 服务 */}
+              <div>
+                <div className="service-card-header">
+                  <span>🔌</span>
+                  <span>Socket 服务</span>
+                </div>
+
+                {socketService && (
+                  <div className="service-item">
+                    <div className="service-left">
+                      <span className="service-icon">🔌</span>
+                      <div className="service-info">
+                        <span className="service-name">Socket 服务</span>
+                        <span 
+                          className="service-url"
+                          onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
+                        >
+                          {socketService.running 
+                            ? `localhost:${socketService.port || 44386}` 
+                            : '未运行'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="service-right">
+                      <div 
+                        className={`toggle-switch ${socketService.running ? 'active' : ''}`}
+                        onClick={() => !loading && handleToggleService('socket')}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
+                {services.length === 0 && (
+                  <div className="offline-hint" style={{ padding: '20px' }}>
+                    <span className="hint-text">暂无服务配置</span>
+                  </div>
+                )}
+              </div>
+
               {/* IPFS 本地节点 */}
               <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
                 <div className="status-header">
@@ -382,45 +421,6 @@ const ControlPanel = ({ open, onClose }) => {
                   }}
                 />
               )}
-
-              {/* 服务管理 */}
-              <div className="service-card">
-                <div className="service-card-header">
-                  <span>🔌</span>
-                  <span>后端服务</span>
-                </div>
-                
-                {socketService && (
-                  <div className="service-item">
-                    <div className="service-left">
-                      <span className="service-icon">🔌</span>
-                      <div className="service-info">
-                        <span className="service-name">Socket 服务</span>
-                        <span 
-                          className="service-url"
-                          onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
-                        >
-                          {socketService.running 
-                            ? `localhost:${socketService.port || 44386}` 
-                            : '未运行'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="service-right">
-                      <div 
-                        className={`toggle-switch ${socketService.running ? 'active' : ''}`}
-                        onClick={() => !loading && handleToggleService('socket')}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-
-                {services.length === 0 && (
-                  <div className="offline-hint" style={{ padding: '20px' }}>
-                    <span className="hint-text">暂无服务配置</span>
-                  </div>
-                )}
-              </div>
 
               {/* 离线提示 */}
               {!isOnline && (
