@@ -240,8 +240,8 @@ const ControlPanel = ({ open, onClose }) => {
             {activeTab === 'control' && (
               <>
               {/* Socket 服务 */}
-              <div>
-                <div className="service-card-header">
+              <div className="socket-panel">
+                <div className="service-card-header socket-bar">
                   <span>🔌</span>
                   <span>Socket 服务</span>
                 </div>
