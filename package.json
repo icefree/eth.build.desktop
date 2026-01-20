@@ -98,5 +98,10 @@
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
     "@tauri-apps/api": "^2.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "concat-stream": "^1.6.2"
+    }
   }
 }
