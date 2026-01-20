@@ -16,7 +16,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [blockRefreshKey, setBlockRefreshKey] = useState(0);
   const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
   const [blockResetKey, setBlockResetKey] = useState(0);
-  const [activeTab, setActiveTab] = useState('accounts');
+  const [activeTab, setActiveTab] = useState('control');
   const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
   const [ipfsLoading, setIpfsLoading] = useState(false);
   const autoStartSocketRef = useRef(false);
@@ -215,211 +215,165 @@ const ControlPanel = ({ open, onClose }) => {
         )}
 
         <div className="control-panel-content">
-          {/* IPFS 本地节点 */}
-          <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
-            <div className="status-header">
-              <div className="status-indicator">
-                <span className={`status-dot ${isIpfsRunning ? 'online' : ''}`}></span>
-                <span className="status-label">
-                  IPFS 本地节点
-                </span>
-              </div>
-              <span className={`status-badge ${isIpfsRunning ? '' : 'offline'}`}>
-                {isIpfsRunning ? '运行中' : (isIpfsStarting ? '启动中' : '离线')}
-              </span>
-            </div>
-
-            <div className="network-info">
-              <div className="info-row">
-                <span className="info-label">Mode</span>
-                <span className="info-value">local-only (no p2p)</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Node ID</span>
-                <span className="info-value">
-                  {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : '未启动'}
-                </span>
-              </div>
-            </div>
-
-            <div className="action-buttons">
-              {!isIpfsRunning ? (
-                <button
-                  className="action-btn primary full-width"
-                  onClick={handleStartIpfs}
-                  disabled={ipfsLoading}
-                >
-                  {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} 启动 IPFS
-                </button>
-              ) : (
-                <button
-                  className="action-btn danger full-width"
-                  onClick={handleStopIpfs}
-                  disabled={ipfsLoading}
-                >
-                  {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} 停止 IPFS
-                </button>
-              )}
-            </div>
+          <div className="tabs-container">
+            <button
+              className={`tab-btn ${activeTab === 'control' ? 'active' : ''}`}
+              onClick={() => setActiveTab('control')}
+            >
+              ⚡ 控制面板
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'accounts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('accounts')}
+            >
+              👤 账户
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'blocks' ? 'active' : ''}`}
+              onClick={() => setActiveTab('blocks')}
+            >
+              📦 区块
+            </button>
           </div>
 
-          {/* 网络状态卡片 */}
-          <div className={`status-card ${isOnline ? 'online' : 'offline'}`}>
-            <div className="status-header">
-              <div className="status-indicator">
-                <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
-                <span className="status-label">
-                  {isOnline ? 'Anvil 本地网络' : '网络未启动'}
-                </span>
-              </div>
-              <span className={`status-badge ${isOnline ? '' : 'offline'}`}>
-                {isOnline ? '运行中' : '离线'}
-              </span>
-            </div>
-
-            {isOnline && networkStatus && (
-              <div className="network-info">
-                <div className="info-row">
-                  <span className="info-label">RPC</span>
-                  <span 
-                    className="info-value"
-                    onClick={() => copyToClipboard(networkStatus.rpc_url, 'RPC URL')}
-                  >
-                    {networkStatus.rpc_url}
-                    <span className="copy-icon">📋</span>
+          {activeTab === 'control' && (
+            <>
+              {/* IPFS 本地节点 */}
+              <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
+                <div className="status-header">
+                  <div className="status-indicator">
+                    <span className={`status-dot ${isIpfsRunning ? 'online' : ''}`}></span>
+                    <span className="status-label">
+                      IPFS 本地节点
+                    </span>
+                  </div>
+                  <span className={`status-badge ${isIpfsRunning ? '' : 'offline'}`}>
+                    {isIpfsRunning ? '运行中' : (isIpfsStarting ? '启动中' : '离线')}
                   </span>
                 </div>
-                <div className="info-row">
-                  <span className="info-label">Chain ID</span>
-                  <span 
-                    className="info-value"
-                    onClick={() => copyToClipboard(String(networkStatus.chain_id), 'Chain ID')}
-                  >
-                    {networkStatus.chain_id}
-                    <span className="copy-icon">📋</span>
-                  </span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">WebSocket</span>
-                  <span 
-                    className="info-value"
-                    onClick={() => copyToClipboard(networkStatus.ws_url, 'WS URL')}
-                  >
-                    {networkStatus.ws_url}
-                    <span className="copy-icon">📋</span>
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* 操作按钮 */}
-          <div className="action-buttons">
-            {!isOnline ? (
-              <button
-                className="action-btn primary full-width"
-                onClick={handleStartNetwork}
-                disabled={loading}
-              >
-                {loading ? <span className="loading-spinner"></span> : '▶️'} 启动网络
-              </button>
-            ) : (
-              <>
-                <button
-                  className="action-btn secondary"
-                  onClick={handleQuickMine}
-                  disabled={loading}
-                >
-                  ⛏️ 挖矿
-                </button>
-                <button
-                  className="action-btn warning"
-                  onClick={handleResetNetwork}
-                  disabled={loading}
-                >
-                  🔄 重置
-                </button>
-                <button
-                  className="action-btn danger full-width"
-                  onClick={handleStopNetwork}
-                  disabled={loading}
-                >
-                  {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止网络
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* 服务管理 */}
-          <div className="service-card">
-            <div className="service-card-header">
-              <span>🔌</span>
-              <span>后端服务</span>
-            </div>
-            
-            {socketService && (
-              <div className="service-item">
-                <div className="service-left">
-                  <span className="service-icon">🔌</span>
-                  <div className="service-info">
-                    <span className="service-name">Socket 服务</span>
-                    <span 
-                      className="service-url"
-                      onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
-                    >
-                      {socketService.running 
-                        ? `localhost:${socketService.port || 44386}` 
-                        : '未运行'}
+                <div className="network-info">
+                  <div className="info-row">
+                    <span className="info-label">Mode</span>
+                    <span className="info-value">local-only (no p2p)</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="info-label">Node ID</span>
+                    <span className="info-value">
+                      {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : '未启动'}
                     </span>
                   </div>
                 </div>
-                <div className="service-right">
-                  <div 
-                    className={`toggle-switch ${socketService.running ? 'active' : ''}`}
-                    onClick={() => !loading && handleToggleService('socket')}
-                  ></div>
+
+                <div className="action-buttons">
+                  {!isIpfsRunning ? (
+                    <button
+                      className="action-btn primary full-width"
+                      onClick={handleStartIpfs}
+                      disabled={ipfsLoading}
+                    >
+                      {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} 启动 IPFS
+                    </button>
+                  ) : (
+                    <button
+                      className="action-btn danger full-width"
+                      onClick={handleStopIpfs}
+                      disabled={ipfsLoading}
+                    >
+                      {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} 停止 IPFS
+                    </button>
+                  )}
                 </div>
               </div>
-            )}
 
-            {services.length === 0 && (
-              <div className="offline-hint" style={{ padding: '20px' }}>
-                <span className="hint-text">暂无服务配置</span>
+              {/* 网络状态卡片 */}
+              <div className={`status-card ${isOnline ? 'online' : 'offline'}`}>
+                <div className="status-header">
+                  <div className="status-indicator">
+                    <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
+                    <span className="status-label">
+                      {isOnline ? 'Anvil 本地网络' : '网络未启动'}
+                    </span>
+                  </div>
+                  <span className={`status-badge ${isOnline ? '' : 'offline'}`}>
+                    {isOnline ? '运行中' : '离线'}
+                  </span>
+                </div>
+
+                {isOnline && networkStatus && (
+                  <div className="network-info">
+                    <div className="info-row">
+                      <span className="info-label">RPC</span>
+                      <span 
+                        className="info-value"
+                        onClick={() => copyToClipboard(networkStatus.rpc_url, 'RPC URL')}
+                      >
+                        {networkStatus.rpc_url}
+                        <span className="copy-icon">📋</span>
+                      </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Chain ID</span>
+                      <span 
+                        className="info-value"
+                        onClick={() => copyToClipboard(String(networkStatus.chain_id), 'Chain ID')}
+                      >
+                        {networkStatus.chain_id}
+                        <span className="copy-icon">📋</span>
+                      </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">WebSocket</span>
+                      <span 
+                        className="info-value"
+                        onClick={() => copyToClipboard(networkStatus.ws_url, 'WS URL')}
+                      >
+                        {networkStatus.ws_url}
+                        <span className="copy-icon">📋</span>
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* 网络在线时显示额外功能 */}
-          {isOnline && (
-            <>
-              {/* 标签页 */}
-              <div className="tabs-container">
-                <button
-                  className={`tab-btn ${activeTab === 'accounts' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('accounts')}
-                >
-                  👤 账户
-                </button>
-                <button
-                  className={`tab-btn ${activeTab === 'faucet' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('faucet')}
-                >
-                  🚰 水龙头
-                </button>
-                <button
-                  className={`tab-btn ${activeTab === 'blocks' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('blocks')}
-                >
-                  📦 区块
-                </button>
+              {/* 操作按钮 */}
+              <div className="action-buttons">
+                {!isOnline ? (
+                  <button
+                    className="action-btn primary full-width"
+                    onClick={handleStartNetwork}
+                    disabled={loading}
+                  >
+                    {loading ? <span className="loading-spinner"></span> : '▶️'} 启动网络
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      className="action-btn secondary"
+                      onClick={handleQuickMine}
+                      disabled={loading}
+                    >
+                      ⛏️ 挖矿
+                    </button>
+                    <button
+                      className="action-btn warning"
+                      onClick={handleResetNetwork}
+                      disabled={loading}
+                    >
+                      🔄 重置
+                    </button>
+                    <button
+                      className="action-btn danger full-width"
+                      onClick={handleStopNetwork}
+                      disabled={loading}
+                    >
+                      {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止网络
+                    </button>
+                  </>
+                )}
               </div>
 
-              {/* 标签内容 */}
-              {activeTab === 'accounts' && (
-                <AccountsPanel refreshToken={accountsRefreshKey} />
-              )}
-              
-              {activeTab === 'faucet' && (
+              {isOnline && (
                 <FaucetPanel
                   onSuccess={() => {
                     setBlockRefreshKey((prev) => prev + 1);
@@ -428,21 +382,64 @@ const ControlPanel = ({ open, onClose }) => {
                 />
               )}
 
-              {activeTab === 'blocks' && (
-                <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
+              {/* 服务管理 */}
+              <div className="service-card">
+                <div className="service-card-header">
+                  <span>🔌</span>
+                  <span>后端服务</span>
+                </div>
+                
+                {socketService && (
+                  <div className="service-item">
+                    <div className="service-left">
+                      <span className="service-icon">🔌</span>
+                      <div className="service-info">
+                        <span className="service-name">Socket 服务</span>
+                        <span 
+                          className="service-url"
+                          onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
+                        >
+                          {socketService.running 
+                            ? `localhost:${socketService.port || 44386}` 
+                            : '未运行'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="service-right">
+                      <div 
+                        className={`toggle-switch ${socketService.running ? 'active' : ''}`}
+                        onClick={() => !loading && handleToggleService('socket')}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
+                {services.length === 0 && (
+                  <div className="offline-hint" style={{ padding: '20px' }}>
+                    <span className="hint-text">暂无服务配置</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 离线提示 */}
+              {!isOnline && (
+                <div className="offline-hint">
+                  <span className="hint-icon">🔌</span>
+                  <span className="hint-text">
+                    点击「启动网络」开始使用<br />
+                    本地以太坊测试环境
+                  </span>
+                </div>
               )}
             </>
           )}
 
-          {/* 离线提示 */}
-          {!isOnline && (
-            <div className="offline-hint">
-              <span className="hint-icon">🔌</span>
-              <span className="hint-text">
-                点击「启动网络」开始使用<br />
-                本地以太坊测试环境
-              </span>
-            </div>
+          {activeTab === 'accounts' && (
+            <AccountsPanel refreshToken={accountsRefreshKey} />
+          )}
+
+          {activeTab === 'blocks' && (
+            <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
           )}
         </div>
 
