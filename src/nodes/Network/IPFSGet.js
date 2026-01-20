@@ -7,6 +7,7 @@ function IPFSGet() {
   this.properties = { };
   this.size[0] = 230
   this.size[1] = 70
+  this.status = "waiting for local ipfs"
 
 }
 
@@ -22,7 +23,7 @@ IPFSGet.prototype.refreshIpfs = function() {
   const localIpfs = getLocalIpfs();
   if (!localIpfs) {
     const info = getLocalIpfsStatus();
-    this.status = info.starting ? "local ipfs starting" : "local ipfs offline";
+    this.status = info.starting ? "local ipfs starting" : "请先启动 IPFS 节点";
     this.ipfs = null;
     return false;
   }
@@ -37,6 +38,7 @@ IPFSGet.prototype.onAction = async function() {
   if(typeof path !== "undefined" && path != null) {
     try{
         if (!this.ipfs && !this.refreshIpfs()) {
+          console.warn("IPFS 未启动，请先启动 IPFS 节点");
           return;
         }
         const results = []

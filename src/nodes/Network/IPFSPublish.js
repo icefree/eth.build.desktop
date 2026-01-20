@@ -21,7 +21,7 @@ IPFSPub.prototype.refreshIpfs = function() {
   const localIpfs = getLocalIpfs();
   if (!localIpfs) {
     const info = getLocalIpfsStatus();
-    this.status = info.starting ? "local ipfs starting" : "local ipfs offline";
+    this.status = info.starting ? "local ipfs starting" : "请先启动 IPFS 节点";
     this.ipfs = null;
     return false;
   }
@@ -47,6 +47,7 @@ IPFSPub.prototype.onAction = async function() {
   if(typeof data !== "undefined" && data != null){
     try{
       if (!this.ipfs && !this.refreshIpfs()) {
+        console.warn("IPFS 未启动，请先启动 IPFS 节点");
         return;
       }
       console.log("publishing",data,"to",this.properties.channel)
