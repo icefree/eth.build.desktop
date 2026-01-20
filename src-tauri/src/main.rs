@@ -9,6 +9,7 @@ use commands::{network, accounts, mining, transactions, blocks, solc};
 use commands::services as service_commands;
 use ethereum::local_network::LocalNetwork;
 use services::ServiceManager;
+use tauri::Manager;
 
 struct AppState {
     local_network: tokio::sync::Mutex<Option<LocalNetwork>>,
