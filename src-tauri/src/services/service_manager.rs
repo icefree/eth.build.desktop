@@ -33,7 +33,7 @@ impl ServiceManager {
     fn resolve_base_dir(&self) -> PathBuf {
         let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         for _ in 0..4 {
-            if dir.join("package.json").exists() && dir.join("geth").exists() {
+            if dir.join("package.json").exists() {
                 return dir;
             }
             if !dir.pop() {
