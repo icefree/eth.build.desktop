@@ -1,4 +1,4 @@
-const { createIpfsClient } = require('./ipfsClient')
+const IPFS = require('ipfs-core')
 
 function IPFSGet() {
   this.addInput("path","string");
@@ -14,16 +14,23 @@ IPFSGet.title = "IPFSDownload";
 
 IPFSGet.prototype.onAdded = async function() {
   this.title_color = "#dddddd";
-  try {
-    this.ipfs = createIpfsClient()
-    console.log('IPFS (get) node is ready')
-    const { id, agentVersion, protocolVersion } = await this.ipfs.id()
-    console.log("IPFS FOR GET!", id, agentVersion, protocolVersion)
-    this.title_color = "#eeee44";
-  } catch (e) {
-    console.log(e)
-    this.title_color = "#ff6666";
-  }
+  this.ipfs = await IPFS.create({
+    EXPERIMENTAL: {
+     pubsub: true,
+   },
+   repo: 'ipfs-' + Math.random(),
+   config: {
+     Addresses: {
+       Swarm: ['/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+       '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star']
+     },
+     Bootstrap: []
+   }
+  })
+  console.log('IPFS (get) node is ready')
+  const { id, agentVersion, protocolVersion } = await this.ipfs.id()
+  console.log("IPFS FOR GET!",id, agentVersion, protocolVersion)
+  this.title_color = "#eeee44";
 };
 
 IPFSGet.prototype.onAction = async function() {

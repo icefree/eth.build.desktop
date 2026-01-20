@@ -1,5 +1,5 @@
 import React from 'react';
-const { createIpfsClient } = require('./ipfsClient')
+const IPFS = require('ipfs-core')
 
 function IPFSSub() {
   this.addInput("[channel]","string")
@@ -23,23 +23,26 @@ IPFSSub.prototype.onReceiveMsg = async function(msg) {
 
 IPFSSub.prototype.onAdded = async function() {
   this.title_color = "#dddddd";
-  try {
-    this.ipfs = createIpfsClient()
-    const { id, agentVersion, protocolVersion } = await this.ipfs.id()
-    console.log("IPFS FOR SUBSCRIBE!", id, agentVersion, protocolVersion)
-    console.log("IPFS SUBSCRIBING TO ", this.properties.channel)
-    await this.ipfs.pubsub.subscribe(
-      this.properties.channel,
-      this.onReceiveMsg.bind(this)
-    )
-    console.log("IPFS SUBSCRIBED")
-    this.title_color = "#eeee44";
-    this.status = "connected"
-  } catch (e) {
-    console.log(e)
-    this.title_color = "#ff6666";
-    this.status = "error"
-  }
+  this.ipfs = await IPFS.create({
+   EXPERIMENTAL: {
+     pubsub: true,
+   },
+   repo: 'ipfs-' + Math.random(),
+   config: {
+      Addresses: {
+        Swarm: ['/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+        '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star']
+     },
+     Bootstrap: []
+   }
+  })
+  const { id, agentVersion, protocolVersion } = await this.ipfs.id()
+  console.log("IPFS FOR SUBSCRIBE!", id, agentVersion, protocolVersion)
+  console.log("IPFS SUBSCRIBING TO ",this.properties.channel)
+  this.ipfs.pubsub.subscribe(this.properties.channel, this.onReceiveMsg.bind(this))
+  console.log("IPFS SUBSCRIBED")
+  this.title_color = "#eeee44";
+  this.status = "connected"
 };
 
 IPFSSub.prototype.onExecute = function() {
