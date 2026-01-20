@@ -215,6 +215,54 @@ const ControlPanel = ({ open, onClose }) => {
         )}
 
         <div className="control-panel-content">
+          {/* IPFS 本地节点 */}
+          <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
+            <div className="status-header">
+              <div className="status-indicator">
+                <span className={`status-dot ${isIpfsRunning ? 'online' : ''}`}></span>
+                <span className="status-label">
+                  IPFS 本地节点
+                </span>
+              </div>
+              <span className={`status-badge ${isIpfsRunning ? '' : 'offline'}`}>
+                {isIpfsRunning ? '运行中' : (isIpfsStarting ? '启动中' : '离线')}
+              </span>
+            </div>
+
+            <div className="network-info">
+              <div className="info-row">
+                <span className="info-label">Mode</span>
+                <span className="info-value">local-only (no p2p)</span>
+              </div>
+              <div className="info-row">
+                <span className="info-label">Node ID</span>
+                <span className="info-value">
+                  {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : '未启动'}
+                </span>
+              </div>
+            </div>
+
+            <div className="action-buttons">
+              {!isIpfsRunning ? (
+                <button
+                  className="action-btn primary full-width"
+                  onClick={handleStartIpfs}
+                  disabled={ipfsLoading}
+                >
+                  {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} 启动 IPFS
+                </button>
+              ) : (
+                <button
+                  className="action-btn danger full-width"
+                  onClick={handleStopIpfs}
+                  disabled={ipfsLoading}
+                >
+                  {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} 停止 IPFS
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* 网络状态卡片 */}
           <div className={`status-card ${isOnline ? 'online' : 'offline'}`}>
             <div className="status-header">
@@ -300,54 +348,6 @@ const ControlPanel = ({ open, onClose }) => {
                 </button>
               </>
             )}
-          </div>
-
-          {/* IPFS 本地节点 */}
-          <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
-            <div className="status-header">
-              <div className="status-indicator">
-                <span className={`status-dot ${isIpfsRunning ? 'online' : ''}`}></span>
-                <span className="status-label">
-                  IPFS 本地节点
-                </span>
-              </div>
-              <span className={`status-badge ${isIpfsRunning ? '' : 'offline'}`}>
-                {isIpfsRunning ? '运行中' : (isIpfsStarting ? '启动中' : '离线')}
-              </span>
-            </div>
-
-            <div className="network-info">
-              <div className="info-row">
-                <span className="info-label">Mode</span>
-                <span className="info-value">local-only (no p2p)</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Node ID</span>
-                <span className="info-value">
-                  {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : '未启动'}
-                </span>
-              </div>
-            </div>
-
-            <div className="action-buttons">
-              {!isIpfsRunning ? (
-                <button
-                  className="action-btn primary full-width"
-                  onClick={handleStartIpfs}
-                  disabled={ipfsLoading}
-                >
-                  {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} 启动 IPFS
-                </button>
-              ) : (
-                <button
-                  className="action-btn danger full-width"
-                  onClick={handleStopIpfs}
-                  disabled={ipfsLoading}
-                >
-                  {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} 停止 IPFS
-                </button>
-              )}
-            </div>
           </div>
 
           {/* 服务管理 */}
