@@ -30,7 +30,7 @@ const AccountsPanel = ({ refreshToken }) => {
       setCopySuccess(label);
       setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
-      console.error('复制失败:', err);
+      console.error('Copy failed:', err);
     }
   };
 
@@ -51,13 +51,13 @@ const AccountsPanel = ({ refreshToken }) => {
   return (
     <div className="accounts-panel">
       <div className="accounts-header">
-        <h4>账户列表</h4>
+        <h4>Accounts List</h4>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span className="accounts-count">{accounts.length} 个</span>
+          <span className="accounts-count">{accounts.length} accounts</span>
           <button
             className="copy-btn"
             onClick={() => setShowPrivateKeys(!showPrivateKeys)}
-            title={showPrivateKeys ? '隐藏私钥' : '显示私钥'}
+            title={showPrivateKeys ? 'Hide private key' : 'Show private key'}
           >
             {showPrivateKeys ? '🙈' : '👁️'}
           </button>
@@ -66,16 +66,16 @@ const AccountsPanel = ({ refreshToken }) => {
 
       <div className="accounts-list">
         {loading ? (
-          <div className="accounts-loading">加载中...</div>
+          <div className="accounts-loading">Loading...</div>
         ) : accounts.length === 0 ? (
-          <div className="accounts-empty">暂无账户</div>
+          <div className="accounts-empty">No accounts</div>
         ) : (
           accounts.map((account, index) => (
             <div key={index} className="account-item">
               <div className="account-info">
                 <span 
                   className="account-address"
-                  onClick={() => copyToClipboard(account.address, '地址')}
+                  onClick={() => copyToClipboard(account.address, 'Address')}
                   title={account.address}
                 >
                   #{index} {formatAddress(account.address)}
@@ -83,7 +83,7 @@ const AccountsPanel = ({ refreshToken }) => {
                 {showPrivateKeys && (
                   <span 
                     className="account-address"
-                    onClick={() => copyToClipboard(account.private_key, '私钥')}
+                    onClick={() => copyToClipboard(account.private_key, 'Private Key')}
                     title={account.private_key}
                     style={{ color: 'rgba(245, 158, 11, 0.8)', fontSize: '11px' }}
                   >
@@ -96,7 +96,7 @@ const AccountsPanel = ({ refreshToken }) => {
                 <button
                   className="copy-btn"
                   onClick={() => copyToClipboard(account.address, '地址')}
-                  title="复制地址"
+                  title="Copy Address"
                 >
                   📋
                 </button>
@@ -108,7 +108,7 @@ const AccountsPanel = ({ refreshToken }) => {
 
       {copySuccess && (
         <div className="copy-toast">
-          ✅ {copySuccess} 已复制
+          ✅ {copySuccess} Copied
         </div>
       )}
     </div>

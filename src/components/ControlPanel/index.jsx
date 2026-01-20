@@ -207,7 +207,7 @@ const ControlPanel = ({ open, onClose }) => {
       setCopySuccess(label);
       setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
-      console.error('复制失败:', err);
+      console.error('Copy failed:', err);
     }
   };
 
@@ -238,7 +238,7 @@ const ControlPanel = ({ open, onClose }) => {
     <div className="control-panel-overlay" onClick={onClose}>
       <div className="control-panel" onClick={(e) => e.stopPropagation()}>
         <div className="control-panel-header">
-          <h2>⚡ 控制面板</h2>
+          <h2>⚡ Control Panel</h2>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
@@ -254,19 +254,19 @@ const ControlPanel = ({ open, onClose }) => {
               className={`tab-btn ${activeTab === 'control' ? 'active' : ''}`}
               onClick={() => setActiveTab('control')}
             >
-              ⚡ 控制面板
+              ⚡ Control Panel
             </button>
             <button
               className={`tab-btn ${activeTab === 'accounts' ? 'active' : ''}`}
               onClick={() => setActiveTab('accounts')}
             >
-              👤 账户
+              👤 Accounts
             </button>
             <button
               className={`tab-btn ${activeTab === 'blocks' ? 'active' : ''}`}
               onClick={() => setActiveTab('blocks')}
             >
-              📦 区块
+              📦 Blocks
             </button>
           </div>
 
@@ -280,11 +280,11 @@ const ControlPanel = ({ open, onClose }) => {
                     <div className="status-indicator">
                       <span className={`status-dot ${socketService.running ? 'online' : ''}`}></span>
                       <span className="status-label">
-                        Socket 服务
+                        Socket Service
                       </span>
                     </div>
                     <span className={`status-badge ${socketService.running ? '' : 'offline'}`}>
-                      {socketService.running ? '运行中' : '离线'}
+                      {socketService.running ? 'Running' : 'Offline'}
                     </span>
                   </div>
 
@@ -297,7 +297,7 @@ const ControlPanel = ({ open, onClose }) => {
                       >
                         {socketService.running 
                           ? `localhost:${socketPortValue}` 
-                          : '未运行'}
+                          : 'Not Running'}
                         <span className="copy-icon">📋</span>
                       </span>
                     </div>
@@ -324,7 +324,7 @@ const ControlPanel = ({ open, onClose }) => {
                         onClick={() => handleToggleService('socket', { port: Number(socketPort) || 44386 })}
                         disabled={loading}
                       >
-                        {loading ? <span className="loading-spinner"></span> : '▶️'} 启动 Socket
+                        {loading ? <span className="loading-spinner"></span> : '▶️'} Start Socket
                       </button>
                     ) : (
                       <button
@@ -332,7 +332,7 @@ const ControlPanel = ({ open, onClose }) => {
                         onClick={() => handleToggleService('socket')}
                         disabled={loading}
                       >
-                        {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止 Socket
+                        {loading ? <span className="loading-spinner"></span> : '⏹️'} Stop Socket
                       </button>
                     )}
                   </div>
@@ -341,7 +341,7 @@ const ControlPanel = ({ open, onClose }) => {
 
               {services.length === 0 && (
                 <div className="offline-hint" style={{ padding: '20px' }}>
-                  <span className="hint-text">暂无服务配置</span>
+                  <span className="hint-text">No services configured</span>
                 </div>
               )}
 
@@ -351,11 +351,11 @@ const ControlPanel = ({ open, onClose }) => {
                   <div className="status-indicator">
                     <span className={`status-dot ${isIpfsRunning ? 'online' : ''}`}></span>
                     <span className="status-label">
-                      IPFS 本地节点
+                      IPFS Local Node
                     </span>
                   </div>
                   <span className={`status-badge ${isIpfsRunning ? '' : 'offline'}`}>
-                    {isIpfsRunning ? '运行中' : (isIpfsStarting ? '启动中' : '离线')}
+                    {isIpfsRunning ? 'Running' : (isIpfsStarting ? 'Starting' : 'Offline')}
                   </span>
                 </div>
 
@@ -367,7 +367,7 @@ const ControlPanel = ({ open, onClose }) => {
                   <div className="info-row">
                     <span className="info-label">Node ID</span>
                     <span className="info-value">
-                      {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : '未启动'}
+                      {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : 'Not Started'}
                     </span>
                   </div>
                 </div>
@@ -379,7 +379,7 @@ const ControlPanel = ({ open, onClose }) => {
                       onClick={handleStartIpfs}
                       disabled={ipfsLoading}
                     >
-                      {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} 启动 IPFS
+                      {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} Start IPFS
                     </button>
                   ) : (
                     <button
@@ -387,7 +387,7 @@ const ControlPanel = ({ open, onClose }) => {
                       onClick={handleStopIpfs}
                       disabled={ipfsLoading}
                     >
-                      {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} 停止 IPFS
+                      {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} Stop IPFS
                     </button>
                   )}
                 </div>
@@ -399,11 +399,11 @@ const ControlPanel = ({ open, onClose }) => {
                   <div className="status-indicator">
                     <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
                     <span className="status-label">
-                      {isOnline ? 'Anvil 测试网' : '测试网未启动'}
+                      {isOnline ? 'Anvil Testnet' : 'Testnet Not Started'}
                     </span>
                   </div>
                   <span className={`status-badge ${isOnline ? '' : 'offline'}`}>
-                    {isOnline ? '运行中' : '离线'}
+                    {isOnline ? 'Running' : 'Offline'}
                   </span>
                 </div>
 
@@ -479,7 +479,7 @@ const ControlPanel = ({ open, onClose }) => {
                       onClick={handleStartNetwork}
                       disabled={loading}
                     >
-                      {loading ? <span className="loading-spinner"></span> : '▶️'} 启动测试网
+                      {loading ? <span className="loading-spinner"></span> : '▶️'} Start Testnet
                     </button>
                   ) : (
                     <>
@@ -488,21 +488,21 @@ const ControlPanel = ({ open, onClose }) => {
                         onClick={handleQuickMine}
                         disabled={loading}
                       >
-                        ⛏️ 挖矿
+                        ⛏️ Mine
                       </button>
                       <button
                         className="action-btn warning"
                         onClick={handleResetNetwork}
                         disabled={loading}
                       >
-                        🔄 重置
+                        🔄 Reset
                       </button>
                       <button
                         className="action-btn danger full-width"
                         onClick={handleStopNetwork}
                         disabled={loading}
                       >
-                        {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止网络
+                        {loading ? <span className="loading-spinner"></span> : '⏹️'} Stop Network
                       </button>
                     </>
                   )}
@@ -538,7 +538,7 @@ const ControlPanel = ({ open, onClose }) => {
         {/* 复制成功提示 */}
         {copySuccess && (
           <div className="copy-toast">
-            ✅ {copySuccess} 已复制
+            ✅ {copySuccess} Copied
           </div>
         )}
       </div>

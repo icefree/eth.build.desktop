@@ -14,14 +14,14 @@ const FaucetPanel = ({ onSuccess }) => {
   const handleFaucet = async () => {
     // 验证地址
     if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
-      setError('请输入有效的以太坊地址');
+      setError('Please enter a valid Ethereum address');
       return;
     }
 
     // 验证金额
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('请输入有效的金额');
+      setError('Please enter a valid amount');
       return;
     }
 
@@ -51,12 +51,12 @@ const FaucetPanel = ({ onSuccess }) => {
   return (
     <div className="faucet-panel">
       <div className="faucet-header">
-        <h4>水龙头</h4>
+        <h4>Faucet</h4>
       </div>
 
       <div className="faucet-form">
         <div className="form-group">
-          <label>接收地址</label>
+          <label>Receiver Address</label>
           <input
             type="text"
             placeholder="0x..."
@@ -67,7 +67,7 @@ const FaucetPanel = ({ onSuccess }) => {
         </div>
 
         <div className="form-group">
-          <label>金额 (ETH)</label>
+          <label>Amount (ETH)</label>
           <div className="amount-presets">
             {PRESET_AMOUNTS.map((preset) => (
               <button
@@ -90,10 +90,10 @@ const FaucetPanel = ({ onSuccess }) => {
           {loading ? (
             <>
               <span className="loading-spinner"></span>
-              发送中...
+              Sending...
             </>
           ) : (
-            '💰 领取测试币'
+            '💰 Get Test ETH'
           )}
         </button>
       </div>
@@ -109,7 +109,7 @@ const FaucetPanel = ({ onSuccess }) => {
         <div className="faucet-result success">
           <span>✅</span>
           <div>
-            <div>成功发送 <strong>{result.amount} ETH</strong></div>
+            <div>Successfully sent <strong>{result.amount} ETH</strong></div>
             <div className="tx-hash" title={result.tx_hash}>
               {formatHash(result.tx_hash)}
             </div>

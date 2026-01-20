@@ -64,7 +64,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
         setSelectedBlock(null);
         setSelectedTx(result.data);
       } else {
-        setError('未找到匹配的区块或交易');
+        setError('No matching block or transaction found');
       }
     } catch (err) {
       setError(err.toString());
@@ -102,7 +102,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp * 1000);
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatValue = (value) => {
@@ -120,20 +120,20 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
     return `${hash.slice(0, 8)}...${hash.slice(-6)}`;
   };
 
-  const copyToClipboard = async (text, label = '内容') => {
+  const copyToClipboard = async (text, label = 'Content') => {
     try {
       await navigator.clipboard.writeText(text);
       setCopySuccess(label);
       setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
-      console.error('复制失败:', err);
+      console.error('Copy failed:', err);
     }
   };
 
   return (
     <div className="block-explorer">
       <div className="block-explorer-header">
-        <h4>区块列表</h4>
+        <h4>Blocks List</h4>
       </div>
 
       {/* 搜索框 */}
@@ -142,7 +142,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
           <input
             className="search-input"
             type="text"
-            placeholder="搜索区块号或交易哈希..."
+            placeholder="Search by block number or transaction hash..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -164,9 +164,9 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
         <>
           <div className="blocks-list">
             {loading ? (
-              <div className="blocks-loading">加载中...</div>
+              <div className="blocks-loading">Loading...</div>
             ) : blocks.length === 0 ? (
-              <div className="blocks-empty">暂无区块数据</div>
+              <div className="blocks-empty">No block data</div>
             ) : (
               blocks.map((block) => (
                 <div 
@@ -199,7 +199,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
               >
                 ◀
               </button>
-              <span className="pagination-info">第 {currentPage} 页</span>
+              <span className="pagination-info">Page {currentPage}</span>
               <button
                 className="pagination-btn"
                 onClick={() => setCurrentPage(currentPage + 1)}
@@ -217,7 +217,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
         <div className="block-modal-overlay" onClick={() => setSelectedBlock(null)}>
           <div className="block-modal" onClick={(e) => e.stopPropagation()}>
             <div className="block-modal-header">
-              <h3>区块 #{selectedBlock.number}</h3>
+              <h3>Block #{selectedBlock.number}</h3>
               <button className="modal-close-btn" onClick={() => setSelectedBlock(null)}>✕</button>
             </div>
             <div className="block-modal-content">
@@ -225,26 +225,26 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                 <span className="detail-label">Hash</span>
                 <span 
                   className="detail-value" 
-                  onClick={() => copyToClipboard(selectedBlock.hash, '区块哈希')}
+                  onClick={() => copyToClipboard(selectedBlock.hash, 'Block Hash')}
                   title={selectedBlock.hash}
                 >
                   {formatHash(selectedBlock.hash)}
                 </span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">时间</span>
+                <span className="detail-label">Time</span>
                 <span className="detail-value">
-                  {new Date(selectedBlock.timestamp * 1000).toLocaleString('zh-CN')}
+                  {new Date(selectedBlock.timestamp * 1000).toLocaleString('en-US')}
                 </span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">交易数</span>
+                <span className="detail-label">Transactions</span>
                 <span className="detail-value">{selectedBlock.transaction_count}</span>
               </div>
 
               {selectedBlock.tx_hashes && selectedBlock.tx_hashes.length > 0 && (
                 <div className="transactions-section">
-                  <div className="transactions-header">交易列表</div>
+                  <div className="transactions-header">Transactions List</div>
                   {selectedBlock.tx_hashes.map((txHash, idx) => (
                     <div 
                       key={idx} 
@@ -271,7 +271,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
         <div className="block-modal-overlay" onClick={() => setSelectedTx(null)}>
           <div className="block-modal" onClick={(e) => e.stopPropagation()}>
             <div className="block-modal-header">
-              <h3>交易详情</h3>
+              <h3>Transaction Detail</h3>
               <button className="modal-close-btn" onClick={() => setSelectedTx(null)}>✕</button>
             </div>
             <div className="block-modal-content">
@@ -279,7 +279,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                 <span className="detail-label">Hash</span>
                 <span 
                   className="detail-value"
-                  onClick={() => copyToClipboard(selectedTx.hash, '交易哈希')}
+                  onClick={() => copyToClipboard(selectedTx.hash, 'Transaction Hash')}
                   title={selectedTx.hash}
                 >
                   {formatHash(selectedTx.hash)}
@@ -290,7 +290,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                   <span className="detail-label">From</span>
                   <span 
                     className="detail-value"
-                    onClick={() => copyToClipboard(selectedTx.from, '发送地址')}
+                    onClick={() => copyToClipboard(selectedTx.from, 'From Address')}
                     title={selectedTx.from}
                   >
                     {formatHash(selectedTx.from)}
@@ -302,7 +302,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                   <span className="detail-label">To</span>
                   <span 
                     className="detail-value"
-                    onClick={() => copyToClipboard(selectedTx.to, '接收地址')}
+                    onClick={() => copyToClipboard(selectedTx.to, 'To Address')}
                     title={selectedTx.to}
                   >
                     {formatHash(selectedTx.to)}
@@ -340,7 +340,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
       {/* 复制成功提示 */}
       {copySuccess && (
         <div className="copy-toast">
-          ✅ {copySuccess} 已复制
+          ✅ {copySuccess} Copied
         </div>
       )}
     </div>

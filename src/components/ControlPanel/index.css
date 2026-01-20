@@ -1,4 +1,4 @@
-/* ===== 控制面板 - 简洁现代设计 ===== */
+/* ===== Control Panel - Sleek Modern Design ===== */
 
 .control-panel-overlay {
   position: fixed;
@@ -36,7 +36,7 @@
   to { transform: translateX(0); }
 }
 
-/* ===== 头部 ===== */
+/* ===== Header ===== */
 .control-panel-header {
   padding: 20px 24px;
   display: flex;
@@ -75,7 +75,7 @@
   color: #fff;
 }
 
-/* ===== 内容区域 ===== */
+/* ===== Content Area ===== */
 .control-panel-content {
   flex: 1;
   padding: 20px;
@@ -101,7 +101,7 @@
   display: flex;
 }
 
-/* ===== 状态卡片 ===== */
+/* ===== Status Card ===== */
 .status-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -133,7 +133,7 @@
   opacity: 1;
 }
 
-/* 状态头部 */
+/* Status Header */
 .status-header {
   display: flex;
   align-items: center;
@@ -199,7 +199,7 @@
   border-color: rgba(107, 114, 128, 0.3);
 }
 
-/* 网络信息 */
+/* Network Info */
 .network-info {
   display: flex;
   flex-direction: column;
@@ -270,7 +270,7 @@
   box-shadow: 0 0 0 2px rgba(98, 126, 234, 0.25);
 }
 
-/* ===== 操作按钮组 ===== */
+/* ===== Action Buttons Group ===== */
 .action-buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -346,7 +346,7 @@
   grid-column: 1 / -1;
 }
 
-/* ===== 服务卡片 ===== */
+/* ===== Service Card ===== */
 .service-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -424,7 +424,7 @@
   gap: 10px;
 }
 
-/* Toggle 开关 */
+/* Toggle Switch */
 .toggle-switch {
   position: relative;
   width: 44px;
@@ -460,7 +460,7 @@
   opacity: 0.9;
 }
 
-/* ===== 标签页 ===== */
+/* ===== Tabs ===== */
 .tabs-container {
   display: flex;
   gap: 4px;
@@ -492,7 +492,7 @@
   box-shadow: 0 2px 8px rgba(98, 126, 234, 0.3);
 }
 
-/* ===== 离线提示 ===== */
+/* ===== Offline Hint ===== */
 .offline-hint {
   display: flex;
   flex-direction: column;
@@ -514,7 +514,7 @@
   line-height: 1.6;
 }
 
-/* ===== 错误消息 ===== */
+/* ===== Error Message ===== */
 .error-message {
   padding: 12px 16px;
   background: rgba(239, 68, 68, 0.15);
@@ -527,7 +527,7 @@
   gap: 8px;
 }
 
-/* ===== Toast 提示 ===== */
+/* ===== Toast Notification ===== */
 .copy-toast {
   position: fixed;
   bottom: 24px;
@@ -554,7 +554,7 @@
   }
 }
 
-/* ===== 滚动条 ===== */
+/* ===== Scrollbar ===== */
 .control-panel::-webkit-scrollbar {
   width: 6px;
 }
@@ -572,7 +572,7 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ===== 加载动画 ===== */
+/* ===== Loading Animation ===== */
 .loading-spinner {
   display: inline-block;
   width: 14px;

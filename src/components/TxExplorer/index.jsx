@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { useState, useEffect } from 'react';
 import { getTransactions, getTransactionByHash } from '../../hooks/useTauri';
 import './index.css';
@@ -64,13 +65,13 @@ const TxExplorer = () => {
   return (
     <div className="tx-explorer">
       <div className="tx-explorer-header">
-        <h3>📋 交易浏览器</h3>
+        <h3>📋 Transaction Explorer</h3>
         <button
           className="refresh-btn"
           onClick={loadTransactions}
           disabled={loading}
         >
-          {loading ? '刷新中...' : '🔄 刷新'}
+          {loading ? 'Refreshing...' : '🔄 Refresh'}
         </button>
       </div>
 
@@ -83,18 +84,18 @@ const TxExplorer = () => {
       <div className="tx-list">
         {transactions.length === 0 ? (
           <div className="empty-state">
-            暂无交易
+            No transactions
           </div>
         ) : (
           <table className="tx-table">
             <thead>
               <tr>
-                <th>交易哈希</th>
-                <th>区块</th>
-                <th>从</th>
-                <th>到</th>
-                <th>价值</th>
-                <th>状态</th>
+                <th>Transaction Hash</th>
+                <th>Block</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Value</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -123,7 +124,7 @@ const TxExplorer = () => {
         <div className="tx-detail-modal" onClick={() => setSelectedTx(null)}>
           <div className="tx-detail-content" onClick={(e) => e.stopPropagation()}>
             <div className="tx-detail-header">
-              <h4>交易详情</h4>
+              <h4>Transaction Detail</h4>
               <button
                 className="close-btn"
                 onClick={() => setSelectedTx(null)}
@@ -133,25 +134,25 @@ const TxExplorer = () => {
             </div>
             <div className="tx-detail-body">
               <div className="detail-row">
-                <span className="detail-label">交易哈希:</span>
+                <span className="detail-label">Transaction Hash:</span>
                 <span className="detail-value">{selectedTx.hash}</span>
               </div>
               {selectedTx.block_number !== undefined && (
                 <div className="detail-row">
-                  <span className="detail-label">区块号:</span>
+                  <span className="detail-label">Block Number:</span>
                   <span className="detail-value">#{selectedTx.block_number}</span>
                 </div>
               )}
               <div className="detail-row">
-                <span className="detail-label">从:</span>
+                <span className="detail-label">From:</span>
                 <span className="detail-value">{selectedTx.from}</span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">到:</span>
+                <span className="detail-label">To:</span>
                 <span className="detail-value">{selectedTx.to}</span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">价值:</span>
+                <span className="detail-label">Value:</span>
                 <span className="detail-value">{formatValue(selectedTx.value)}</span>
               </div>
               {selectedTx.gas_price && (
@@ -173,13 +174,13 @@ const TxExplorer = () => {
                 </div>
               )}
               <div className="detail-row">
-                <span className="detail-label">状态:</span>
+                <span className="detail-label">Status:</span>
                 <span className={`detail-value tx-status-${selectedTx.status}`}>
                   {selectedTx.status}
                 </span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">时间戳:</span>
+                <span className="detail-label">Timestamp:</span>
                 <span className="detail-value">
                   {new Date(selectedTx.timestamp * 1000).toLocaleString()}
                 </span>
