@@ -64,7 +64,7 @@ impl ServiceManager {
         self.process_manager.start_process(
             "socket".to_string(),
             &command,
-            &args.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
+            args.as_slice(),
             Some(port),
             Some(&base_dir),
         )
