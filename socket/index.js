@@ -3,7 +3,7 @@ const bodyParser = require("body-parser")
 const http = require("http");
 const socketIo = require("socket.io");
 const axios = require("axios");
-const port = 44387;
+const port = 44386;
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -38,27 +38,21 @@ app.get("/price", (req, res) => {
   if(!coinmarketcapBuffer[symbol] || !coinmarketcapBufferTimestamp[symbol] || coinmarketcapBufferTimestamp[symbol]+30000 < Date.now()){
     console.log("getting price data for "+symbol+" and reseting buffer time to ",coinmarketcapBufferTimestamp[symbol])
     coinmarketcapBufferTimestamp[symbol] = Date.now()
-    const rp = require('request-promise');
-    const requestOptions = {
-      method: 'GET',
-      uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
-      qs: {
-        symbol: symbol
+    axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest', {
+      params: {
+        symbol,
       },
       headers: {
-        'X-CMC_PRO_API_KEY': fs.readFileSync("coinmarketcap.key").toString().trim()
+        'X-CMC_PRO_API_KEY': fs.readFileSync("coinmarketcap.key").toString().trim(),
       },
-      json: true,
-      gzip: true
-    };
-
-    rp(requestOptions).then(response => {
+    }).then((response) => {
       console.log('API call response:', response.data);
-      coinmarketcapBuffer[symbol] = response.data
-      res.send(response.data).status(200);
+      coinmarketcapBuffer[symbol] = response.data;
+      res.status(200).send(response.data);
     }).catch((err) => {
-      console.log('API call error:', err.message);
-      res.send("Failed to get data from coinmarketcap").status(400);
+      const errorMessage = err?.response?.data || err.message;
+      console.log('API call error:', errorMessage);
+      res.status(400).send("Failed to get data from coinmarketcap");
     });
 
   }else{
