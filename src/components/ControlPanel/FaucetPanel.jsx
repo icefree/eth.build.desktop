@@ -2,24 +2,14 @@ import React, { useState } from 'react';
 import { faucet } from '../../hooks/useTauri';
 import './FaucetPanel.css';
 
+const PRESET_AMOUNTS = ['1', '10', '100', '1000'];
+
 const FaucetPanel = ({ onSuccess }) => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('10');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-
-  const [copySuccess, setCopySuccess] = useState(null);
-
-  const copyToClipboard = async (text, label) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(label);
-      setTimeout(() => setCopySuccess(null), 2000);
-    } catch (err) {
-      console.error('复制失败:', err);
-    }
-  };
 
   const handleFaucet = async () => {
     // 验证地址
@@ -31,7 +21,7 @@ const FaucetPanel = ({ onSuccess }) => {
     // 验证金额
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('请输入有效的金额（大于 0）');
+      setError('请输入有效的金额');
       return;
     }
 
@@ -45,7 +35,6 @@ const FaucetPanel = ({ onSuccess }) => {
       if (onSuccess) {
         onSuccess(faucetResult);
       }
-      // 清空地址输入框，保留金额
       setAddress('');
     } catch (err) {
       setError(err.toString());
@@ -56,23 +45,19 @@ const FaucetPanel = ({ onSuccess }) => {
 
   const formatHash = (hash) => {
     if (!hash) return 'N/A';
-    return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+    return `${hash.slice(0, 14)}...${hash.slice(-10)}`;
   };
 
   return (
     <div className="faucet-panel">
       <div className="faucet-header">
-        <h3>💧 测试币水龙头</h3>
-        <p className="faucet-description">
-          向指定地址发送测试 ETH（仅限本地测试网络）
-        </p>
+        <h4>水龙头</h4>
       </div>
 
       <div className="faucet-form">
         <div className="form-group">
-          <label htmlFor="faucet-address">接收地址:</label>
+          <label>接收地址</label>
           <input
-            id="faucet-address"
             type="text"
             placeholder="0x..."
             value={address}
@@ -82,16 +67,19 @@ const FaucetPanel = ({ onSuccess }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="faucet-amount">金额 (ETH):</label>
-          <input
-            id="faucet-amount"
-            type="number"
-            step="0.1"
-            min="0.1"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            disabled={loading}
-          />
+          <label>金额 (ETH)</label>
+          <div className="amount-presets">
+            {PRESET_AMOUNTS.map((preset) => (
+              <button
+                key={preset}
+                className={`preset-btn ${amount === preset ? 'active' : ''}`}
+                onClick={() => setAmount(preset)}
+                disabled={loading}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
         </div>
 
         <button
@@ -99,72 +87,33 @@ const FaucetPanel = ({ onSuccess }) => {
           onClick={handleFaucet}
           disabled={loading || !address}
         >
-          {loading ? '发送中...' : '💰 领取测试币'}
+          {loading ? (
+            <>
+              <span className="loading-spinner"></span>
+              发送中...
+            </>
+          ) : (
+            '💰 领取测试币'
+          )}
         </button>
       </div>
 
       {error && (
-        <div className="faucet-error">
-          ❌ {error}
+        <div className="faucet-result error">
+          <span>⚠️</span>
+          <span>{error}</span>
         </div>
       )}
 
       {result && (
-        <div className="faucet-success">
-          <div className="success-header">
-            <span role="img" aria-label="success">✅</span> 发送成功！
-          </div>
-          <div className="success-details">
-            <div className="detail-item">
-              <span className="detail-label">交易哈希:</span>
-              <div className="copyable-value">
-                <span className="detail-value hash" title={result.tx_hash}>
-                  {formatHash(result.tx_hash)}
-                </span>
-                <button 
-                  className="copy-button" 
-                  onClick={() => copyToClipboard(result.tx_hash, '交易哈希')}
-                  title="复制完整哈希"
-                >
-                  📋
-                </button>
-              </div>
+        <div className="faucet-result success">
+          <span>✅</span>
+          <div>
+            <div>成功发送 <strong>{result.amount} ETH</strong></div>
+            <div className="tx-hash" title={result.tx_hash}>
+              {formatHash(result.tx_hash)}
             </div>
-            <div className="detail-item">
-              <span className="detail-label">接收地址:</span>
-              <div className="copyable-value">
-                <span className="detail-value hash" title={result.to}>
-                  {formatHash(result.to)}
-                </span>
-                <button 
-                  className="copy-button" 
-                  onClick={() => copyToClipboard(result.to, '接收地址')}
-                  title="复制完整地址"
-                >
-                  📋
-                </button>
-              </div>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">金额:</span>
-              <span className="detail-value">{result.amount} ETH</span>
-            </div>
-            {result.block_number !== undefined && (
-              <div className="detail-item">
-                <span className="detail-label">区块号:</span>
-                <span className="detail-value">#{result.block_number}</span>
-              </div>
-            )}
           </div>
-          <div className="success-footer">
-            <small>💡 提示: 可以在区块浏览器中查看此交易</small>
-          </div>
-        </div>
-      )}
-
-      {copySuccess && (
-        <div className="copy-toast">
-          ✅ {copySuccess} 已复制
         </div>
       )}
     </div>

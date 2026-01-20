@@ -1,165 +1,157 @@
+/* ===== 账户面板 - 暗色主题 ===== */
+
 .accounts-panel {
-  background: white;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .accounts-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .accounts-header h4 {
   margin: 0;
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.refresh-btn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.refresh-btn:hover {
-  opacity: 1;
-}
-
-.refresh-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.accounts-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .accounts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 400px;
+  max-height: 280px;
   overflow-y: auto;
 }
 
-.loading {
-  text-align: center;
-  color: #999;
-  padding: 20px;
-  font-size: 14px;
+.accounts-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.accounts-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.accounts-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
 }
 
 .account-item {
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-}
-
-.account-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
 }
 
-.account-index {
-  font-weight: 500;
-  color: #333;
-  font-size: 13px;
+.account-item:last-child {
+  border-bottom: none;
+}
+
+.account-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.account-address {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-address:hover {
+  color: #627eea;
 }
 
 .account-balance {
-  color: #627eea;
-  font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #10b981;
 }
 
-.account-address,
-.account-private-key {
+.account-actions {
   display: flex;
-  align-items: center;
   gap: 6px;
-  font-size: 11px;
-  margin-top: 4px;
-}
-
-.address-label,
-.key-label {
-  color: #999;
-  min-width: 35px;
-}
-
-.address-value,
-.key-value {
-  flex: 1;
-  font-family: monospace;
-  color: #333;
-  word-break: break-all;
 }
 
 .copy-btn {
-  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
   border: none;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 12px;
   cursor: pointer;
-  padding: 2px;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.copy-btn:hover {
-  opacity: 1;
-}
-
-.accounts-footer {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.toggle-keys-btn {
-  width: 100%;
-  padding: 8px;
-  background: #f5f5f5;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
 }
 
-.toggle-keys-btn:hover {
-  background: #e8e8e8;
-  border-color: #d0d0d0;
+.copy-btn:hover {
+  background: rgba(98, 126, 234, 0.2);
+  color: #627eea;
 }
 
+.accounts-loading,
+.accounts-empty {
+  padding: 30px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+}
+
+/* Toast 提示 */
 .copy-toast {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #4CAF50;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   padding: 12px 20px;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 14px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+  font-size: 13px;
   font-weight: 500;
-  animation: slideIn 0.3s ease-out;
+  animation: toastIn 0.3s ease-out;
   z-index: 10000;
 }
 
-@keyframes slideIn {
+@keyframes toastIn {
   from {
-    transform: translateX(400px);
+    transform: translateY(20px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }

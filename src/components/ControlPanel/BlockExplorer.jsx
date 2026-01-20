@@ -6,7 +6,7 @@ import './BlockExplorer.css';
 const BlockExplorer = ({ refreshToken, resetToken }) => {
   const [blocks, setBlocks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,7 +29,6 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
   }, [currentPage, pageSize]);
 
   useEffect(() => {
-    // 加载区块列表
     loadBlocks();
   }, [loadBlocks, refreshToken]);
 
@@ -43,11 +42,8 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
     setCurrentPage(1);
   }, [resetToken]);
 
-
-  // 搜索功能
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      // 清空搜索时重置到第一页
       setCurrentPage(1);
       setSearchQuery('');
       setSelectedBlock(null);
@@ -76,7 +72,6 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
     }
   };
 
-  // 查看区块详情
   const handleViewBlock = async (blockNumber) => {
     setLoading(true);
     setError(null);
@@ -103,290 +98,239 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
     }
   };
 
-  // 格式化时间戳
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp * 1000);
-    return date.toLocaleString('zh-CN');
+    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatValue = (value) => {
     try {
       const wei = BigInt(value);
       const eth = Number(wei) / 1e18;
-      return `${eth.toFixed(6)} ETH`;
+      return `${eth.toFixed(4)} ETH`;
     } catch {
       return value || 'N/A';
     }
   };
 
-  const formatGasFee = (gasUsed, gasPrice) => {
-    try {
-      const used = BigInt(gasUsed);
-      const price = BigInt(gasPrice);
-      const fee = used * price;
-      const eth = Number(fee) / 1e18;
-      return `${eth.toFixed(6)} ETH`;
-    } catch {
-      return 'N/A';
-    }
-  };
-
-  // 格式化哈希（缩短显示）
   const formatHash = (hash) => {
     if (!hash) return 'N/A';
-    return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+    return `${hash.slice(0, 8)}...${hash.slice(-6)}`;
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
   };
 
   return (
     <div className="block-explorer">
       <div className="block-explorer-header">
-        <h3>🔍 区块浏览器</h3>
-        <div className="search-box">
+        <h4>区块列表</h4>
+      </div>
+
+      {/* 搜索框 */}
+      <div className="search-container">
+        <div className="search-input-wrapper">
           <input
+            className="search-input"
             type="text"
             placeholder="搜索区块号或交易哈希..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button onClick={handleSearch} disabled={loading}>
-            搜索
+          <button className="search-btn" onClick={handleSearch} disabled={loading}>
+            🔍
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="explorer-error">
-          ❌ {error}
+        <div style={{ padding: '12px 16px', color: '#f87171', fontSize: '13px' }}>
+          ⚠️ {error}
         </div>
       )}
 
       {/* 区块列表 */}
       {!selectedBlock && !selectedTx && (
-        <div className="blocks-table-container">
-          <table className="blocks-table">
-            <thead>
-              <tr>
-                <th>区块号</th>
-                <th>区块哈希</th>
-                <th>时间戳</th>
-                <th>交易数</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {blocks.map((block) => (
-                <tr key={block.number}>
-                  <td>#{block.number}</td>
-                  <td title={block.hash}>{formatHash(block.hash)}</td>
-                  <td>{formatTimestamp(block.timestamp)}</td>
-                  <td>{block.transaction_count}</td>
-                  <td>
-                    <button
-                      className="view-btn"
-                      onClick={() => handleViewBlock(block.number)}
-                    >
-                      查看详情
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <>
+          <div className="blocks-list">
+            {loading ? (
+              <div className="blocks-loading">加载中...</div>
+            ) : blocks.length === 0 ? (
+              <div className="blocks-empty">暂无区块数据</div>
+            ) : (
+              blocks.map((block) => (
+                <div 
+                  key={block.number} 
+                  className="block-item"
+                  onClick={() => handleViewBlock(block.number)}
+                >
+                  <div className="block-info">
+                    <span className="block-number">#{block.number}</span>
+                    <span className="block-hash" title={block.hash}>
+                      {formatHash(block.hash)}
+                    </span>
+                  </div>
+                  <div className="block-meta">
+                    <span className="block-time">{formatTimestamp(block.timestamp)}</span>
+                    <span className="block-txs">{block.transaction_count} txs</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-          {blocks.length === 0 && !loading && (
-            <div className="no-blocks">
-              <p>暂无区块数据</p>
+          {/* 分页 */}
+          {blocks.length > 0 && (
+            <div className="pagination">
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1 || loading}
+              >
+                ◀
+              </button>
+              <span className="pagination-info">第 {currentPage} 页</span>
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={blocks.length < pageSize || loading}
+              >
+                ▶
+              </button>
             </div>
           )}
-
-          {/* 分页控制 */}
-          <div className="pagination">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1 || loading}
-            >
-              上一页
-            </button>
-            <span>第 {currentPage} 页</span>
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={blocks.length < pageSize || loading}
-            >
-              下一页
-            </button>
-          </div>
-        </div>
+        </>
       )}
 
-      {/* 区块详情模态框 */}
+      {/* 区块详情弹窗 */}
       {selectedBlock && (
-        <div className="block-detail-modal">
-          <div className="modal-header">
-            <h4>区块详情 #{selectedBlock.number}</h4>
-            <button onClick={() => setSelectedBlock(null)}>✕</button>
-          </div>
-          <div className="modal-content">
-            <div className="detail-row">
-              <span className="label">区块号:</span>
-              <span className="value">{selectedBlock.number}</span>
+        <div className="block-modal-overlay" onClick={() => setSelectedBlock(null)}>
+          <div className="block-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="block-modal-header">
+              <h3>区块 #{selectedBlock.number}</h3>
+              <button className="modal-close-btn" onClick={() => setSelectedBlock(null)}>✕</button>
             </div>
-            <div className="detail-row">
-              <span className="label">区块哈希:</span>
-              <div className="copyable-value">
-                <span className="value hash">{selectedBlock.hash}</span>
-                <button 
-                  className="copy-button"
-                  onClick={() => navigator.clipboard.writeText(selectedBlock.hash)}
-                  title="复制区块哈希"
+            <div className="block-modal-content">
+              <div className="detail-row">
+                <span className="detail-label">Hash</span>
+                <span 
+                  className="detail-value" 
+                  onClick={() => copyToClipboard(selectedBlock.hash)}
+                  title={selectedBlock.hash}
                 >
-                  📋
-                </button>
+                  {formatHash(selectedBlock.hash)}
+                </span>
               </div>
-            </div>
-            <div className="detail-row">
-              <span className="label">时间戳:</span>
-              <span className="value">{formatTimestamp(selectedBlock.timestamp)}</span>
-            </div>
-            <div className="detail-row">
-              <span className="label">交易数量:</span>
-              <span className="value">{selectedBlock.transaction_count}</span>
-            </div>
+              <div className="detail-row">
+                <span className="detail-label">时间</span>
+                <span className="detail-value">
+                  {new Date(selectedBlock.timestamp * 1000).toLocaleString('zh-CN')}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">交易数</span>
+                <span className="detail-value">{selectedBlock.transaction_count}</span>
+              </div>
 
-            {selectedBlock.tx_hashes && selectedBlock.tx_hashes.length > 0 && (
-              <div className="tx-list">
-                <h5>交易列表:</h5>
-                <ul>
+              {selectedBlock.tx_hashes && selectedBlock.tx_hashes.length > 0 && (
+                <div className="transactions-section">
+                  <div className="transactions-header">交易列表</div>
                   {selectedBlock.tx_hashes.map((txHash, idx) => (
-                    <li key={idx}>
-                      <span className="tx-hash" title={txHash}>
+                    <div 
+                      key={idx} 
+                      className="transaction-item"
+                      onClick={() => {
+                        setSelectedBlock(null);
+                        handleViewTransaction(txHash);
+                      }}
+                    >
+                      <span className="tx-hash-row" title={txHash}>
                         {formatHash(txHash)}
                       </span>
-                      <button
-                        className="view-tx-btn"
-                        onClick={() => {
-                          setSelectedBlock(null);
-                          handleViewTransaction(txHash);
-                        }}
-                      >
-                        查看交易
-                      </button>
-                    </li>
+                    </div>
                   ))}
-                </ul>
-              </div>
-            )}
-          </div>
-          <div className="modal-footer">
-            <button onClick={() => setSelectedBlock(null)}>关闭</button>
-          </div>
-        </div>
-      )}
-
-      {/* 交易详情模态框 */}
-      {selectedTx && (
-        <div className="tx-detail-modal">
-          <div className="modal-header">
-            <h4>交易详情</h4>
-            <button onClick={() => setSelectedTx(null)}>✕</button>
-          </div>
-          <div className="modal-content">
-            <div className="detail-row">
-              <span className="label">交易哈希:</span>
-              <div className="copyable-value">
-                <span className="value hash">{selectedTx.hash}</span>
-                <button 
-                  className="copy-button"
-                  onClick={() => navigator.clipboard.writeText(selectedTx.hash)}
-                  title="复制哈希"
-                >
-                  📋
-                </button>
-              </div>
+                </div>
+              )}
             </div>
-            {selectedTx.from && (
-              <div className="detail-row">
-                <span className="label">发送方:</span>
-                <div className="copyable-value">
-                  <span className="value hash">{selectedTx.from}</span>
-                  <button 
-                    className="copy-button"
-                    onClick={() => navigator.clipboard.writeText(selectedTx.from)}
-                    title="复制地址"
-                  >
-                    📋
-                  </button>
-                </div>
-              </div>
-            )}
-            {selectedTx.to && (
-              <div className="detail-row">
-                <span className="label">接收方:</span>
-                <div className="copyable-value">
-                  <span className="value hash">{selectedTx.to}</span>
-                  <button 
-                    className="copy-button"
-                    onClick={() => navigator.clipboard.writeText(selectedTx.to)}
-                    title="复制地址"
-                  >
-                    📋
-                  </button>
-                </div>
-              </div>
-            )}
-            {selectedTx.value && (
-              <div className="detail-row">
-                <span className="label">金额:</span>
-                <span className="value">{formatValue(selectedTx.value)}</span>
-              </div>
-            )}
-            {selectedTx.gas_price && (
-              <div className="detail-row">
-                <span className="label">Gas Price:</span>
-                <span className="value">{selectedTx.gas_price}</span>
-              </div>
-            )}
-            {selectedTx.gas_used && (
-              <div className="detail-row">
-                <span className="label">Gas Used:</span>
-                <span className="value">{selectedTx.gas_used}</span>
-              </div>
-            )}
-            {(selectedTx.gas_used && selectedTx.gas_price) && (
-              <div className="detail-row">
-                <span className="label">Gas Fee:</span>
-                <span className="value">{formatGasFee(selectedTx.gas_used, selectedTx.gas_price)}</span>
-              </div>
-            )}
-            {selectedTx.block_number !== undefined && (
-              <div className="detail-row">
-                <span className="label">区块号:</span>
-                <span className="value">#{selectedTx.block_number}</span>
-              </div>
-            )}
-            {selectedTx.status && (
-              <div className="detail-row">
-                <span className="label">状态:</span>
-                <span className={`value tx-status-${selectedTx.status}`}>{selectedTx.status}</span>
-              </div>
-            )}
-            {selectedTx.timestamp && (
-              <div className="detail-row">
-                <span className="label">时间戳:</span>
-                <span className="value">{formatTimestamp(selectedTx.timestamp)}</span>
-              </div>
-            )}
-          </div>
-          <div className="modal-footer">
-            <button onClick={() => setSelectedTx(null)}>关闭</button>
           </div>
         </div>
       )}
 
-      {loading && (
-        <div className="loading-overlay">
-          <div className="spinner">加载中...</div>
+      {/* 交易详情弹窗 */}
+      {selectedTx && (
+        <div className="block-modal-overlay" onClick={() => setSelectedTx(null)}>
+          <div className="block-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="block-modal-header">
+              <h3>交易详情</h3>
+              <button className="modal-close-btn" onClick={() => setSelectedTx(null)}>✕</button>
+            </div>
+            <div className="block-modal-content">
+              <div className="detail-row">
+                <span className="detail-label">Hash</span>
+                <span 
+                  className="detail-value"
+                  onClick={() => copyToClipboard(selectedTx.hash)}
+                  title={selectedTx.hash}
+                >
+                  {formatHash(selectedTx.hash)}
+                </span>
+              </div>
+              {selectedTx.from && (
+                <div className="detail-row">
+                  <span className="detail-label">From</span>
+                  <span 
+                    className="detail-value"
+                    onClick={() => copyToClipboard(selectedTx.from)}
+                    title={selectedTx.from}
+                  >
+                    {formatHash(selectedTx.from)}
+                  </span>
+                </div>
+              )}
+              {selectedTx.to && (
+                <div className="detail-row">
+                  <span className="detail-label">To</span>
+                  <span 
+                    className="detail-value"
+                    onClick={() => copyToClipboard(selectedTx.to)}
+                    title={selectedTx.to}
+                  >
+                    {formatHash(selectedTx.to)}
+                  </span>
+                </div>
+              )}
+              {selectedTx.value && (
+                <div className="detail-row">
+                  <span className="detail-label">Value</span>
+                  <span className="detail-value">{formatValue(selectedTx.value)}</span>
+                </div>
+              )}
+              {selectedTx.block_number !== undefined && (
+                <div className="detail-row">
+                  <span className="detail-label">Block</span>
+                  <span className="detail-value">#{selectedTx.block_number}</span>
+                </div>
+              )}
+              {selectedTx.status && (
+                <div className="detail-row">
+                  <span className="detail-label">Status</span>
+                  <span 
+                    className="detail-value" 
+                    style={{ color: selectedTx.status === 'success' ? '#10b981' : '#f87171' }}
+                  >
+                    {selectedTx.status}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

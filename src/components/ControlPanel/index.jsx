@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
-import { getServicesStatus, startService, stopService, startAllServices, stopAllServices } from '../../hooks/useTauri';
-import NetworkStatus from './NetworkStatus';
+import { getServicesStatus, startService, stopService } from '../../hooks/useTauri';
 import AccountsPanel from './AccountsPanel';
-import ServicesPanel from './ServicesPanel';
 import BlockExplorer from './BlockExplorer';
 import FaucetPanel from './FaucetPanel';
 import './index.css';
@@ -13,11 +11,11 @@ const ControlPanel = ({ open, onClose }) => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(null);
   const [blockRefreshKey, setBlockRefreshKey] = useState(0);
   const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
   const [blockResetKey, setBlockResetKey] = useState(0);
   const [activeTab, setActiveTab] = useState('accounts');
-  const servicesRef = useRef([]);
 
   const loadStatus = async () => {
     try {
@@ -26,9 +24,7 @@ const ControlPanel = ({ open, onClose }) => {
         getServicesStatus()
       ]);
       setNetworkStatus(netStatus);
-      const nextServices = Array.isArray(svcStatus) ? svcStatus : [];
-      servicesRef.current = nextServices;
-      setServices(nextServices);
+      setServices(Array.isArray(svcStatus) ? svcStatus : []);
     } catch (err) {
       console.error('Failed to get status:', err);
     }
@@ -36,18 +32,7 @@ const ControlPanel = ({ open, onClose }) => {
 
   useEffect(() => {
     if (!open) return undefined;
-    let active = true;
-
-    const refresh = async () => {
-      if (!active) return;
-      await loadStatus();
-    };
-
-    refresh();
-
-    return () => {
-      active = false;
-    };
+    loadStatus();
   }, [open]);
 
   const handleStartNetwork = async () => {
@@ -85,11 +70,8 @@ const ControlPanel = ({ open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      // 先停止网络
       await stopLocalNetwork();
-      // 等待一小段时间确保网络完全停止
       await new Promise(resolve => setTimeout(resolve, 500));
-      // 使用相同配置重新启动网络
       await startLocalNetwork({
         chain_id: 31337,
         accounts: 10,
@@ -118,32 +100,6 @@ const ControlPanel = ({ open, onClose }) => {
     }
   }, []);
 
-  const handleStartAllServices = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await startAllServices();
-      await loadStatus();
-    } catch (err) {
-      setError(err.toString());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleStopAllServices = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await stopAllServices();
-      await loadStatus();
-    } catch (err) {
-      setError(err.toString());
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleToggleService = async (serviceName) => {
     const service = services.find(s => s.name === serviceName);
     if (!service) return;
@@ -161,6 +117,16 @@ const ControlPanel = ({ open, onClose }) => {
       setError(err.toString());
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyToClipboard = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
     }
   };
 
@@ -182,114 +148,213 @@ const ControlPanel = ({ open, onClose }) => {
 
   if (!open) return null;
 
+  const isOnline = networkStatus?.is_running;
+  const socketService = services.find(s => s.name === 'socket');
+
   return (
-    <div className="control-panel-overlay">
+    <div className="control-panel-overlay" onClick={onClose}>
       <div className="control-panel" onClick={(e) => e.stopPropagation()}>
         <div className="control-panel-header">
-          <h2>⚙️ 控制面板</h2>
-          <div className="header-controls">
-            <button className="close-btn" onClick={onClose}>✕</button>
-          </div>
+          <h2>⚡ 控制面板</h2>
+          <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
         {error && (
-          <div className="error-message">
-            ❌ {error}
+          <div className="error-message" style={{ margin: '0 20px' }}>
+            ⚠️ {error}
           </div>
         )}
 
         <div className="control-panel-content">
-          <div className="network-controls">
-            {!networkStatus?.is_running ? (
-              <button
-                className="start-btn"
-                onClick={handleStartNetwork}
-                disabled={loading}
-              >
-                {loading ? '启动中...' : '▶️ 启动网络'}
-              </button>
-            ) : (
-              <div className="network-action-buttons">
-                <button
-                  className="stop-btn"
-                  onClick={handleStopNetwork}
-                  disabled={loading}
-                >
-                  {loading ? '停止中...' : '⏹️ 停止网络'}
-                </button>
-                <button
-                  className="reset-btn"
-                  onClick={handleResetNetwork}
-                  disabled={loading}
-                >
-                  {loading ? '重置中...' : '🔄 重置网络'}
-                </button>
-                <button
-                  className="mine-btn"
-                  onClick={handleQuickMine}
-                  disabled={loading}
-                >
-                  ⚡ 手动挖矿
-                </button>
+          {/* 网络状态卡片 */}
+          <div className={`status-card ${isOnline ? 'online' : 'offline'}`}>
+            <div className="status-header">
+              <div className="status-indicator">
+                <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
+                <span className="status-label">
+                  {isOnline ? 'Anvil 本地网络' : '网络未启动'}
+                </span>
+              </div>
+              <span className={`status-badge ${isOnline ? '' : 'offline'}`}>
+                {isOnline ? '运行中' : '离线'}
+              </span>
+            </div>
+
+            {isOnline && networkStatus && (
+              <div className="network-info">
+                <div className="info-row">
+                  <span className="info-label">RPC</span>
+                  <span 
+                    className="info-value"
+                    onClick={() => copyToClipboard(networkStatus.rpc_url, 'RPC URL')}
+                  >
+                    {networkStatus.rpc_url}
+                    <span className="copy-icon">📋</span>
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Chain ID</span>
+                  <span 
+                    className="info-value"
+                    onClick={() => copyToClipboard(String(networkStatus.chain_id), 'Chain ID')}
+                  >
+                    {networkStatus.chain_id}
+                    <span className="copy-icon">📋</span>
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">WebSocket</span>
+                  <span 
+                    className="info-value"
+                    onClick={() => copyToClipboard(networkStatus.ws_url, 'WS URL')}
+                  >
+                    {networkStatus.ws_url}
+                    <span className="copy-icon">📋</span>
+                  </span>
+                </div>
               </div>
             )}
           </div>
 
-          <NetworkStatus status={networkStatus} />
-
-          {/* 服务管理面板 */}
-          <ServicesPanel
-            services={services}
-            onToggleService={handleToggleService}
-            onStartAll={handleStartAllServices}
-            onStopAll={handleStopAllServices}
-            loading={loading}
-          />
-
-          {networkStatus?.is_running && (
-            <>
-              <div className="control-tabs">
+          {/* 操作按钮 */}
+          <div className="action-buttons">
+            {!isOnline ? (
+              <button
+                className="action-btn primary full-width"
+                onClick={handleStartNetwork}
+                disabled={loading}
+              >
+                {loading ? <span className="loading-spinner"></span> : '▶️'} 启动网络
+              </button>
+            ) : (
+              <>
                 <button
-                  className={`control-tab ${activeTab === 'accounts' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('accounts')}
+                  className="action-btn secondary"
+                  onClick={handleQuickMine}
+                  disabled={loading}
                 >
-                  账户与水龙头
+                  ⛏️ 挖矿
                 </button>
                 <button
-                  className={`control-tab ${activeTab === 'blocks' ? 'active' : ''}`}
+                  className="action-btn warning"
+                  onClick={handleResetNetwork}
+                  disabled={loading}
+                >
+                  🔄 重置
+                </button>
+                <button
+                  className="action-btn danger full-width"
+                  onClick={handleStopNetwork}
+                  disabled={loading}
+                >
+                  {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止网络
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* 服务管理 */}
+          <div className="service-card">
+            <div className="service-card-header">
+              <span>🔌</span>
+              <span>后端服务</span>
+            </div>
+            
+            {socketService && (
+              <div className="service-item">
+                <div className="service-left">
+                  <span className="service-icon">🔌</span>
+                  <div className="service-info">
+                    <span className="service-name">Socket 服务</span>
+                    <span 
+                      className="service-url"
+                      onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
+                    >
+                      {socketService.running 
+                        ? `localhost:${socketService.port || 44386}` 
+                        : '未运行'}
+                    </span>
+                  </div>
+                </div>
+                <div className="service-right">
+                  <div 
+                    className={`toggle-switch ${socketService.running ? 'active' : ''}`}
+                    onClick={() => !loading && handleToggleService('socket')}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {services.length === 0 && (
+              <div className="offline-hint" style={{ padding: '20px' }}>
+                <span className="hint-text">暂无服务配置</span>
+              </div>
+            )}
+          </div>
+
+          {/* 网络在线时显示额外功能 */}
+          {isOnline && (
+            <>
+              {/* 标签页 */}
+              <div className="tabs-container">
+                <button
+                  className={`tab-btn ${activeTab === 'accounts' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('accounts')}
+                >
+                  👤 账户
+                </button>
+                <button
+                  className={`tab-btn ${activeTab === 'faucet' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('faucet')}
+                >
+                  🚰 水龙头
+                </button>
+                <button
+                  className={`tab-btn ${activeTab === 'blocks' ? 'active' : ''}`}
                   onClick={() => setActiveTab('blocks')}
                 >
-                  区块列表
+                  📦 区块
                 </button>
               </div>
 
+              {/* 标签内容 */}
               {activeTab === 'accounts' && (
-                <>
-                  <AccountsPanel refreshToken={accountsRefreshKey} />
-                  <FaucetPanel
-                    onSuccess={() => {
-                      setBlockRefreshKey((prev) => prev + 1);
-                      setAccountsRefreshKey((prev) => prev + 1);
-                    }}
-                  />
-                </>
+                <AccountsPanel refreshToken={accountsRefreshKey} />
+              )}
+              
+              {activeTab === 'faucet' && (
+                <FaucetPanel
+                  onSuccess={() => {
+                    setBlockRefreshKey((prev) => prev + 1);
+                    setAccountsRefreshKey((prev) => prev + 1);
+                  }}
+                />
               )}
 
               {activeTab === 'blocks' && (
-                <>
-                  <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
-                </>
+                <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
               )}
             </>
           )}
 
-          {!networkStatus?.is_running && (
-            <div className="network-offline">
-              <p>🔌 网络未启动</p>
-              <p className="hint">点击"启动网络"按钮开始使用本地以太坊测试网络</p>
+          {/* 离线提示 */}
+          {!isOnline && (
+            <div className="offline-hint">
+              <span className="hint-icon">🔌</span>
+              <span className="hint-text">
+                点击「启动网络」开始使用<br />
+                本地以太坊测试环境
+              </span>
             </div>
           )}
         </div>
+
+        {/* 复制成功提示 */}
+        {copySuccess && (
+          <div className="copy-toast">
+            ✅ {copySuccess} 已复制
+          </div>
+        )}
       </div>
     </div>
   );

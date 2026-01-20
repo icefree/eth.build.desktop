@@ -44,34 +44,55 @@ const AccountsPanel = ({ refreshToken }) => {
     }
   };
 
+  const formatAddress = (addr) => {
+    return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+  };
+
   return (
     <div className="accounts-panel">
       <div className="accounts-header">
-        <h4>👤 账户列表</h4>
-        <button
-          className="refresh-btn"
-          onClick={loadAccounts}
-          disabled={loading}
-        >
-          🔄
-        </button>
+        <h4>账户列表</h4>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span className="accounts-count">{accounts.length} 个</span>
+          <button
+            className="copy-btn"
+            onClick={() => setShowPrivateKeys(!showPrivateKeys)}
+            title={showPrivateKeys ? '隐藏私钥' : '显示私钥'}
+          >
+            {showPrivateKeys ? '🙈' : '👁️'}
+          </button>
+        </div>
       </div>
 
       <div className="accounts-list">
         {loading ? (
-          <div className="loading">加载中...</div>
+          <div className="accounts-loading">加载中...</div>
+        ) : accounts.length === 0 ? (
+          <div className="accounts-empty">暂无账户</div>
         ) : (
           accounts.map((account, index) => (
             <div key={index} className="account-item">
-              <div className="account-header">
-                <span className="account-index">Account #{index}</span>
-                <span className="account-balance">
-                  {formatBalance(account.balance)}
+              <div className="account-info">
+                <span 
+                  className="account-address"
+                  onClick={() => copyToClipboard(account.address, '地址')}
+                  title={account.address}
+                >
+                  #{index} {formatAddress(account.address)}
                 </span>
+                {showPrivateKeys && (
+                  <span 
+                    className="account-address"
+                    onClick={() => copyToClipboard(account.private_key, '私钥')}
+                    title={account.private_key}
+                    style={{ color: 'rgba(245, 158, 11, 0.8)', fontSize: '11px' }}
+                  >
+                    🔑 {formatAddress(account.private_key)}
+                  </span>
+                )}
               </div>
-              <div className="account-address">
-                <span className="address-label">地址:</span>
-                <code className="address-value">{account.address}</code>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="account-balance">{formatBalance(account.balance)}</span>
                 <button
                   className="copy-btn"
                   onClick={() => copyToClipboard(account.address, '地址')}
@@ -80,31 +101,9 @@ const AccountsPanel = ({ refreshToken }) => {
                   📋
                 </button>
               </div>
-              {showPrivateKeys && (
-                <div className="account-private-key">
-                  <span className="key-label">私钥:</span>
-                  <code className="key-value">{account.private_key}</code>
-                  <button
-                    className="copy-btn"
-                    onClick={() => copyToClipboard(account.private_key, '私钥')}
-                    title="复制私钥"
-                  >
-                    📋
-                  </button>
-                </div>
-              )}
             </div>
           ))
         )}
-      </div>
-
-      <div className="accounts-footer">
-        <button
-          className="toggle-keys-btn"
-          onClick={() => setShowPrivateKeys(!showPrivateKeys)}
-        >
-          {showPrivateKeys ? '🙈 隐藏私钥' : '👁️ 显示私钥'}
-        </button>
       </div>
 
       {copySuccess && (
