@@ -23,7 +23,7 @@ async fn main() {
             service_manager: std::sync::Mutex::new(ServiceManager::new()),
         })
         .setup(|app| {
-            let state = app.state::<AppState>();
+            let state = app.handle().state::<AppState>();
             let mut manager = state.service_manager.lock()
                 .map_err(|e| format!("Failed to acquire lock: {}", e))?;
             if let Err(err) = manager.start_socket_server() {
