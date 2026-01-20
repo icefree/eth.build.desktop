@@ -99,7 +99,7 @@ export const getConfig = async () => {
 
 // 更新配置
 export const updateConfig = async (config) => {
-  return invoke('update_config', { new_config: config });
+  return invoke('update_config', { newConfig: config });
 };
 
 // 重新加载配置
