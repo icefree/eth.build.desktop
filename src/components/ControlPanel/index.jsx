@@ -396,7 +396,7 @@ const ControlPanel = ({ open, onClose }) => {
                   <div className="status-indicator">
                     <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
                     <span className="status-label">
-                      {isOnline ? 'Anvil 本地网络' : '测试网未启动'}
+                      {isOnline ? 'Anvil 测试网' : '测试网未启动'}
                     </span>
                   </div>
                   <span className={`status-badge ${isOnline ? '' : 'offline'}`}>
