@@ -25,6 +25,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [wsPort, setWsPort] = useState('8546');
   const socketPortDirty = useRef(false);
   const testnetPortsDirty = useRef(false);
+  const socketService = services.find(s => s.name === 'socket');
 
   const loadStatus = async () => {
     try {
@@ -228,7 +229,6 @@ const ControlPanel = ({ open, onClose }) => {
   const isOnline = networkStatus?.is_running;
   const isIpfsRunning = ipfsStatus?.running;
   const isIpfsStarting = ipfsStatus?.starting;
-  const socketService = services.find(s => s.name === 'socket');
   const socketPortValue = Number(socketPort) || socketService?.port || 44386;
 
   return (
