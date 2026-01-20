@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
 import { getServicesStatus, startService, stopService } from '../../hooks/useTauri';
+import { getLocalIpfsStatus, startLocalIpfs, stopLocalIpfs } from '../../lib/ipfs/localNode';
 import AccountsPanel from './AccountsPanel';
 import BlockExplorer from './BlockExplorer';
 import FaucetPanel from './FaucetPanel';
@@ -16,6 +17,8 @@ const ControlPanel = ({ open, onClose }) => {
   const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
   const [blockResetKey, setBlockResetKey] = useState(0);
   const [activeTab, setActiveTab] = useState('accounts');
+  const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
+  const [ipfsLoading, setIpfsLoading] = useState(false);
 
   const loadStatus = async () => {
     try {
@@ -25,6 +28,7 @@ const ControlPanel = ({ open, onClose }) => {
       ]);
       setNetworkStatus(netStatus);
       setServices(Array.isArray(svcStatus) ? svcStatus : []);
+      setIpfsStatus(getLocalIpfsStatus());
     } catch (err) {
       console.error('Failed to get status:', err);
     }
@@ -120,6 +124,32 @@ const ControlPanel = ({ open, onClose }) => {
     }
   };
 
+  const handleStartIpfs = async () => {
+    setIpfsLoading(true);
+    setError(null);
+    try {
+      await startLocalIpfs();
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setIpfsStatus(getLocalIpfsStatus());
+      setIpfsLoading(false);
+    }
+  };
+
+  const handleStopIpfs = async () => {
+    setIpfsLoading(true);
+    setError(null);
+    try {
+      await stopLocalIpfs();
+    } catch (err) {
+      setError(err.toString());
+    } finally {
+      setIpfsStatus(getLocalIpfsStatus());
+      setIpfsLoading(false);
+    }
+  };
+
   const copyToClipboard = async (text, label) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -149,6 +179,8 @@ const ControlPanel = ({ open, onClose }) => {
   if (!open) return null;
 
   const isOnline = networkStatus?.is_running;
+  const isIpfsRunning = ipfsStatus?.running;
+  const isIpfsStarting = ipfsStatus?.starting;
   const socketService = services.find(s => s.name === 'socket');
 
   return (
@@ -251,6 +283,54 @@ const ControlPanel = ({ open, onClose }) => {
                 </button>
               </>
             )}
+          </div>
+
+          {/* IPFS 本地节点 */}
+          <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
+            <div className="status-header">
+              <div className="status-indicator">
+                <span className={`status-dot ${isIpfsRunning ? 'online' : ''}`}></span>
+                <span className="status-label">
+                  IPFS 本地节点
+                </span>
+              </div>
+              <span className={`status-badge ${isIpfsRunning ? '' : 'offline'}`}>
+                {isIpfsRunning ? '运行中' : (isIpfsStarting ? '启动中' : '离线')}
+              </span>
+            </div>
+
+            <div className="network-info">
+              <div className="info-row">
+                <span className="info-label">Mode</span>
+                <span className="info-value">local-only (no p2p)</span>
+              </div>
+              <div className="info-row">
+                <span className="info-label">Node ID</span>
+                <span className="info-value">
+                  {isIpfsRunning ? (ipfsStatus.nodeId || 'unknown') : '未启动'}
+                </span>
+              </div>
+            </div>
+
+            <div className="action-buttons">
+              {!isIpfsRunning ? (
+                <button
+                  className="action-btn primary full-width"
+                  onClick={handleStartIpfs}
+                  disabled={ipfsLoading}
+                >
+                  {ipfsLoading ? <span className="loading-spinner"></span> : '▶️'} 启动 IPFS
+                </button>
+              ) : (
+                <button
+                  className="action-btn danger full-width"
+                  onClick={handleStopIpfs}
+                  disabled={ipfsLoading}
+                >
+                  {ipfsLoading ? <span className="loading-spinner"></span> : '⏹️'} 停止 IPFS
+                </button>
+              )}
+            </div>
           </div>
 
           {/* 服务管理 */}
