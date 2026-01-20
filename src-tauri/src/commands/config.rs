@@ -7,7 +7,7 @@ use std::sync::Mutex;
 use tauri::State;
 
 #[derive(Deserialize)]
-struct UpdateConfigArgs {
+pub struct UpdateConfigArgs {
     #[serde(alias = "newConfig", alias = "new_config")]
     new_config: serde_json::Value,
 }
