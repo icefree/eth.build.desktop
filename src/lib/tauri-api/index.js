@@ -71,3 +71,42 @@ export const openExternal = async (url) => {
   window.open(url, '_blank', 'noopener,noreferrer');
   return Promise.resolve();
 };
+
+export const saveFile = async (filename, content) => {
+  if (typeof window !== 'undefined') {
+    // Try Tauri v2 plugins
+    const tauri = window.__TAURI__;
+    if (tauri) {
+      try {
+        const dialog = tauri.dialog || (await import('@tauri-apps/plugin-dialog'));
+        const fs = tauri.fs || (await import('@tauri-apps/plugin-fs'));
+
+        const path = await dialog.save({
+          defaultPath: filename,
+          filters: [{ name: 'ETH.Build File', extensions: ['webloc'] }]
+        });
+
+        if (path) {
+          await fs.writeTextFile(path, content);
+          return true;
+        }
+        return false;
+      } catch (err) {
+        console.error("Tauri saveFile failed, falling back to browser download:", err);
+      }
+    }
+  }
+
+  // Fallback to standard browser download
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const element = document.createElement("a");
+  element.setAttribute("href", url);
+  element.setAttribute("download", filename);
+  element.style.display = "none";
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
+};

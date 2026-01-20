@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Dialog from "@material-ui/core/Dialog";
 // import DialogTitle from "@material-ui/core/DialogTitle";
 import "litegraph.js/css/litegraph.css";
@@ -23,6 +23,7 @@ import GetAppIcon from "@material-ui/icons/GetApp";
 import ShareIcon from "@material-ui/icons/Share";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import useWeb3Modal from "../utils/useWeb3Modal";
+import { saveFile } from "../lib/tauri-api";
 import {
   open3Box,
   logout3Box,
@@ -94,7 +95,7 @@ function SaveDialog(props) {
   const [threeBoxConnectionStep, setThreeBoxConnectionStep] = React.useState(0);
   const [saving, setSaving] = React.useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpenSaveDialog(false);
     setSaveType(null);
     setThreeBoxStatus(null);
@@ -102,21 +103,51 @@ function SaveDialog(props) {
     clearTimeout(updateTimer);
     setUpdateTimer(null);
     setSaving(false);
-  };
+  }, [setOpenSaveDialog, updateTimer]);
+
+  const updateDocumentInfo = useCallback(async fileName => {
+    let space = getSpace();
+    if (space) {
+      let documentInfo = await getDocumentInfo(space, fileName);
+      console.log("Updated DocumentInfo: ", documentInfo);
+      setCurrentDocumentInfo(documentInfo.metadata ? documentInfo : null);
+    } else {
+      console.log("NO 3BOX SPACE");
+    }
+  }, []);
+
+  const changeTo3BoxSavePage = useCallback(() => {
+    let savedTitle = localStorage.getItem(STORAGE_3BOX_DOCUMENT);
+    setDocumentTitle(savedTitle ? savedTitle : "");
+    if (savedTitle) {
+      updateDocumentInfo(savedTitle);
+    }
+    setSaveType("3BOX_SAVE");
+  }, [updateDocumentInfo]);
+
+  const handleTitle = useCallback(e => {
+    let title = e.target.value;
+    setDocumentTitle(title);
+    if (updateTimer) {
+      clearTimeout(updateTimer);
+    }
+    setUpdateTimer(
+      setTimeout(() => {
+        console.log("Running timer for ", title);
+        updateDocumentInfo(title);
+      }, 500)
+    );
+  }, [updateTimer, updateDocumentInfo]);
 
   React.useEffect(() => {
-    if (liteGraph) {
+    if (openSaveDialog && liteGraph) {
       codec.compress(liteGraph.serialize()).then(data => {
         setCompressed(data);
       });
     }
+  }, [openSaveDialog, liteGraph]);
 
-    // console.log({
-    //   isLoggedIn: web3Modal.address
-    //     ? Box.isLoggedIn(web3Modal.address)
-    //     : "n/a"
-    // });
-
+  React.useEffect(() => {
     let space = getSpace();
     let box = getBox();
     let fetching = isFetching();
@@ -128,10 +159,9 @@ function SaveDialog(props) {
       !space &&
       !fetching
     ) {
-      console.log("OPENING 3BOX from useEffect");
       open3Box(web3Modal.address, web3Modal.provider, console.log);
     }
-  });
+  }, [web3Modal.address, web3Modal.provider]);
 
   React.useEffect(() => {
     let space = getSpace();
@@ -146,7 +176,7 @@ function SaveDialog(props) {
     ) {
       changeTo3BoxSavePage();
     }
-  }, [saveType]);
+  }, [saveType, changeTo3BoxSavePage]);
   let link =
     window.location.protocol + "//" + window.location.host + "/" + compressed;
 
@@ -162,14 +192,6 @@ function SaveDialog(props) {
       </div>
     );
   }
-  const changeTo3BoxSavePage = () => {
-    let savedTitle = localStorage.getItem(STORAGE_3BOX_DOCUMENT);
-    setDocumentTitle(savedTitle ? savedTitle : "");
-    if (savedTitle) {
-      updateDocumentInfo(savedTitle);
-    }
-    setSaveType("3BOX_SAVE");
-  };
   const download = async () => {
     console.log("SAVING COMPRESSED", compressed);
 
@@ -186,22 +208,9 @@ function SaveDialog(props) {
 </plist>
 `;
 
-    var file = new Blob([webfile]);
-    var url = URL.createObjectURL(file);
-    var element = document.createElement("a");
-    element.setAttribute("href", url);
-    element.setAttribute(
-      "download",
-      (documentTitle ? documentTitle : "eth.build") + ".webloc"
-    );
-    element.style.display = "none";
-    if (document.body) {
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-      setTimeout(function() {
-        URL.revokeObjectURL(url);
-      }, 1000 * 60);
+    const filename = (documentTitle ? documentTitle : "eth.build") + ".webloc";
+    const success = await saveFile(filename, webfile);
+    if (success) {
       handleClose();
     }
   };
@@ -247,16 +256,6 @@ function SaveDialog(props) {
     }
   };
 
-  const updateDocumentInfo = async fileName => {
-    let space = getSpace();
-    if (space) {
-      let documentInfo = await getDocumentInfo(space, fileName);
-      console.log("Updated DocumentInfo: ", documentInfo);
-      setCurrentDocumentInfo(documentInfo.metadata ? documentInfo : null);
-    } else {
-      console.log("NO 3BOX SPACE");
-    }
-  };
 
   const logout = async () => {
     await logout3Box();
@@ -266,19 +265,6 @@ function SaveDialog(props) {
     setSaveType("3BOX_SCREEN");
   };
 
-  const handleTitle = e => {
-    let title = e.target.value;
-    setDocumentTitle(title);
-    if (updateTimer) {
-      clearTimeout(updateTimer);
-    }
-    setUpdateTimer(
-      setTimeout(() => {
-        console.log("Running timer for ", title);
-        updateDocumentInfo(title);
-      }, 500)
-    );
-  };
 
   return (
     <Dialog

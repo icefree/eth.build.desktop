@@ -132,11 +132,19 @@ function App() {
   const [currentScreenShot, setCurrentScreenShot] = React.useState(null);
 
   const handleOpenSaveDialog = async () => {
-    let canvas = await html2canvas(document.body);
-    let canvasImg = canvas.toDataURL("image/png", 0.35);
-    console.log({canvasImg});
-    setCurrentScreenShot(canvasImg);
     setOpenSaveDialog(true);
+    // Take screenshot asynchronously on the main canvas instead of full body
+    const target = document.getElementById("mainCanvas") || document.body;
+    html2canvas(target, {
+      logging: false,
+      useCORS: true,
+      scale: 0.5 // Reduce scale for speed
+    }).then(canvas => {
+      let canvasImg = canvas.toDataURL("image/png", 0.35);
+      setCurrentScreenShot(canvasImg);
+    }).catch(err => {
+      console.error("Screenshot failed:", err);
+    });
   }
 
   let showLibrary = localStorage.getItem("eth.build.showLibrary");

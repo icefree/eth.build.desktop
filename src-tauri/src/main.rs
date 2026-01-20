@@ -23,6 +23,8 @@ async fn main() {
             local_network: tokio::sync::Mutex::new(None),
             service_manager: std::sync::Mutex::new(ServiceManager::new()),
         })
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             let state = app.handle().state::<AppState>();
             let mut manager = state.service_manager.lock()
