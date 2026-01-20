@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
 import { getServicesStatus, startService, stopService } from '../../hooks/useTauri';
 import { getLocalIpfsStatus, startLocalIpfs, stopLocalIpfs } from '../../lib/ipfs/localNode';
@@ -19,6 +19,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [activeTab, setActiveTab] = useState('accounts');
   const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
   const [ipfsLoading, setIpfsLoading] = useState(false);
+  const autoStartSocketRef = useRef(false);
 
   const loadStatus = async () => {
     try {
@@ -38,6 +39,22 @@ const ControlPanel = ({ open, onClose }) => {
     if (!open) return undefined;
     loadStatus();
   }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      autoStartSocketRef.current = false;
+      return;
+    }
+    const socket = services.find(s => s.name === 'socket');
+    if (!socket || socket.running || autoStartSocketRef.current) return;
+    autoStartSocketRef.current = true;
+    setLoading(true);
+    setError(null);
+    startService('socket')
+      .then(loadStatus)
+      .catch((err) => setError(err.toString()))
+      .finally(() => setLoading(false));
+  }, [open, services]);
 
   const handleStartNetwork = async () => {
     setLoading(true);
