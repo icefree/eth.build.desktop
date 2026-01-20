@@ -5,6 +5,10 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .block-explorer-header {
@@ -73,7 +77,8 @@
 
 /* 区块列表 */
 .blocks-list {
-  max-height: 300px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 

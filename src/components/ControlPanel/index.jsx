@@ -236,8 +236,9 @@ const ControlPanel = ({ open, onClose }) => {
             </button>
           </div>
 
-          {activeTab === 'control' && (
-            <>
+          <div className="tab-body">
+            {activeTab === 'control' && (
+              <>
               {/* IPFS 本地节点 */}
               <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
                 <div className="status-header">
@@ -344,7 +345,7 @@ const ControlPanel = ({ open, onClose }) => {
                     onClick={handleStartNetwork}
                     disabled={loading}
                   >
-                    {loading ? <span className="loading-spinner"></span> : '▶️'} 启动网络
+                    {loading ? <span className="loading-spinner"></span> : '▶️'} 启动测试网
                   </button>
                 ) : (
                   <>
@@ -426,21 +427,26 @@ const ControlPanel = ({ open, onClose }) => {
                 <div className="offline-hint">
                   <span className="hint-icon">🔌</span>
                   <span className="hint-text">
-                    点击「启动网络」开始使用<br />
+                    点击「启动测试网」开始使用<br />
                     本地以太坊测试环境
                   </span>
                 </div>
               )}
-            </>
-          )}
+              </>
+            )}
 
-          {activeTab === 'accounts' && (
-            <AccountsPanel refreshToken={accountsRefreshKey} />
-          )}
+            {activeTab === 'accounts' && (
+              <div className="tab-fill">
+                <AccountsPanel refreshToken={accountsRefreshKey} />
+              </div>
+            )}
 
-          {activeTab === 'blocks' && (
-            <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
-          )}
+            {activeTab === 'blocks' && (
+              <div className="tab-fill">
+                <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 复制成功提示 */}
