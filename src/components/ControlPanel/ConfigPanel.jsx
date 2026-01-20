@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getConfig, updateConfig, autoStartServices } from '../../hooks/useTauri';
 import './ConfigPanel.css';
+const { emitSocketConfigChange, getSocketBaseUrl } = require('../../utils/socketConfig')
 
 const ConfigPanel = ({ onConfigUpdate }) => {
   const [config, setConfig] = useState(null);
@@ -8,6 +9,8 @@ const ConfigPanel = ({ onConfigUpdate }) => {
   const [saving, setSaving] = useState(false);
   const [autoStarting, setAutoStarting] = useState(false);
   const [message, setMessage] = useState(null);
+  const [priceTestStatus, setPriceTestStatus] = useState(null);
+  const [priceTesting, setPriceTesting] = useState(false);
 
   const loadConfig = async () => {
     setLoading(true);
@@ -34,6 +37,15 @@ const ConfigPanel = ({ onConfigUpdate }) => {
     setConfig(newConfig);
   };
 
+  const handleApiKeyChange = (field, value) => {
+    if (!config) return;
+
+    const newConfig = { ...config };
+    newConfig.api_keys = { ...(newConfig.api_keys || {}) };
+    newConfig.api_keys[field] = value;
+    setConfig(newConfig);
+  };
+
   const handleNetworkChange = (field, value) => {
     if (!config) return;
 
@@ -52,6 +64,11 @@ const ConfigPanel = ({ onConfigUpdate }) => {
       await updateConfig(config);
       setMessage({ type: 'success', text: '配置已保存,重启应用后生效' });
 
+      const socketPort = config?.services?.socket?.port;
+      if (socketPort) {
+        emitSocketConfigChange(socketPort);
+      }
+
       if (onConfigUpdate) {
         onConfigUpdate(config);
       }
@@ -59,6 +76,57 @@ const ConfigPanel = ({ onConfigUpdate }) => {
       setMessage({ type: 'error', text: '保存失败: ' + err.toString() });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleTestPrice = async () => {
+    if (!config) return;
+
+    setPriceTesting(true);
+    setPriceTestStatus(null);
+
+    try {
+      await updateConfig(config);
+      const baseUrl = await getSocketBaseUrl();
+      const response = await fetch(`${baseUrl}price?symbol=ETH`);
+      const raw = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(raw);
+      } catch (e) {
+        data = raw;
+      }
+
+      if (!response.ok) {
+        setPriceTestStatus({
+          type: 'error',
+          text: typeof data === 'string' ? data : '获取价格失败'
+        });
+        return;
+      }
+
+      const price =
+        data?.data?.ETH?.quote?.USD?.price ??
+        data?.ETH?.quote?.USD?.price ??
+        data?.quote?.USD?.price ??
+        null;
+
+      if (price == null) {
+        setPriceTestStatus({
+          type: 'error',
+          text: '返回数据中未找到价格'
+        });
+        return;
+      }
+
+      setPriceTestStatus({
+        type: 'success',
+        text: `当前 ETH 价格: ${Number(price).toFixed(2)} USD`
+      });
+    } catch (err) {
+      setPriceTestStatus({ type: 'error', text: `请求失败: ${err.toString()}` });
+    } finally {
+      setPriceTesting(false);
     }
   };
 
@@ -198,6 +266,34 @@ const ConfigPanel = ({ onConfigUpdate }) => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* API Keys */}
+        <div className="config-section">
+          <h5>🔑 API Keys</h5>
+          <div className="config-field">
+            <label>CoinMarketCap Key:</label>
+            <div className="api-key-input">
+              <input
+                type="password"
+                value={config.api_keys?.coinmarketcap || ''}
+                onChange={(e) => handleApiKeyChange('coinmarketcap', e.target.value)}
+                placeholder="coinmarketcap.key"
+              />
+              <button
+                className="config-btn test-btn"
+                onClick={handleTestPrice}
+                disabled={priceTesting}
+              >
+                {priceTesting ? '测试中...' : '测试价格'}
+              </button>
+            </div>
+          </div>
+          {priceTestStatus && (
+            <div className={`config-message ${priceTestStatus.type}`}>
+              {priceTestStatus.text}
+            </div>
+          )}
         </div>
       </div>
 
