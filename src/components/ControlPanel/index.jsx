@@ -47,9 +47,12 @@ const ControlPanel = ({ open, onClose }) => {
   }, [open]);
 
   useEffect(() => {
-    if (!socketService?.port || socketPortDirty.current) return;
-    setSocketPort(String(socketService.port));
-  }, [socketService?.port]);
+    if (!socketService?.port) return;
+    if (!socketPortDirty.current || socketService.running) {
+      setSocketPort(String(socketService.port));
+      socketPortDirty.current = false;
+    }
+  }, [socketService?.port, socketService?.running]);
 
   useEffect(() => {
     if (!networkStatus || testnetPortsDirty.current) return;

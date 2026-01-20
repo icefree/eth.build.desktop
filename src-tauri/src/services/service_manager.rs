@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use crate::services::process_manager::ProcessManager;
+use std::net::TcpListener;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,6 +54,10 @@ impl ServiceManager {
         }
     }
 
+    fn is_port_available(port: u16) -> bool {
+        TcpListener::bind(("127.0.0.1", port)).is_ok()
+    }
+
     pub fn start_socket_server(&mut self) -> Result<(), String> {
         self.start_socket_server_with_port(None)
     }
@@ -63,20 +68,45 @@ impl ServiceManager {
             return Err("Socket directory not found".to_string());
         }
 
-        let port = port.unwrap_or(self.socket_port);
-        self.socket_port = port;
-        let command = "node";
-        let args = vec!["socket/index.js"];
-        let envs = Some(vec![("SOCKET_PORT".to_string(), port.to_string())]);
+        let base_port = port.unwrap_or(self.socket_port);
+        let max_port = base_port.saturating_add(20);
+        let mut last_error: Option<String> = None;
 
-        self.process_manager.start_process(
-            "socket".to_string(),
-            &command,
-            args.as_slice(),
-            Some(port),
-            Some(&base_dir),
-            envs,
-        )
+        for candidate in base_port..=max_port {
+            if candidate == 0 || candidate > 65535 {
+                continue;
+            }
+            if !Self::is_port_available(candidate) {
+                continue;
+            }
+
+            let command = "node";
+            let args = vec!["socket/index.js"];
+            let envs = Some(vec![("SOCKET_PORT".to_string(), candidate.to_string())]);
+
+            match self.process_manager.start_process(
+                "socket".to_string(),
+                &command,
+                args.as_slice(),
+                Some(candidate),
+                Some(&base_dir),
+                envs,
+            ) {
+                Ok(()) => {
+                    self.socket_port = candidate;
+                    return Ok(());
+                }
+                Err(err) => {
+                    if err.contains("EADDRINUSE") {
+                        last_error = Some(err);
+                        continue;
+                    }
+                    return Err(err);
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or_else(|| "No available port for socket service".to_string()))
     }
 
     pub fn stop_socket_server(&mut self) -> Result<(), String> {
