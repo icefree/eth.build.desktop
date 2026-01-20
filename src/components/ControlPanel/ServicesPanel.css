@@ -76,11 +76,9 @@
 
 .service-item {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
-  grid-template-areas:
-    "icon details"
-    "icon status";
-  align-items: start;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-areas: "icon details status";
+  align-items: center;
   padding: 12px;
   border-radius: 6px;
   border: 1px solid #e0e0e0;
@@ -143,17 +141,6 @@
   flex: 0 0 auto;
 }
 
-.port-edit-container {
-  flex-wrap: nowrap;
-  white-space: nowrap;
-}
-
-.port-save-btn,
-.port-cancel-btn {
-  min-width: 22px;
-  padding: 4px 6px;
-}
-
 .service-port,
 .service-pid {
   background: white;
@@ -175,6 +162,7 @@
   grid-area: status;
   min-width: 0;
   justify-content: flex-start;
+  white-space: nowrap;
 }
 
 .service-status-indicator {
@@ -260,130 +248,6 @@
   font-size: 12px;
   color: #666;
   line-height: 1.5;
-}
-
-/* 端口编辑相关样式 */
-.port-edit-container {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.port-label {
-  font-size: 12px;
-  color: #666;
-  white-space: nowrap;
-}
-
-.port-input {
-  width: 70px;
-  padding: 4px 8px;
-  border: 1px solid #2196f3;
-  border-radius: 3px;
-  font-size: 12px;
-  font-family: inherit;
-  text-align: center;
-  outline: none;
-}
-
-.port-input:focus {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
-}
-
-.port-input:disabled {
-  background: #f5f5f5;
-  cursor: not-allowed;
-}
-
-.port-save-btn,
-.port-cancel-btn {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 3px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 24px;
-}
-
-.port-save-btn {
-  background: #4caf50;
-  color: white;
-}
-
-.port-save-btn:hover:not(:disabled) {
-  background: #45a049;
-}
-
-.port-cancel-btn {
-  background: #f44336;
-  color: white;
-}
-
-.port-cancel-btn:hover:not(:disabled) {
-  background: #da190b;
-}
-
-.port-save-btn:disabled,
-.port-cancel-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.port-edit-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 2px 4px;
-  margin-left: 4px;
-  opacity: 0.6;
-  transition: all 0.2s;
-}
-
-.port-edit-btn:hover:not(:disabled) {
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-.port-edit-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.port-save-status {
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 12px;
-  font-size: 13px;
-  font-weight: 500;
-  animation: slideDown 0.3s ease-out;
-}
-
-.port-save-status.success {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #4caf50;
-}
-
-.port-save-status.error {
-  background: #ffebee;
-  color: #c62828;
-  border: 1px solid #f44336;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* 服务访问地址样式 */

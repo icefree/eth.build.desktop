@@ -89,7 +89,8 @@
 
 .start-btn,
 .stop-btn,
-.reset-btn {
+.reset-btn,
+.mine-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -126,9 +127,19 @@
   background: #f57c00;
 }
 
+.mine-btn {
+  background: #6c7ae0;
+  color: white;
+}
+
+.mine-btn:hover:not(:disabled) {
+  background: #5a67c7;
+}
+
 .start-btn:disabled,
 .stop-btn:disabled,
-.reset-btn:disabled {
+.reset-btn:disabled,
+.mine-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -140,6 +151,39 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+.control-tabs {
+  display: flex;
+  gap: 8px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.control-tab {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-tab:hover {
+  background: #ececec;
+  color: #333;
+}
+
+.control-tab.active {
+  background: #627eea;
+  color: #fff;
+  border-color: #627eea;
 }
 
 .network-offline {
@@ -174,34 +218,11 @@
   border-radius: 4px;
 }
 
-/* 配置切换按钮 */
+/* 顶部按钮区域 */
 .header-controls {
   display: flex;
   gap: 10px;
   align-items: center;
-}
-
-.config-toggle-btn {
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-}
-
-.config-toggle-btn:hover {
-  background: #f0f0f0;
-  border-color: #2196f3;
-  color: #2196f3;
-}
-
-.config-toggle-btn.active {
-  background: #2196f3;
-  border-color: #2196f3;
-  color: white;
 }
 
 /* 成功消息 */
@@ -213,93 +234,6 @@
   font-size: 14px;
 }
 
-/* 自动启动提示 */
-.auto-start-prompt {
-  background: #e3f2fd;
-  border: 1px solid #90caf9;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-.prompt-content {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.prompt-icon {
-  font-size: 24px;
-  flex-shrink: 0;
-}
-
-.prompt-text {
-  flex: 1;
-}
-
-.prompt-text strong {
-  display: block;
-  margin-bottom: 8px;
-  color: #1976d2;
-  font-size: 14px;
-}
-
-.prompt-services {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.prompt-service-tag {
-  background: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  color: #666;
-  border: 1px solid #bbdefb;
-}
-
-.prompt-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.prompt-btn-start,
-.prompt-btn-dismiss {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.prompt-btn-start {
-  background: #4caf50;
-  color: white;
-}
-
-.prompt-btn-start:hover:not(:disabled) {
-  background: #45a049;
-}
-
-.prompt-btn-dismiss {
-  background: white;
-  color: #666;
-  border: 1px solid #ddd;
-}
-
-.prompt-btn-dismiss:hover {
-  background: #f5f5f5;
-}
-
-.prompt-btn-start:disabled,
-.prompt-btn-dismiss:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* 通用可复制样式 */
 .copyable-value {

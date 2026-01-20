@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
-import { getServicesStatus, startService, stopService, startAllServices, stopAllServices, getAutoStartServices, autoStartServices } from '../../hooks/useTauri';
+import { getServicesStatus, startService, stopService, startAllServices, stopAllServices } from '../../hooks/useTauri';
 import NetworkStatus from './NetworkStatus';
 import AccountsPanel from './AccountsPanel';
 import ServicesPanel from './ServicesPanel';
-import ConfigPanel from './ConfigPanel';
 import BlockExplorer from './BlockExplorer';
 import FaucetPanel from './FaucetPanel';
 import './index.css';
@@ -14,8 +13,6 @@ const ControlPanel = ({ open, onClose }) => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showConfig, setShowConfig] = useState(false);
-  const [autoStartPrompt, setAutoStartPrompt] = useState(null);
   const [blockRefreshKey, setBlockRefreshKey] = useState(0);
   const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
   const [blockResetKey, setBlockResetKey] = useState(0);
@@ -37,25 +34,6 @@ const ControlPanel = ({ open, onClose }) => {
     }
   };
 
-  const checkAutoStart = async (currentServices = servicesRef.current) => {
-    try {
-      const autoServices = await getAutoStartServices();
-      const runningServices = currentServices.filter(s => s.running).map(s => s.name);
-
-      // 找出需要自动启动但还没运行的服务
-      const needStart = autoServices.filter(name => !runningServices.includes(name));
-
-      if (needStart.length > 0) {
-        setAutoStartPrompt({
-          services: needStart,
-          message: `检测到 ${needStart.length} 个服务配置为自动启动但尚未运行`
-        });
-      }
-    } catch (err) {
-      console.error('Failed to check auto-start:', err);
-    }
-  };
-
   useEffect(() => {
     if (!open) return undefined;
     let active = true;
@@ -67,16 +45,8 @@ const ControlPanel = ({ open, onClose }) => {
 
     refresh();
 
-    // 延迟检查自动启动,避免启动时立即弹出
-    const timer = setTimeout(() => {
-      if (active) {
-        checkAutoStart();
-      }
-    }, 3000);
-
     return () => {
       active = false;
-      clearTimeout(timer);
     };
   }, [open]);
 
@@ -194,31 +164,6 @@ const ControlPanel = ({ open, onClose }) => {
     }
   };
 
-  const handleAutoStartServices = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const started = await autoStartServices();
-      await loadStatus();
-
-      // 显示成功消息
-      setError(`✅ 已启动服务: ${started.join(', ')}`);
-
-      // 3秒后清除消息
-      setTimeout(() => setError(null), 3000);
-
-      setAutoStartPrompt(null);
-    } catch (err) {
-      setError(err.toString());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const dismissAutoStartPrompt = () => {
-    setAutoStartPrompt(null);
-  };
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && open) {
@@ -243,12 +188,6 @@ const ControlPanel = ({ open, onClose }) => {
         <div className="control-panel-header">
           <h2>⚙️ 控制面板</h2>
           <div className="header-controls">
-            <button
-              className={`config-toggle-btn ${showConfig ? 'active' : ''}`}
-              onClick={() => setShowConfig((prev) => !prev)}
-            >
-              🔧 系统配置
-            </button>
             <button className="close-btn" onClick={onClose}>✕</button>
           </div>
         </div>
@@ -306,10 +245,6 @@ const ControlPanel = ({ open, onClose }) => {
             onStopAll={handleStopAllServices}
             loading={loading}
           />
-
-          {showConfig && (
-            <ConfigPanel />
-          )}
 
           {networkStatus?.is_running && (
             <>

@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
-import { updateServicePort } from '../../hooks/useTauri';
 import './ServicesPanel.css';
 
 const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loading }) => {
-  const [editingPort, setEditingPort] = useState(null);
-  const [portValue, setPortValue] = useState('');
-  const [saveStatus, setSaveStatus] = useState(null);
   const [copySuccess, setCopySuccess] = useState(null);
 
   const copyToClipboard = async (text, label) => {
@@ -44,49 +40,10 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
     }
   };
 
-  const handleEditPort = (service) => {
-    const currentPort = service.port || getServiceDefaultPort(service.name);
-    setEditingPort(service.name);
-    setPortValue(currentPort.toString());
-    setSaveStatus(null);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingPort(null);
-    setPortValue('');
-    setSaveStatus(null);
-  };
-
-  const handleSavePort = async (serviceName) => {
-    const newPort = parseInt(portValue, 10);
-
-    if (isNaN(newPort) || newPort < 1 || newPort > 65535) {
-      setSaveStatus({ type: 'error', message: '端口号必须在 1-65535 之间' });
-      return;
-    }
-
-    try {
-      await updateServicePort(serviceName, newPort);
-      setSaveStatus({ type: 'success', message: `端口已更新为 ${newPort}` });
-
-      // 2秒后关闭编辑模式
-      setTimeout(() => {
-        setEditingPort(null);
-        setPortValue('');
-        setSaveStatus(null);
-      }, 2000);
-
-      // 触发状态刷新
-      window.location.reload();
-    } catch (error) {
-      setSaveStatus({ type: 'error', message: `更新失败: ${error}` });
-    }
-  };
-
   const getServiceDefaultPort = (serviceName) => {
     switch (serviceName) {
       case 'socket':
-        return 44387;
+        return 44386;
       case 'solc':
         return 48452;
       case 'proxy':
@@ -132,12 +89,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
         </button>
       </div>
 
-      {saveStatus && (
-        <div className={`port-save-status ${saveStatus.type}`}>
-          {saveStatus.type === 'success' ? '✅' : '❌'} {saveStatus.message}
-        </div>
-      )}
-
       <div className="services-list">
         {services.map((service) => (
           <div
@@ -149,66 +100,21 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
               <div className="service-details">
                 <div className="service-name">{getServiceDisplayName(service.name)}</div>
                 <div className="service-meta">
-                  {editingPort === service.name ? (
-                    <div className="port-edit-container">
-                      <span className="port-label">端口:</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="65535"
-                        value={portValue}
-                        onChange={(e) => setPortValue(e.target.value)}
-                        className="port-input"
-                        disabled={loading}
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleSavePort(service.name);
-                          } else if (e.key === 'Escape') {
-                            handleCancelEdit();
-                          }
-                        }}
-                      />
-                      <button
-                        className="port-save-btn"
-                        onClick={() => handleSavePort(service.name)}
-                        disabled={loading}
+                  <>
+                    <span className="service-port">
+                      端口: {service.port || getServiceDefaultPort(service.name)}
+                    </span>
+                    {service.running && (
+                      <span 
+                        className="service-url copyable"
+                        onClick={() => copyToClipboard(getServiceUrl(service), '访问地址')}
+                        title="点击复制访问地址"
                       >
-                        ✓
-                      </button>
-                      <button
-                        className="port-cancel-btn"
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="service-port">
-                        端口: {service.port || getServiceDefaultPort(service.name)}
-                        <button
-                          className="port-edit-btn"
-                          onClick={() => handleEditPort(service)}
-                          disabled={loading || service.running}
-                          title="修改端口（服务停止后才能修改）"
-                        >
-                          ✏️
-                        </button>
+                        {getServiceUrl(service)}
+                        <span className="copy-icon">📋</span>
                       </span>
-                      {service.running && (
-                        <span 
-                          className="service-url copyable"
-                          onClick={() => copyToClipboard(getServiceUrl(service), '访问地址')}
-                          title="点击复制访问地址"
-                        >
-                          {getServiceUrl(service)}
-                          <span className="copy-icon">📋</span>
-                        </span>
-                      )}
-                    </>
-                  )}
+                    )}
+                  </>
                 </div>
               </div>
             </div>
@@ -238,7 +144,7 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
 
       <div className="services-footer">
         <p className="footer-hint">
-          💡 提示: 服务运行时无法修改端口。
+          💡 提示: 服务启动后可点击地址复制。
         </p>
       </div>
 

@@ -90,38 +90,6 @@ export const getServiceStatus = async (service) => {
   return invoke('get_service_status', { service });
 };
 
-// ===== 配置管理命令 =====
-
-// 获取配置
-export const getConfig = async () => {
-  return invoke('get_config');
-};
-
-// 更新配置
-export const updateConfig = async (config) => {
-  return invoke('update_config', { new_config: config });
-};
-
-// 重新加载配置
-export const reloadConfig = async () => {
-  return invoke('reload_config');
-};
-
-// 更新服务端口
-export const updateServicePort = async (service, port) => {
-  return invoke('update_service_port', { service, port });
-};
-
-// 获取自动启动服务列表
-export const getAutoStartServices = async () => {
-  return invoke('get_auto_start_services');
-};
-
-// 自动启动所有配置的服务
-export const autoStartServices = async () => {
-  return invoke('auto_start_services');
-};
-
 // ===== 区块浏览器命令 =====
 
 // 获取区块列表（分页）
