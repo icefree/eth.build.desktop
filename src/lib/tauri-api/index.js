@@ -73,14 +73,12 @@ export const openExternal = async (url) => {
 };
 
 export const saveFile = async (filename, content) => {
-  if (typeof window !== 'undefined') {
-    // Try Tauri v2 plugins
-    const tauri = window.__TAURI__;
-    if (tauri) {
-      try {
-        const dialog = tauri.dialog || (await import('@tauri-apps/plugin-dialog'));
-        const fs = tauri.fs || (await import('@tauri-apps/plugin-fs'));
+  if (typeof window !== 'undefined' && window.__TAURI__) {
+    try {
+      // Use the global window.__TAURI__ which contains plugins in v2 with withGlobalTauri: true
+      const { dialog, fs } = window.__TAURI__;
 
+      if (dialog && fs) {
         const path = await dialog.save({
           defaultPath: filename,
           filters: [{ name: 'ETH.Build File', extensions: ['webloc'] }]
@@ -91,9 +89,9 @@ export const saveFile = async (filename, content) => {
           return true;
         }
         return false;
-      } catch (err) {
-        console.error("Tauri saveFile failed, falling back to browser download:", err);
       }
+    } catch (err) {
+      console.error("Tauri saveFile failed, falling back to browser download:", err);
     }
   }
 
