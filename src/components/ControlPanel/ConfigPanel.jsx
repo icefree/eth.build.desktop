@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getConfig, updateConfig, autoStartServices, testCoinMarketCap } from '../../hooks/useTauri';
+import { getConfig, updateConfig, autoStartServices } from '../../hooks/useTauri';
 import './ConfigPanel.css';
 const { emitSocketConfigChange } = require('../../utils/socketConfig')
 
@@ -9,8 +9,6 @@ const ConfigPanel = ({ onConfigUpdate }) => {
   const [saving, setSaving] = useState(false);
   const [autoStarting, setAutoStarting] = useState(false);
   const [message, setMessage] = useState(null);
-  const [priceTestStatus, setPriceTestStatus] = useState(null);
-  const [priceTesting, setPriceTesting] = useState(false);
 
   const loadConfig = async () => {
     setLoading(true);
@@ -34,15 +32,6 @@ const ConfigPanel = ({ onConfigUpdate }) => {
 
     const newConfig = { ...config };
     newConfig.services[serviceName][field] = value;
-    setConfig(newConfig);
-  };
-
-  const handleApiKeyChange = (field, value) => {
-    if (!config) return;
-
-    const newConfig = { ...config };
-    newConfig.api_keys = { ...(newConfig.api_keys || {}) };
-    newConfig.api_keys[field] = value;
     setConfig(newConfig);
   };
 
@@ -76,41 +65,6 @@ const ConfigPanel = ({ onConfigUpdate }) => {
       setMessage({ type: 'error', text: '保存失败: ' + err.toString() });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleTestPrice = async () => {
-    if (!config) return;
-
-    setPriceTesting(true);
-    setPriceTestStatus(null);
-
-    try {
-      const apiKey = config.api_keys?.coinmarketcap?.trim();
-      if (!apiKey) {
-        setPriceTestStatus({ type: 'error', text: '请先填写 CoinMarketCap Key' });
-        return;
-      }
-
-      await updateConfig(config);
-      const price = await testCoinMarketCap(apiKey);
-
-      if (price == null) {
-        setPriceTestStatus({
-          type: 'error',
-          text: '返回数据中未找到价格'
-        });
-        return;
-      }
-
-      setPriceTestStatus({
-        type: 'success',
-        text: `当前 ETH 价格: ${price} USD`
-      });
-    } catch (err) {
-      setPriceTestStatus({ type: 'error', text: `请求失败: ${err.toString()}` });
-    } finally {
-      setPriceTesting(false);
     }
   };
 
@@ -252,33 +206,6 @@ const ConfigPanel = ({ onConfigUpdate }) => {
           ))}
         </div>
 
-        {/* API Keys */}
-        <div className="config-section">
-          <h5>🔑 API Keys</h5>
-          <div className="config-field">
-            <label>CoinMarketCap Key:</label>
-            <div className="api-key-input">
-              <input
-                type="password"
-                value={config.api_keys?.coinmarketcap || ''}
-                onChange={(e) => handleApiKeyChange('coinmarketcap', e.target.value)}
-                placeholder="coinmarketcap.key"
-              />
-              <button
-                className="config-btn test-btn"
-                onClick={handleTestPrice}
-                disabled={priceTesting}
-              >
-                {priceTesting ? '测试中...' : '测试价格'}
-              </button>
-            </div>
-          </div>
-          {priceTestStatus && (
-            <div className={`config-message ${priceTestStatus.type}`}>
-              {priceTestStatus.text}
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="config-footer">

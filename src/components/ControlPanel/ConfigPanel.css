@@ -117,33 +117,12 @@
 }
 
 .config-field input[type="number"],
-.config-field input[type="text"],
-.config-field input[type="password"] {
+.config-field input[type="text"] {
   flex: 1;
   padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 13px;
-}
-
-.api-key-input {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-  align-items: center;
-}
-
-.api-key-input input {
-  flex: 1;
-}
-
-.test-btn {
-  background: #ff9800;
-  color: white;
-}
-
-.test-btn:hover:not(:disabled) {
-  background: #f57c00;
 }
 
 .config-field input:focus {

@@ -21,17 +21,10 @@ pub struct NetworkConfig {
     pub fork_url: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct ApiKeys {
-    pub coinmarketcap: String,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub network: NetworkConfig,
     pub services: std::collections::HashMap<String, ServiceConfig>,
-    #[serde(default)]
-    pub api_keys: ApiKeys,
 }
 
 impl Default for AppConfig {
@@ -72,9 +65,6 @@ impl Default for AppConfig {
                 fork_url: None,
             },
             services,
-            api_keys: ApiKeys {
-                coinmarketcap: "bfc9484cf48a44d1ba11d44c5402b1e1".to_string(),
-            },
         }
     }
 }

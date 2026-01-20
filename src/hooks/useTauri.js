@@ -99,7 +99,7 @@ export const getConfig = async () => {
 
 // 更新配置
 export const updateConfig = async (config) => {
-  return invoke('update_config', { newConfig: config });
+  return invoke('update_config', { new_config: config });
 };
 
 // 重新加载配置
@@ -120,11 +120,6 @@ export const getAutoStartServices = async () => {
 // 自动启动所有配置的服务
 export const autoStartServices = async () => {
   return invoke('auto_start_services');
-};
-
-// ===== 价格测试命令 =====
-export const testCoinMarketCap = async (apiKey) => {
-  return invoke('test_coinmarketcap', { apiKey });
 };
 
 // ===== 区块浏览器命令 =====
