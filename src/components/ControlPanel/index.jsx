@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
 import { getServicesStatus, startService, stopService, startAllServices, stopAllServices, getAutoStartServices, autoStartServices } from '../../hooks/useTauri';
 import NetworkStatus from './NetworkStatus';
 import AccountsPanel from './AccountsPanel';
-import MiningControl from './MiningControl';
 import ServicesPanel from './ServicesPanel';
 import ConfigPanel from './ConfigPanel';
 import BlockExplorer from './BlockExplorer';
@@ -18,6 +17,9 @@ const ControlPanel = ({ open, onClose }) => {
   const [showConfig, setShowConfig] = useState(false);
   const [autoStartPrompt, setAutoStartPrompt] = useState(null);
   const [blockRefreshKey, setBlockRefreshKey] = useState(0);
+  const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
+  const [blockResetKey, setBlockResetKey] = useState(0);
+  const [activeTab, setActiveTab] = useState('accounts');
   const servicesRef = useRef([]);
 
   const loadStatus = async () => {
@@ -64,7 +66,6 @@ const ControlPanel = ({ open, onClose }) => {
     };
 
     refresh();
-    const interval = setInterval(refresh, 5000);
 
     // 延迟检查自动启动,避免启动时立即弹出
     const timer = setTimeout(() => {
@@ -75,7 +76,6 @@ const ControlPanel = ({ open, onClose }) => {
 
     return () => {
       active = false;
-      clearInterval(interval);
       clearTimeout(timer);
     };
   }, [open]);
@@ -127,6 +127,9 @@ const ControlPanel = ({ open, onClose }) => {
         block_time: null
       });
       await loadStatus();
+      setBlockResetKey((prev) => prev + 1);
+      setBlockRefreshKey((prev) => prev + 1);
+      setAccountsRefreshKey((prev) => prev + 1);
     } catch (err) {
       setError(err.toString());
     } finally {
@@ -134,15 +137,16 @@ const ControlPanel = ({ open, onClose }) => {
     }
   };
 
-  const handleQuickMine = async () => {
+  const handleQuickMine = useCallback(async () => {
     try {
       await mineBlock();
       await loadStatus();
       setBlockRefreshKey((prev) => prev + 1);
+      setAccountsRefreshKey((prev) => prev + 1);
     } catch (err) {
       setError(err.toString());
     }
-  };
+  }, []);
 
   const handleStartAllServices = async () => {
     setLoading(true);
@@ -238,7 +242,15 @@ const ControlPanel = ({ open, onClose }) => {
       <div className="control-panel" onClick={(e) => e.stopPropagation()}>
         <div className="control-panel-header">
           <h2>⚙️ 控制面板</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <div className="header-controls">
+            <button
+              className={`config-toggle-btn ${showConfig ? 'active' : ''}`}
+              onClick={() => setShowConfig((prev) => !prev)}
+            >
+              🔧 系统配置
+            </button>
+            <button className="close-btn" onClick={onClose}>✕</button>
+          </div>
         </div>
 
         {error && (
@@ -248,13 +260,6 @@ const ControlPanel = ({ open, onClose }) => {
         )}
 
         <div className="control-panel-content">
-          {/* 调试信息 */}
-          <div className="control-panel-debug">
-            <small>调试: networkStatus = {networkStatus ? '已加载' : '未加载'}</small><br/>
-            <small>调试: services.length = {services.length}</small><br/>
-            <small>调试: open = {open.toString()}</small>
-          </div>
-
           <div className="network-controls">
             {!networkStatus?.is_running ? (
               <button
@@ -280,6 +285,13 @@ const ControlPanel = ({ open, onClose }) => {
                 >
                   {loading ? '重置中...' : '🔄 重置网络'}
                 </button>
+                <button
+                  className="mine-btn"
+                  onClick={handleQuickMine}
+                  disabled={loading}
+                >
+                  ⚡ 手动挖矿
+                </button>
               </div>
             )}
           </div>
@@ -295,12 +307,44 @@ const ControlPanel = ({ open, onClose }) => {
             loading={loading}
           />
 
+          {showConfig && (
+            <ConfigPanel />
+          )}
+
           {networkStatus?.is_running && (
             <>
-              <AccountsPanel />
-              <FaucetPanel onSuccess={() => setBlockRefreshKey((prev) => prev + 1)} />
-              <MiningControl onQuickMine={handleQuickMine} />
-              <BlockExplorer refreshToken={blockRefreshKey} />
+              <div className="control-tabs">
+                <button
+                  className={`control-tab ${activeTab === 'accounts' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('accounts')}
+                >
+                  账户与水龙头
+                </button>
+                <button
+                  className={`control-tab ${activeTab === 'blocks' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('blocks')}
+                >
+                  区块列表
+                </button>
+              </div>
+
+              {activeTab === 'accounts' && (
+                <>
+                  <AccountsPanel refreshToken={accountsRefreshKey} />
+                  <FaucetPanel
+                    onSuccess={() => {
+                      setBlockRefreshKey((prev) => prev + 1);
+                      setAccountsRefreshKey((prev) => prev + 1);
+                    }}
+                  />
+                </>
+              )}
+
+              {activeTab === 'blocks' && (
+                <>
+                  <BlockExplorer refreshToken={blockRefreshKey} resetToken={blockResetKey} />
+                </>
+              )}
             </>
           )}
 
