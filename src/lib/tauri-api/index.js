@@ -48,6 +48,25 @@ export const openExternal = async (url) => {
     if (window.__TAURI_INTERNALS__?.shell?.open) {
       return window.__TAURI_INTERNALS__.shell.open(url);
     }
+    if (window.__TAURI__?.core?.invoke) {
+      try {
+        return await window.__TAURI__.core.invoke('plugin:shell|open', { url });
+      } catch (err) {
+        // fall through
+      }
+    }
+    if (window.__TAURI__?.invoke) {
+      try {
+        return await window.__TAURI__.invoke('plugin:shell|open', { url });
+      } catch (err) {
+        // fall through
+      }
+      try {
+        return await window.__TAURI__.invoke('open', { path: url });
+      } catch (err) {
+        // fall through
+      }
+    }
   }
   window.open(url, '_blank', 'noopener,noreferrer');
   return Promise.resolve();

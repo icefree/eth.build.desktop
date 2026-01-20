@@ -240,43 +240,62 @@ const ControlPanel = ({ open, onClose }) => {
             {activeTab === 'control' && (
               <>
               {/* Socket 服务 */}
-              <div className="socket-panel">
-                <div className="service-card-header socket-bar">
-                  <span>🔌</span>
-                  <span>Socket 服务</span>
+              {socketService && (
+                <div className={`status-card ${socketService.running ? 'online' : 'offline'}`}>
+                  <div className="status-header">
+                    <div className="status-indicator">
+                      <span className={`status-dot ${socketService.running ? 'online' : ''}`}></span>
+                      <span className="status-label">
+                        Socket 服务
+                      </span>
+                    </div>
+                    <span className={`status-badge ${socketService.running ? '' : 'offline'}`}>
+                      {socketService.running ? '运行中' : '离线'}
+                    </span>
+                  </div>
+
+                  <div className="network-info">
+                    <div className="info-row">
+                      <span className="info-label">URL</span>
+                      <span
+                        className="info-value"
+                        onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
+                      >
+                        {socketService.running 
+                          ? `localhost:${socketService.port || 44386}` 
+                          : '未运行'}
+                        <span className="copy-icon">📋</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="action-buttons">
+                    {!socketService.running ? (
+                      <button
+                        className="action-btn primary full-width"
+                        onClick={() => handleToggleService('socket')}
+                        disabled={loading}
+                      >
+                        {loading ? <span className="loading-spinner"></span> : '▶️'} 启动 Socket
+                      </button>
+                    ) : (
+                      <button
+                        className="action-btn danger full-width"
+                        onClick={() => handleToggleService('socket')}
+                        disabled={loading}
+                      >
+                        {loading ? <span className="loading-spinner"></span> : '⏹️'} 停止 Socket
+                      </button>
+                    )}
+                  </div>
                 </div>
+              )}
 
-                {socketService && (
-                  <div className="service-item">
-                    <div className="service-left">
-                      <span className="service-icon">🔌</span>
-                      <div className="service-info">
-                        <span className="service-name">Socket 服务</span>
-                        <span 
-                          className="service-url"
-                          onClick={() => socketService.running && copyToClipboard(`http://localhost:${socketService.port || 44386}`, 'Socket URL')}
-                        >
-                          {socketService.running 
-                            ? `localhost:${socketService.port || 44386}` 
-                            : '未运行'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="service-right">
-                      <div 
-                        className={`toggle-switch ${socketService.running ? 'active' : ''}`}
-                        onClick={() => !loading && handleToggleService('socket')}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-
-                {services.length === 0 && (
-                  <div className="offline-hint" style={{ padding: '20px' }}>
-                    <span className="hint-text">暂无服务配置</span>
-                  </div>
-                )}
-              </div>
+              {services.length === 0 && (
+                <div className="offline-hint" style={{ padding: '20px' }}>
+                  <span className="hint-text">暂无服务配置</span>
+                </div>
+              )}
 
               {/* IPFS 本地节点 */}
               <div className={`status-card ${isIpfsRunning ? 'online' : 'offline'}`}>
