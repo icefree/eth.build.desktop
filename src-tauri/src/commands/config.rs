@@ -1,16 +1,9 @@
 use crate::config::AppConfig;
 use crate::services::ServiceManager;
-use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
-
-#[derive(Deserialize)]
-pub struct UpdateConfigArgs {
-    #[serde(alias = "newConfig", alias = "new_config")]
-    new_config: serde_json::Value,
-}
 
 fn resolve_base_dir() -> PathBuf {
     let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
@@ -53,9 +46,9 @@ pub async fn get_config(state: State<'_, crate::AppState>) -> Result<serde_json:
 #[tauri::command]
 pub async fn update_config(
     state: State<'_, crate::AppState>,
-    args: UpdateConfigArgs,
+    new_config: serde_json::Value,
 ) -> Result<String, String> {
-    let config: AppConfig = serde_json::from_value(args.new_config)
+    let config: AppConfig = serde_json::from_value(new_config)
         .map_err(|e| format!("Failed to parse config: {}", e))?;
 
     // 保存到文件
