@@ -41,3 +41,14 @@ export const emit = (event, payload) => {
   console.log(`[Tauri Mock] emit: ${event}`, payload);
   return Promise.resolve();
 };
+
+export const openExternal = async (url) => {
+  if (typeof window !== 'undefined') {
+    if (window.__TAURI__?.shell?.open) return window.__TAURI__.shell.open(url);
+    if (window.__TAURI_INTERNALS__?.shell?.open) {
+      return window.__TAURI_INTERNALS__.shell.open(url);
+    }
+  }
+  window.open(url, '_blank', 'noopener,noreferrer');
+  return Promise.resolve();
+};

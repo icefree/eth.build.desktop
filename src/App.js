@@ -19,6 +19,7 @@ import { Icon, Tooltip, Button, CardActions, Divider, Drawer, Card, CardMedia, C
 import { makeStyles } from '@material-ui/core/styles';
 
 import lessons from './data/lessons';
+import { openExternal } from './lib/tauri-api';
 
 import SaveDialog from "./dialogs/SaveDialog";
 import LoadDialog from "./dialogs/LoadDialog";
@@ -384,7 +385,7 @@ let allCards = []
 allCards = lessons.map(lesson => {
   return (
     <Card className={classes.card}>
-      <CardActionArea onClick={()=>{  window.open(lesson.video) }}>
+      <CardActionArea onClick={() => { openExternal(lesson.video); }}>
         <div style={{padding:3,fontSize:18,backgroundColor:lesson.color,color:"#FFFFFF",fontFamily: "'Rubik Mono One', sans-serif"}}>
           {lesson.header}
         </div>
@@ -415,8 +416,8 @@ allCards = lessons.map(lesson => {
           Load
         </Button>
 
-        <Button size="small" style={{marginLeft:20}} variant="contained" onClick={()=>{
-            window.open(lesson.video)
+        <Button size="small" style={{marginLeft:20}} variant="contained" onClick={() => {
+            openExternal(lesson.video);
           }}>
           Watch
         </Button>
