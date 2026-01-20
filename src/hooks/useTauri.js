@@ -46,7 +46,7 @@ export const mineBlock = async () => {
 };
 
 export const setAutoMine = async (enabled, intervalMs) => {
-  return invoke('set_auto_mine', { enabled, intervalMs });
+  return invoke('set_auto_mine', { enabled, interval_ms: intervalMs });
 };
 
 // 交易相关命令
@@ -99,7 +99,7 @@ export const getConfig = async () => {
 
 // 更新配置
 export const updateConfig = async (config) => {
-  return invoke('update_config', { config });
+  return invoke('update_config', { new_config: config });
 };
 
 // 重新加载配置
