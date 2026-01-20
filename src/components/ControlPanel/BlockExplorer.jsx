@@ -12,6 +12,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBlock, setSelectedBlock] = useState(null);
   const [selectedTx, setSelectedTx] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(null);
 
   const loadBlocks = useCallback(async () => {
     setLoading(true);
@@ -119,9 +120,11 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
     return `${hash.slice(0, 8)}...${hash.slice(-6)}`;
   };
 
-  const copyToClipboard = async (text) => {
+  const copyToClipboard = async (text, label = '内容') => {
     try {
       await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
       console.error('复制失败:', err);
     }
@@ -222,7 +225,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                 <span className="detail-label">Hash</span>
                 <span 
                   className="detail-value" 
-                  onClick={() => copyToClipboard(selectedBlock.hash)}
+                  onClick={() => copyToClipboard(selectedBlock.hash, '区块哈希')}
                   title={selectedBlock.hash}
                 >
                   {formatHash(selectedBlock.hash)}
@@ -276,7 +279,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                 <span className="detail-label">Hash</span>
                 <span 
                   className="detail-value"
-                  onClick={() => copyToClipboard(selectedTx.hash)}
+                  onClick={() => copyToClipboard(selectedTx.hash, '交易哈希')}
                   title={selectedTx.hash}
                 >
                   {formatHash(selectedTx.hash)}
@@ -287,7 +290,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                   <span className="detail-label">From</span>
                   <span 
                     className="detail-value"
-                    onClick={() => copyToClipboard(selectedTx.from)}
+                    onClick={() => copyToClipboard(selectedTx.from, '发送地址')}
                     title={selectedTx.from}
                   >
                     {formatHash(selectedTx.from)}
@@ -299,7 +302,7 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                   <span className="detail-label">To</span>
                   <span 
                     className="detail-value"
-                    onClick={() => copyToClipboard(selectedTx.to)}
+                    onClick={() => copyToClipboard(selectedTx.to, '接收地址')}
                     title={selectedTx.to}
                   >
                     {formatHash(selectedTx.to)}
@@ -331,6 +334,13 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 复制成功提示 */}
+      {copySuccess && (
+        <div className="copy-toast">
+          ✅ {copySuccess} 已复制
         </div>
       )}
     </div>
