@@ -2,53 +2,34 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod commands;
-mod config;
 mod ethereum;
 mod services;
 
-use commands::{network, accounts, mining, transactions, blocks, solc, price};
+use commands::{network, accounts, mining, transactions, blocks, solc};
 use commands::services as service_commands;
-use commands::config as config_commands;
-use config::AppConfig;
 use ethereum::local_network::LocalNetwork;
 use services::ServiceManager;
-use std::sync::{Arc, Mutex};
 
 struct AppState {
     local_network: tokio::sync::Mutex<Option<LocalNetwork>>,
     service_manager: std::sync::Mutex<ServiceManager>,
-    config: Arc<Mutex<AppConfig>>,
 }
 
 #[tokio::main]
 async fn main() {
-    // 加载配置
-    let config = AppConfig::load().unwrap_or_else(|e| {
-        eprintln!("Failed to load config, using defaults: {}", e);
-        AppConfig::default()
-    });
-
-    let config = Arc::new(Mutex::new(config));
-
-    // 检查是否有需要自动启动的服务
-    let auto_start_services: Vec<String> = {
-        let cfg = config.lock().unwrap();
-        cfg.services
-            .iter()
-            .filter(|(_, cfg)| cfg.auto_start && cfg.enabled)
-            .map(|(name, _)| name.clone())
-            .collect()
-    };
-
-    if !auto_start_services.is_empty() {
-        println!("Configured services to auto-start: {:?}", auto_start_services);
-    }
-
     tauri::Builder::default()
         .manage(AppState {
             local_network: tokio::sync::Mutex::new(None),
-            service_manager: std::sync::Mutex::new(ServiceManager::new(config.clone())),
-            config: config.clone(),
+            service_manager: std::sync::Mutex::new(ServiceManager::new()),
+        })
+        .setup(|app| {
+            let state = app.state::<AppState>();
+            let mut manager = state.service_manager.lock()
+                .map_err(|e| format!("Failed to acquire lock: {}", e))?;
+            if let Err(err) = manager.start_socket_server() {
+                eprintln!("Failed to auto-start socket: {}", err);
+            }
+            Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             // Network commands
@@ -79,15 +60,6 @@ async fn main() {
             service_commands::stop_all_services,
             service_commands::get_services_status,
             service_commands::get_service_status,
-            // Config commands
-            config_commands::get_config,
-            config_commands::update_config,
-            config_commands::reload_config,
-            config_commands::update_service_port,
-            config_commands::get_auto_start_services,
-            config_commands::auto_start_services,
-            // Price test command
-            price::test_coinmarketcap,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -18,10 +18,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
     switch (serviceName) {
       case 'socket':
         return '🔌';
-      case 'solc':
-        return '📜';
-      case 'proxy':
-        return '🔄';
       default:
         return '⚙️';
     }
@@ -31,10 +27,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
     switch (serviceName) {
       case 'socket':
         return 'Socket 服务器';
-      case 'solc':
-        return 'Solidity 编译器';
-      case 'proxy':
-        return '代理服务器';
       default:
         return serviceName;
     }
@@ -44,10 +36,6 @@ const ServicesPanel = ({ services, onToggleService, onStartAll, onStopAll, loadi
     switch (serviceName) {
       case 'socket':
         return 44386;
-      case 'solc':
-        return 48452;
-      case 'proxy':
-        return 48451;
       default:
         return 0;
     }

@@ -12,12 +12,6 @@ pub async fn start_service(state: State<'_, crate::AppState>, service: String) -
         "socket" => {
             manager.start_socket_server().map(|_| "Socket server started successfully".to_string())
         },
-        "solc" => {
-            manager.start_solc().map(|_| "Solc started successfully".to_string())
-        },
-        "proxy" => {
-            manager.start_proxy().map(|_| "Proxy started successfully".to_string())
-        },
         _ => Err(format!("Unknown service: {}", service)),
     }
 }
@@ -33,12 +27,6 @@ pub async fn stop_service(state: State<'_, crate::AppState>, service: String) ->
         },
         "socket" => {
             manager.stop_socket_server().map(|_| "Socket server stopped successfully".to_string())
-        },
-        "solc" => {
-            manager.stop_solc().map(|_| "Solc stopped successfully".to_string())
-        },
-        "proxy" => {
-            manager.stop_proxy().map(|_| "Proxy stopped successfully".to_string())
         },
         _ => Err(format!("Unknown service: {}", service)),
     }
@@ -62,7 +50,7 @@ pub async fn stop_all_services(state: State<'_, crate::AppState>) -> Result<Stri
 
 #[tauri::command]
 pub async fn get_services_status(state: State<'_, crate::AppState>) -> Result<Vec<serde_json::Value>, String> {
-    let manager = state.service_manager.lock()
+    let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
     let statuses = manager.get_all_status();
@@ -82,7 +70,7 @@ pub async fn get_services_status(state: State<'_, crate::AppState>) -> Result<Ve
 
 #[tauri::command]
 pub async fn get_service_status(state: State<'_, crate::AppState>, service: String) -> Result<Option<serde_json::Value>, String> {
-    let manager = state.service_manager.lock()
+    let mut manager = state.service_manager.lock()
         .map_err(|e| format!("Failed to acquire lock: {}", e))?;
 
     match manager.get_service_status(&service) {
