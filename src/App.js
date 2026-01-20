@@ -1286,8 +1286,10 @@ return (
           width: 60,
           height: 60,
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          boxShadow: '0 4px 20px rgba(102, 126, 234, 0.5)',
+          background: 'rgba(40, 40, 50, 0.8)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1298,11 +1300,13 @@ return (
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 25px rgba(102, 126, 234, 0.7)';
+          e.currentTarget.style.boxShadow = '0 6px 25px rgba(0, 0, 0, 0.5)';
+          e.currentTarget.style.background = 'rgba(50, 50, 60, 0.9)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.5)';
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.4)';
+          e.currentTarget.style.background = 'rgba(40, 40, 50, 0.8)';
         }}
         title="打开控制面板"
       >
