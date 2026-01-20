@@ -1,7 +1,47 @@
 use crate::config::AppConfig;
 use crate::services::ServiceManager;
+use serde::Deserialize;
+use std::fs;
+use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
+
+#[derive(Deserialize)]
+struct UpdateConfigArgs {
+    #[serde(alias = "newConfig", alias = "new_config")]
+    new_config: serde_json::Value,
+}
+
+fn resolve_base_dir() -> PathBuf {
+    let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    for _ in 0..4 {
+        if dir.join("package.json").exists() && dir.join("geth").exists() {
+            return dir;
+        }
+        if !dir.pop() {
+            break;
+        }
+    }
+    std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+}
+
+fn persist_coinmarketcap_key(config: &AppConfig) -> Result<(), String> {
+    let base_dir = resolve_base_dir();
+    let key_path = base_dir.join("coinmarketcap.key");
+    let key = config.api_keys.coinmarketcap.trim();
+    if key.is_empty() {
+        if key_path.exists() {
+            fs::remove_file(&key_path)
+                .map_err(|e| format!("Failed to remove coinmarketcap.key: {}", e))?;
+        }
+        return Ok(());
+    }
+
+    fs::write(&key_path, key)
+        .map_err(|e| format!("Failed to write coinmarketcap.key: {}", e))?;
+
+    Ok(())
+}
 
 #[tauri::command]
 pub async fn get_config(state: State<'_, crate::AppState>) -> Result<serde_json::Value, String> {
@@ -13,13 +53,14 @@ pub async fn get_config(state: State<'_, crate::AppState>) -> Result<serde_json:
 #[tauri::command]
 pub async fn update_config(
     state: State<'_, crate::AppState>,
-    new_config: serde_json::Value,
+    args: UpdateConfigArgs,
 ) -> Result<String, String> {
-    let config: AppConfig = serde_json::from_value(new_config)
+    let config: AppConfig = serde_json::from_value(args.new_config)
         .map_err(|e| format!("Failed to parse config: {}", e))?;
 
     // 保存到文件
     config.save()?;
+    persist_coinmarketcap_key(&config)?;
 
     // 更新全局配置
     *state.config.lock().unwrap() = config;
@@ -36,6 +77,7 @@ pub async fn reload_config(
 
     // 保存新配置
     new_config.save()?;
+    persist_coinmarketcap_key(&new_config)?;
 
     // 更新全局配置
     *state.config.lock().unwrap() = new_config;
