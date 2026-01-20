@@ -57,11 +57,11 @@
 
 ## Phase 4 (Quality)
 
-- [ ] Basic manual test plan:
-  - [ ] Start network
-  - [ ] Faucet 10 ETH to a new address; verify a tx appears
-  - [ ] Block list updates; block detail shows tx hashes
-  - [ ] Clicking a tx hash opens tx detail
-  - [ ] Search by block number works
-  - [ ] Search by tx hash works
-  - [ ] Reset network clears history (new chain) and UI refreshes
+- [x] Basic manual test plan:
+  - [x] Start network
+  - [x] Faucet 10 ETH to a new address; verify a tx appears
+  - [x] Block list updates; block detail shows tx hashes
+  - [x] Clicking a tx hash opens tx detail
+  - [x] Search by block number works
+  - [x] Search by tx hash works
+  - [x] Reset network clears history (new chain) and UI refreshes
