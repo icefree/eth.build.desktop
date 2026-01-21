@@ -73,6 +73,20 @@ export const openExternal = async (url) => {
 };
 
 export const saveFile = async (filename, content) => {
+  const date = new Date();
+  const timestamp = `_${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}_${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
+
+  let finalFilename = filename;
+  if (filename && typeof filename === 'string') {
+    if (filename.includes('.')) {
+      const parts = filename.split('.');
+      const ext = parts.pop();
+      finalFilename = `${parts.join('.')}${timestamp}.${ext}`;
+    } else {
+      finalFilename = `${filename}${timestamp}`;
+    }
+  }
+
   if (typeof window !== 'undefined' && window.__TAURI__) {
     try {
       // Use the global window.__TAURI__ which contains plugins in v2 with withGlobalTauri: true
@@ -80,7 +94,7 @@ export const saveFile = async (filename, content) => {
 
       if (dialog && fs) {
         const path = await dialog.save({
-          defaultPath: filename,
+          defaultPath: finalFilename,
           filters: [{ name: 'ETH.Build File', extensions: ['webloc'] }]
         });
 
@@ -100,7 +114,7 @@ export const saveFile = async (filename, content) => {
   const url = URL.createObjectURL(blob);
   const element = document.createElement("a");
   element.setAttribute("href", url);
-  element.setAttribute("download", filename);
+  element.setAttribute("download", finalFilename);
   element.style.display = "none";
   document.body.appendChild(element);
   element.click();
