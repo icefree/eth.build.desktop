@@ -71,7 +71,7 @@
     "winston": "^3.2.1"
   },
   "scripts": {
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts --max_old_space_size=8192 start",
+    "start": "export BROWSER=none && export NODE_OPTIONS=--openssl-legacy-provider && react-scripts --max_old_space_size=8192 start",
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts --max-old-space-size=8192 build ",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
