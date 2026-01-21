@@ -23,7 +23,8 @@
     ],
     "withGlobalTauri": true,
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' http://localhost:3000 http://localhost:8545 http://localhost:8546 ws://localhost:8546; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; manifest-src 'self';"
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:3000 http://localhost:8545 http://localhost:8546 ws://localhost:8546; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; manifest-src 'self';",
+      "dangerousDisableAssetCspModification": true
     }
   },
   "bundle": {
