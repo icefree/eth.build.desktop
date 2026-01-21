@@ -70,7 +70,6 @@ const ControlPanel = ({ open, onClose }) => {
   useEffect(() => {
     if (!open) {
       autoStartSocketRef.current = false;
-      socketAutoStartBlockedRef.current = false;
       return;
     }
     const socket = services.find(s => s.name === 'socket');
@@ -167,9 +166,13 @@ const ControlPanel = ({ open, onClose }) => {
       if (service.running) {
         if (serviceName === 'socket') {
           socketAutoStartBlockedRef.current = true;
+          autoStartSocketRef.current = true;
         }
         await stopService(serviceName);
       } else {
+        if (serviceName === 'socket') {
+          socketAutoStartBlockedRef.current = false;
+        }
         await startService(serviceName, options);
       }
       await loadStatus();
