@@ -20,6 +20,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
   const [ipfsLoading, setIpfsLoading] = useState(false);
   const autoStartSocketRef = useRef(false);
+  const socketAutoStartBlockedRef = useRef(false);
   const [socketPort, setSocketPort] = useState('44386');
   const [rpcPort, setRpcPort] = useState('8545');
   const [wsPort, setWsPort] = useState('8546');
@@ -69,10 +70,11 @@ const ControlPanel = ({ open, onClose }) => {
   useEffect(() => {
     if (!open) {
       autoStartSocketRef.current = false;
+      socketAutoStartBlockedRef.current = false;
       return;
     }
     const socket = services.find(s => s.name === 'socket');
-    if (!socket || socket.running || autoStartSocketRef.current) return;
+    if (!socket || socket.running || autoStartSocketRef.current || socketAutoStartBlockedRef.current) return;
     autoStartSocketRef.current = true;
     setLoading(true);
     setError(null);
@@ -163,6 +165,9 @@ const ControlPanel = ({ open, onClose }) => {
     setError(null);
     try {
       if (service.running) {
+        if (serviceName === 'socket') {
+          socketAutoStartBlockedRef.current = true;
+        }
         await stopService(serviceName);
       } else {
         await startService(serviceName, options);
