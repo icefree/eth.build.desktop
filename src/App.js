@@ -269,6 +269,9 @@ React.useEffect(()=>{
   console.log("can we set grid here?",LiteGraphJS.LiteGraph)
 
   var canvas = new LiteGraphJS.LGraphCanvas("#main", graph);
+  // Ensure state is always initialized even when URL parsing doesn't match.
+  setLiteGraph(graph);
+  setLiteGraphCanvas(canvas);
 
   window.addEventListener("resize", function() { canvas.resize(); } );
 
@@ -284,6 +287,9 @@ React.useEffect(()=>{
   CustomNodes(LiteGraphJS)
 
   let url = window.location.pathname
+  if (url === "/index.html") {
+    url = "/"
+  }
   console.log("URL",url)
   if(url&&url.length>1){
     url = url.substring(1)
