@@ -6,7 +6,12 @@ const axios = require("axios");
 const port = Number(process.env.SOCKET_PORT || process.env.PORT || 44386);
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 const keccak256 = require('keccak256')
 var cors = require('cors')
 
@@ -119,8 +124,8 @@ io.on("connection", socket => {
   socket.on("disconnect", () => console.log("Client disconnected"))
 });
 
-io.on("subscribe", function (event, headers) {
-  socket.join(event);
-});
+// io.on("subscribe", function (event, headers) {
+//   socket.join(event);
+// });
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
