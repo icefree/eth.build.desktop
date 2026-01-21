@@ -488,6 +488,7 @@ impl LocalNetwork {
         if let Ok(exe) = env::current_exe() {
             if let Some(dir) = exe.parent() {
                 candidates.push(dir.join("anvil"));
+                candidates.push(dir.join("../Resources/bin/anvil"));
                 candidates.push(dir.join("../Resources/anvil"));
             }
         }

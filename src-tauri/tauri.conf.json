@@ -38,7 +38,8 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "bin/anvil"
+      "bin/anvil",
+      "socket"
     ]
   }
 }

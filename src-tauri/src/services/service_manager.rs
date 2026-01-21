@@ -31,6 +31,15 @@ impl ServiceManager {
     }
 
     fn resolve_base_dir(&self) -> PathBuf {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(dir) = exe.parent() {
+                let resource_dir = dir.join("../Resources");
+                if resource_dir.join("socket").exists() {
+                    return resource_dir;
+                }
+            }
+        }
+
         let mut dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         for _ in 0..4 {
             if dir.join("package.json").exists() {
