@@ -39,7 +39,7 @@
     ],
     "resources": [
       "bin/anvil",
-      "socket"
+      "../socket"
     ]
   }
 }
