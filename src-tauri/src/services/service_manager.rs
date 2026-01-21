@@ -2,6 +2,41 @@ use serde::{Deserialize, Serialize};
 use crate::services::process_manager::ProcessManager;
 use std::net::TcpListener;
 use std::path::PathBuf;
+use std::process::Command;
+
+/// 查找 node 可执行文件的路径
+/// macOS GUI 应用启动时不会继承终端的 PATH，需要手动查找常见安装路径
+fn find_node_path() -> Option<String> {
+    // 常见的 node 安装路径
+    let common_paths = [
+        "/opt/homebrew/bin/node",      // Apple Silicon Homebrew
+        "/usr/local/bin/node",          // Intel Homebrew / 官方安装
+        "/usr/bin/node",                // 系统安装
+        "/opt/local/bin/node",          // MacPorts
+    ];
+
+    // 首先检查常见路径
+    for path in &common_paths {
+        if std::path::Path::new(path).exists() {
+            return Some(path.to_string());
+        }
+    }
+
+    // 尝试通过 shell 查找（作为后备方案）
+    if let Ok(output) = Command::new("/bin/sh")
+        .args(["-l", "-c", "which node"])
+        .output()
+    {
+        if output.status.success() {
+            let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if !path.is_empty() && std::path::Path::new(&path).exists() {
+                return Some(path);
+            }
+        }
+    }
+
+    None
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceStatus {
@@ -77,6 +112,10 @@ impl ServiceManager {
             return Err("Socket directory not found".to_string());
         }
 
+        // 查找 node 可执行文件路径
+        let node_path = find_node_path()
+            .ok_or_else(|| "Node.js not found. Please install Node.js first.".to_string())?;
+
         let base_port = port.unwrap_or(self.socket_port);
         let max_port = base_port.saturating_add(20);
         let mut last_error: Option<String> = None;
@@ -89,13 +128,12 @@ impl ServiceManager {
                 continue;
             }
 
-            let command = "node";
             let args = vec!["socket/index.js"];
             let envs = Some(vec![("SOCKET_PORT".to_string(), candidate.to_string())]);
 
             match self.process_manager.start_process(
                 "socket".to_string(),
-                &command,
+                &node_path,
                 args.as_slice(),
                 Some(candidate),
                 Some(&base_dir),
