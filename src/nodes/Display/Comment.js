@@ -44,7 +44,7 @@ Text.prototype.onDrawBackground = function(ctx) {
   }else{
     this.render(
       <div>
-        <form className={"SOMECONTAINERCLASS"} noValidate autoComplete="off">
+        <form className={"SOMECONTAINERCLASS"} noValidate autoComplete="off" onSubmit={(e)=>e.preventDefault()}>
           <TextareaAutosize
             autoFocus
             style={{opacity:0.3333,width:"100%",color:"#FFFFFF",background:"none",border:"none",fontSize:this.properties.fontSize,marginTop:10}}

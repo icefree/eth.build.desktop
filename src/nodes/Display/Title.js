@@ -44,7 +44,7 @@ Text.prototype.onDrawBackground = function(ctx) {
   }else{
     this.render(
       <div>
-        <form className={"SOMECONTAINERCLASS"} noValidate autoComplete="off">
+        <form className={"SOMECONTAINERCLASS"} noValidate autoComplete="off" onSubmit={(e)=>e.preventDefault()}>
           <Input
             autoFocus
             style={{opacity:0.77,width:"100%",height:40,color:this.properties.color,fontSize:this.properties.fontSize,marginTop:10, fontFamily: this.properties.fontFamily}}
