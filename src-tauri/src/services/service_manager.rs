@@ -17,6 +17,7 @@ pub struct ServiceManager {
     process_manager: ProcessManager,
     services: Vec<String>,
     socket_port: u16,
+    resource_dir: Option<PathBuf>,
 }
 
 impl ServiceManager {
@@ -27,10 +28,21 @@ impl ServiceManager {
                 "socket".to_string(),
             ],
             socket_port: 44386,
+            resource_dir: None,
         }
     }
 
+    pub fn set_resource_dir(&mut self, dir: PathBuf) {
+        self.resource_dir = Some(dir);
+    }
+
     fn resolve_base_dir(&self) -> PathBuf {
+        if let Some(dir) = &self.resource_dir {
+            if dir.join("socket").exists() {
+                return dir.clone();
+            }
+        }
+
         if let Ok(exe) = std::env::current_exe() {
             if let Some(dir) = exe.parent() {
                 let resource_dir = dir.join("../Resources");
