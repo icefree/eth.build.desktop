@@ -29,9 +29,6 @@ async fn main() {
             let state = app.handle().state::<AppState>();
             let mut manager = state.service_manager.lock()
                 .map_err(|e| format!("Failed to acquire lock: {}", e))?;
-            if let Ok(dir) = app.path().resource_dir() {
-                manager.set_resource_dir(dir);
-            }
             if let Err(err) = manager.start_socket_server() {
                 eprintln!("Failed to auto-start socket: {}", err);
             }
