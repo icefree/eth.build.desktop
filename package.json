@@ -1,6 +1,7 @@
 {
   "name": "eth.build.desktop",
   "version": "0.1.0",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "3box": "^1.17.1",
