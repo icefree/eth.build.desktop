@@ -22,6 +22,13 @@
 | ⚙️ **Solidity**          | 更新到 0.8.33，使用本地编译                |
 | 📝 **更新**              | Gas API、过时测试网络 (Ropsten→Sepolia 等) |
 
+### Screenshots
+
+![Main Interface](docs/0.jpeg)
+![Control Panel](docs/1.jpeg)
+![Block Explorer](docs/2.jpeg)
+![Faucet](docs/3.jpeg)
+
 ---
 
 🛠 [ETH.Build](https://eth.build)
