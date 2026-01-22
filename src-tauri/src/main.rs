@@ -82,10 +82,10 @@ async fn main() {
                     // Give frontend a moment to handle the event without blocking the runtime thread
                     tokio::time::sleep(std::time::Duration::from_millis(200)).await;
 
-                    let state = app.state::<AppState>();
-
                     // Stop socket server
+                    let app_for_service = app.clone();
                     let service_result = tauri::async_runtime::spawn_blocking(move || {
+                        let state = app_for_service.state::<AppState>();
                         if let Ok(mut manager) = state.service_manager.lock() {
                             println!("Stopping socket server...");
                             manager.stop_all()
@@ -104,6 +104,7 @@ async fn main() {
                     // Stop local Ethereum network (Anvil)
                     println!("Stopping local Ethereum network (Anvil)...");
                     let network_to_stop = {
+                        let state = app.state::<AppState>();
                         let mut local_network = state.local_network.lock().await;
                         local_network.take()
                     };
