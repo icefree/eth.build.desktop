@@ -7,10 +7,16 @@ const port = Number(process.env.SOCKET_PORT || process.env.PORT || 44386);
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
-  cors: {
-    origin: true, // Dynamically mirror the request origin (required when credentials are used)
-    methods: ["GET", "POST"],
-    credentials: true
+  // Socket.IO v2.x CORS configuration
+  origins: '*:*', // Allow all origins (format: "host:port")
+  handlePreflightRequest: (req, res) => {
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': req.headers.origin || '*',
+      'Access-Control-Allow-Methods': 'GET,POST',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Credentials': 'true'
+    });
+    res.end();
   }
 });
 const keccak256 = require('keccak256')
