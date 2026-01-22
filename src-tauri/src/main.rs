@@ -67,9 +67,9 @@ async fn main() {
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
                 println!("Window close requested, cleaning up services...");
-                
+
                 let app = window.app_handle();
-                
+
                 // Emit event to frontend to cleanup IPFS and other frontend services
                 use tauri::Emitter;
                 if let Err(e) = app.emit("app-closing", ()) {
@@ -77,41 +77,48 @@ async fn main() {
                 } else {
                     println!("Sent app-closing event to frontend");
                 }
-                
-                // Give frontend a moment to handle the event
-                std::thread::sleep(std::time::Duration::from_millis(200));
-                
-                let state = app.state::<AppState>();
-                
-                // Stop socket server
-                if let Ok(mut manager) = state.service_manager.lock() {
-                    println!("Stopping socket server...");
-                    if let Err(e) = manager.stop_all() {
-                        eprintln!("Error stopping services: {}", e);
-                    } else {
-                        println!("Socket server stopped successfully");
-                    }
-                }
-                
-                // Stop local Ethereum network (Anvil)
-                // Use tokio runtime to handle the async lock
-                let rt = tokio::runtime::Handle::try_current();
-                if let Ok(handle) = rt {
-                    handle.block_on(async {
-                        let mut local_network = state.local_network.lock().await;
-                        if let Some(network) = local_network.as_mut() {
-                            println!("Stopping local Ethereum network (Anvil)...");
-                            if let Err(e) = network.stop() {
-                                eprintln!("Error stopping Ethereum network: {}", e);
-                            } else {
-                                println!("Ethereum network stopped successfully");
-                            }
+
+                tauri::async_runtime::spawn(async move {
+                    // Give frontend a moment to handle the event without blocking the runtime thread
+                    tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+
+                    let state = app.state::<AppState>();
+
+                    // Stop socket server
+                    let service_result = tauri::async_runtime::spawn_blocking(move || {
+                        if let Ok(mut manager) = state.service_manager.lock() {
+                            println!("Stopping socket server...");
+                            manager.stop_all()
+                        } else {
+                            Err("Failed to acquire service_manager lock".into())
                         }
-                        *local_network = None;
-                    });
-                }
-                
-                println!("All services stopped, proceeding with window close");
+                    })
+                    .await;
+
+                    match service_result {
+                        Ok(Ok(())) => println!("Socket server stopped successfully"),
+                        Ok(Err(e)) => eprintln!("Error stopping services: {}", e),
+                        Err(e) => eprintln!("Failed to join service stop task: {}", e),
+                    }
+
+                    // Stop local Ethereum network (Anvil)
+                    println!("Stopping local Ethereum network (Anvil)...");
+                    let network_to_stop = {
+                        let mut local_network = state.local_network.lock().await;
+                        local_network.take()
+                    };
+
+                    if let Some(network) = network_to_stop {
+                        let stop_result = tauri::async_runtime::spawn_blocking(move || network.stop()).await;
+                        match stop_result {
+                            Ok(Ok(())) => println!("Ethereum network stopped successfully"),
+                            Ok(Err(e)) => eprintln!("Error stopping Ethereum network: {}", e),
+                            Err(e) => eprintln!("Failed to join Ethereum stop task: {}", e),
+                        }
+                    }
+
+                    println!("All services stopped, proceeding with window close");
+                });
             }
         })
         .run(tauri::generate_context!())
