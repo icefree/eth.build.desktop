@@ -30,6 +30,33 @@ let storage = {}
 let coinmarketcapBuffer = {}
 let coinmarketcapBufferTimestamp = {}
 
+// 获取 API Key 的辅助函数
+function getCMCKey() {
+  // 1. 尝试从环境变量获取
+  if (process.env.CMC_KEY) {
+    return process.env.CMC_KEY.trim();
+  }
+
+  // 2. 尝试从当前目录读取
+  try {
+    if (fs.existsSync("coinmarketcap.key")) {
+      return fs.readFileSync("coinmarketcap.key").toString().trim();
+    }
+  } catch (e) {}
+
+  // 3. 尝试从父级目录读取 (应对 dev 模式下在 socket 目录下运行的情况)
+  try {
+    const parentPath = require('path').join(__dirname, '..', 'coinmarketcap.key');
+    if (fs.existsSync(parentPath)) {
+      return fs.readFileSync(parentPath).toString().trim();
+    }
+  } catch (e) {}
+
+  return null;
+}
+
+const CMC_API_KEY = getCMCKey();
+
 app.use(bodyParser.json())
 app.use(cors())
 
@@ -55,7 +82,7 @@ app.get("/price", (req, res) => {
         symbol,
       },
       headers: {
-        'X-CMC_PRO_API_KEY': fs.readFileSync("coinmarketcap.key").toString().trim(),
+        'X-CMC_PRO_API_KEY': CMC_API_KEY,
       },
     }).then((response) => {
       console.log('API call response:', response.data);
