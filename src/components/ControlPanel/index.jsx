@@ -15,6 +15,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [copySuccess, setCopySuccess] = useState(null);
   const [blockRefreshKey, setBlockRefreshKey] = useState(0);
   const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
+  const [mineSuccess, setMineSuccess] = useState(false);
   const [blockResetKey, setBlockResetKey] = useState(0);
   const [activeTab, setActiveTab] = useState('control');
   const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
@@ -151,6 +152,8 @@ const ControlPanel = ({ open, onClose }) => {
       await loadStatus();
       setBlockRefreshKey((prev) => prev + 1);
       setAccountsRefreshKey((prev) => prev + 1);
+      setMineSuccess(true);
+      setTimeout(() => setMineSuccess(false), 2000);
     } catch (err) {
       setError(err.toString());
     }
@@ -547,6 +550,12 @@ const ControlPanel = ({ open, onClose }) => {
         {copySuccess && (
           <div className="copy-toast">
             ✅ {copySuccess} Copied
+          </div>
+        )}
+
+        {mineSuccess && (
+          <div className="copy-toast">
+            ⛏️ New Block Mined!
           </div>
         )}
       </div>
