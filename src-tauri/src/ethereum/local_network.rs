@@ -92,8 +92,8 @@ impl LocalNetwork {
 
     pub fn stop(&mut self) -> Result<(), String> {
         if let Some(mut child) = self.process.take() {
-            child.kill()
-                .map_err(|e| format!("Failed to kill process: {}", e))?;
+            let _ = child.kill();
+            let _ = child.wait();
             println!("Anvil stopped");
         }
         self.provider = None;
