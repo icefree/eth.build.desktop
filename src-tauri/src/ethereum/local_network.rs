@@ -11,7 +11,7 @@ use ethers::utils::parse_ether;
 
 pub struct LocalNetwork {
     process: Option<Child>,
-    config: NetworkConfig,
+    pub config: NetworkConfig,
     rpc_url: String,
     ws_url: String,
     provider: Option<Provider<Http>>,
