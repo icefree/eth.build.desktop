@@ -92,9 +92,57 @@ impl LocalNetwork {
 
     pub fn stop(&mut self) -> Result<(), String> {
         if let Some(mut child) = self.process.take() {
-            let _ = child.kill();
-            let _ = child.wait();
-            println!("Anvil stopped");
+            let pid = child.id();
+            println!("Stopping Anvil process (PID: {})", pid);
+            
+            // First try graceful termination
+            #[cfg(unix)]
+            {
+                // Send SIGTERM first for graceful shutdown
+                unsafe {
+                    libc::kill(pid as i32, libc::SIGTERM);
+                }
+                
+                // Wait up to 2 seconds for graceful termination
+                for _ in 0..20 {
+                    match child.try_wait() {
+                        Ok(Some(_)) => {
+                            println!("Anvil stopped gracefully");
+                            break;
+                        }
+                        Ok(None) => {
+                            std::thread::sleep(Duration::from_millis(100));
+                        }
+                        Err(e) => {
+                            println!("Error waiting for Anvil: {}", e);
+                            break;
+                        }
+                    }
+                }
+                
+                // If still running, force kill
+                if let Ok(None) = child.try_wait() {
+                    println!("Force killing Anvil process");
+                    unsafe {
+                        libc::kill(pid as i32, libc::SIGKILL);
+                    }
+                    let _ = child.wait();
+                }
+                
+                // Also kill any orphaned anvil processes on the same port
+                let rpc_port = self.config.rpc_port.unwrap_or(8545);
+                let _ = std::process::Command::new("sh")
+                    .arg("-c")
+                    .arg(format!("lsof -ti :{} | xargs -r kill -9 2>/dev/null || true", rpc_port))
+                    .output();
+            }
+            
+            #[cfg(not(unix))]
+            {
+                let _ = child.kill();
+                let _ = child.wait();
+                println!("Anvil stopped");
+            }
         }
         self.provider = None;
         Ok(())

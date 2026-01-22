@@ -124,19 +124,9 @@ const ControlPanel = ({ open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      // Clear UI state first
-      setBlockResetKey((prev) => prev + 1);
-
       await resetNetwork();
-      
-      // Auto mine first block so it starts from Block 1 as requested
-      try {
-        await mineBlock();
-      } catch (e) {
-        console.warn("Failed to auto-mine block 1 after reset:", e);
-      }
-
       await loadStatus();
+      setBlockResetKey((prev) => prev + 1);
       setBlockRefreshKey((prev) => prev + 1);
       setAccountsRefreshKey((prev) => prev + 1);
       setResetSuccess(true);

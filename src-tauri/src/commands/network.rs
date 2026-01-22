@@ -64,21 +64,18 @@ pub async fn reset_network(
 ) -> Result<NetworkInfo, String> {
     let mut local_network = state.local_network.lock().await;
 
-    // Get the current config before stopping
-    let config = match local_network.as_ref() {
-        Some(network) => network.config.clone(),
-        None => return Err("Network is not running".to_string()),
-    };
+    // Try to get config from existing network, or use default
+    let config = local_network.as_ref()
+        .map(|n| n.config.clone())
+        .unwrap_or_default();
 
-    // Stop current network
-    if let Some(network) = local_network.as_mut() {
-        network.stop()
-            .map_err(|e| format!("Failed to stop network: {}", e))?;
+    // Stop current network if it exists
+    if let Some(mut network) = local_network.take() {
+        let _ = network.stop();
     }
-    *local_network = None;
 
-    // Small delay to ensure ports are released
-    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+    // Delay to ensure ports are released (wait for process to fully terminate)
+    tokio::time::sleep(tokio::time::Duration::from_millis(2000)).await;
 
     // Start new network with same config
     let mut network = LocalNetwork::new(config)

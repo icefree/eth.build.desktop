@@ -1161,6 +1161,7 @@ name = "eth-build"
 version = "0.1.0"
 dependencies = [
  "ethers",
+ "libc",
  "serde",
  "serde_json",
  "tauri",
