@@ -8,8 +8,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: true, // Dynamically mirror the request origin (required when credentials are used)
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 const keccak256 = require('keccak256')
