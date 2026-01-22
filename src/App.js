@@ -19,7 +19,8 @@ import { Icon, Tooltip, Button, CardActions, Divider, Drawer, Card, CardMedia, C
 import { makeStyles } from '@material-ui/core/styles';
 
 import lessons from './data/lessons';
-import { openExternal } from './lib/tauri-api';
+import { openExternal, listen } from './lib/tauri-api';
+import { stopLocalIpfs } from './lib/ipfs/localNode';
 
 import SaveDialog from "./dialogs/SaveDialog";
 import LoadDialog from "./dialogs/LoadDialog";
@@ -283,6 +284,20 @@ React.useEffect(()=>{
     var data = JSON.stringify( graph.serialize() );
     localStorage.setItem("litegraph", data );
   }
+
+  // Listen for app-closing event from Tauri to cleanup frontend services
+  let unlistenAppClosing = null;
+  listen('app-closing', async () => {
+    console.log('App closing, stopping IPFS...');
+    try {
+      await stopLocalIpfs();
+      console.log('IPFS stopped successfully');
+    } catch (err) {
+      console.error('Error stopping IPFS:', err);
+    }
+  }).then((unlisten) => {
+    unlistenAppClosing = unlisten;
+  });
 
   CustomNodes(LiteGraphJS)
 
