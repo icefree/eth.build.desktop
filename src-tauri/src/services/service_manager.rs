@@ -128,7 +128,12 @@ impl ServiceManager {
                 continue;
             }
 
-            let args = vec!["socket/index.js"];
+        let entrypoint = if base_dir.join("socket/dist/index.js").exists() {
+            "socket/dist/index.js"
+        } else {
+            "socket/index.js"
+        };
+        let args = vec![entrypoint];
             let envs = Some(vec![("SOCKET_PORT".to_string(), candidate.to_string())]);
 
             match self.process_manager.start_process(
