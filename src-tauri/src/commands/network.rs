@@ -66,11 +66,7 @@ pub async fn reset_network(
 
     // Get the current config before stopping
     let config = match local_network.as_ref() {
-        Some(network) => {
-            // We need to reconstruct config from NetworkInfo
-            // For now, use default config
-            NetworkConfig::default()
-        }
+        Some(network) => network.config.clone(),
         None => return Err("Network is not running".to_string()),
     };
 

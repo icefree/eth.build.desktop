@@ -109,9 +109,31 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
     try {
       const wei = BigInt(value);
       const eth = Number(wei) / 1e18;
-      return `${eth.toFixed(4)} ETH`;
+      if (eth === 0) return '0 ETH';
+      return `${eth.toFixed(6)} ETH`;
     } catch {
       return value || 'N/A';
+    }
+  };
+
+  const formatGwei = (value) => {
+    try {
+      const wei = BigInt(value);
+      const gwei = Number(wei) / 1e9;
+      return `${gwei.toFixed(2)} Gwei`;
+    } catch {
+      return value || '0 Gwei';
+    }
+  };
+
+  const calculateFee = (gasUsed, gasPrice) => {
+    try {
+      const used = BigInt(gasUsed);
+      const price = BigInt(gasPrice);
+      const feeWei = used * price;
+      return formatValue(feeWei.toString());
+    } catch {
+      return 'N/A';
     }
   };
 
@@ -241,6 +263,22 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                 <span className="detail-label">Transactions</span>
                 <span className="detail-value">{selectedBlock.transaction_count}</span>
               </div>
+              {selectedBlock.gas_used && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Used</span>
+                  <span className="detail-value">
+                    {Number(selectedBlock.gas_used).toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {selectedBlock.gas_limit && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Limit</span>
+                  <span className="detail-value">
+                    {Number(selectedBlock.gas_limit).toLocaleString()}
+                  </span>
+                </div>
+              )}
 
               {selectedBlock.tx_hashes && selectedBlock.tx_hashes.length > 0 && (
                 <div className="transactions-section">
@@ -319,6 +357,30 @@ const BlockExplorer = ({ refreshToken, resetToken }) => {
                 <div className="detail-row">
                   <span className="detail-label">Block</span>
                   <span className="detail-value">#{selectedTx.block_number}</span>
+                </div>
+              )}
+              {selectedTx.gas_used && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Used</span>
+                  <span className="detail-value">
+                    {Number(selectedTx.gas_used).toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {selectedTx.gas_price && (
+                <div className="detail-row">
+                  <span className="detail-label">Gas Price</span>
+                  <span className="detail-value">
+                    {formatGwei(selectedTx.gas_price)}
+                  </span>
+                </div>
+              )}
+              {selectedTx.gas_used && selectedTx.gas_price && (
+                <div className="detail-row">
+                  <span className="detail-label">Tx Fee</span>
+                  <span className="detail-value" style={{ color: '#f59e0b' }}>
+                    {calculateFee(selectedTx.gas_used, selectedTx.gas_price)}
+                  </span>
                 </div>
               )}
               {selectedTx.status && (

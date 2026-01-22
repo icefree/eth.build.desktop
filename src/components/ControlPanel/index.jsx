@@ -123,8 +123,13 @@ const ControlPanel = ({ open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      await stopLocalNetwork();
-      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        await stopLocalNetwork();
+      } catch (err) {
+        // Ignore "Network is not running" error
+        console.log("Stop before reset: already stopped or failed, continuing...", err);
+      }
+      await new Promise(resolve => setTimeout(resolve, 800)); // Slightly longer delay
       const rpcPortValue = Number(rpcPort) || 8545;
       const wsPortValue = Number(wsPort) || (rpcPortValue + 1);
       await startLocalNetwork({

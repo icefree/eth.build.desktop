@@ -27,6 +27,10 @@ export const stopLocalNetwork = async () => {
   return invoke('stop_local_network');
 };
 
+export const resetNetwork = async () => {
+  return invoke('reset_network');
+};
+
 export const getNetworkStatus = async () => {
   return invoke('get_network_status');
 };
