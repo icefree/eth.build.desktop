@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, mineBlock } from '../../hooks/useTauri';
+import { getNetworkStatus, startLocalNetwork, stopLocalNetwork, resetNetwork, mineBlock } from '../../hooks/useTauri';
 import { getServicesStatus, startService, stopService } from '../../hooks/useTauri';
 import { getLocalIpfsStatus, startLocalIpfs, stopLocalIpfs } from '../../lib/ipfs/localNode';
 import AccountsPanel from './AccountsPanel';
@@ -16,6 +16,7 @@ const ControlPanel = ({ open, onClose }) => {
   const [blockRefreshKey, setBlockRefreshKey] = useState(0);
   const [accountsRefreshKey, setAccountsRefreshKey] = useState(0);
   const [mineSuccess, setMineSuccess] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const [blockResetKey, setBlockResetKey] = useState(0);
   const [activeTab, setActiveTab] = useState('control');
   const [ipfsStatus, setIpfsStatus] = useState(() => getLocalIpfsStatus());
@@ -123,27 +124,23 @@ const ControlPanel = ({ open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      try {
-        await stopLocalNetwork();
-      } catch (err) {
-        // Ignore "Network is not running" error
-        console.log("Stop before reset: already stopped or failed, continuing...", err);
-      }
-      await new Promise(resolve => setTimeout(resolve, 800)); // Slightly longer delay
-      const rpcPortValue = Number(rpcPort) || 8545;
-      const wsPortValue = Number(wsPort) || (rpcPortValue + 1);
-      await startLocalNetwork({
-        chain_id: 31337,
-        accounts: 10,
-        balance: '10000',
-        block_time: null,
-        rpc_port: rpcPortValue,
-        ws_port: wsPortValue
-      });
-      await loadStatus();
+      // Clear UI state first
       setBlockResetKey((prev) => prev + 1);
+
+      await resetNetwork();
+      
+      // Auto mine first block so it starts from Block 1 as requested
+      try {
+        await mineBlock();
+      } catch (e) {
+        console.warn("Failed to auto-mine block 1 after reset:", e);
+      }
+
+      await loadStatus();
       setBlockRefreshKey((prev) => prev + 1);
       setAccountsRefreshKey((prev) => prev + 1);
+      setResetSuccess(true);
+      setTimeout(() => setResetSuccess(false), 2000);
     } catch (err) {
       setError(err.toString());
     } finally {
@@ -561,6 +558,12 @@ const ControlPanel = ({ open, onClose }) => {
         {mineSuccess && (
           <div className="copy-toast">
             ⛏️ New Block Mined!
+          </div>
+        )}
+
+        {resetSuccess && (
+          <div className="copy-toast">
+            🔄 Network Reset Successfully
           </div>
         )}
       </div>
