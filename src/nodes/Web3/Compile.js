@@ -32,7 +32,7 @@ Compile.title = "Compile";
 Compile.prototype.onExecute = function() {
   let name = this.getInputData(0)
   let solidity = this.getInputData(1)
-  if(name && solidity && (solidity!=this.solidity || name!=this.name)){
+  if(name && solidity && (solidity !== this.solidity || name !== this.name)){
     this.solidity = solidity
     this.name = name
     this.compile(name)
@@ -84,7 +84,7 @@ Compile.prototype.compile = function(name) {
     if(this.properties.compiled.errors && this.properties.compiled.errors[0] && this.properties.compiled.errors[0].message){
       console.log("ERRORS:",this.properties.compiled.errors)
       for(let e in this.properties.compiled.errors){
-        if(this.properties.compiled.errors[e].type != "Warning"){
+        if(this.properties.compiled.errors[e].type !== "Warning"){
           global.setSnackbar({msg:this.properties.compiled.errors[e].formattedMessage})
           break;
         }
