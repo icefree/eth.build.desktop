@@ -91,14 +91,30 @@ Compile.prototype.compile = function(name) {
       }
     }
 
-    let compiledContractObject = this.properties.compiled.contracts[name+".sol"][name]
+    let fileKey = name + ".sol";
+    let compiledFile = this.properties.compiled.contracts[fileKey];
+    let compiledContractObject;
 
-    //console.log("compiledContractObject",compiledContractObject)
+    if (compiledFile) {
+      // 优先尝试使用输入的 name 查找合约
+      if (compiledFile[name]) {
+        compiledContractObject = compiledFile[name];
+      } else {
+        // 如果找不到，取该文件下的第一个合约
+        let contractNames = Object.keys(compiledFile);
+        if (contractNames.length > 0) {
+          compiledContractObject = compiledFile[contractNames[0]];
+          console.log("⚠️ Contract name mismatch, using the first contract found:", contractNames[0]);
+        }
+      }
+    }
 
     if(compiledContractObject && compiledContractObject.evm ) {
       this.bytecode = compiledContractObject.evm.bytecode.object
       this.abi = compiledContractObject.abi
       global.setSnackbar({msg:"✅ Compiled",color:"#64cb53"})
+    } else {
+      console.error("❌ Failed to find contract or EVM data in compiled output for:", fileKey);
     }
   })
   .catch(function (error) {
